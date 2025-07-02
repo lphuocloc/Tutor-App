@@ -1,6 +1,39 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const parentPosts = [
+    {
+        id: 1,
+        title: 'Cần gia sư Toán lớp 9',
+        subject: 'Toán',
+        grade: '9',
+        sessions: '3 buổi',
+        time: 'Tối Thứ 2, 4, 6 (19:00 - 21:00)',
+        area: 'Quận 3, TP.HCM',
+        salary: '180.000 VNĐ / buổi'
+    },
+    {
+        id: 2,
+        title: 'Tìm gia sư Tiếng Anh giao tiếp',
+        subject: 'Tiếng Anh',
+        grade: '7 (Tiếng Anh giao tiếp)',
+        sessions: '2 buổi',
+        time: 'Chiều Thứ 3, 5 (16:00 - 17:30)',
+        area: 'Quận Bình Thạnh, TP.HCM',
+        salary: '150.000 VNĐ / buổi'
+    },
+    {
+        id: 3,
+        title: 'Gia sư Vật lý lớp 11',
+        subject: 'Vật lý',
+        grade: '11',
+        sessions: '2 buổi',
+        time: 'Tối Thứ 7, Chủ Nhật (20:00 - 21:30)',
+        area: 'Quận Thủ Đức, TP.HCM',
+        salary: '220.000 VNĐ / buổi'
+    }
+]
+
 const TrangChu: React.FC = () => {
     const navigate = useNavigate()
     const [showVerificationAlert, setShowVerificationAlert] = useState(true)
@@ -148,6 +181,67 @@ const TrangChu: React.FC = () => {
                         </div>
                     ))}
                 </div>
+                <section>
+                    <h1 className="fs-2 fw-bold text-center text-dark mb-4">Các bài đăng tìm gia sư từ Phụ huynh</h1>
+
+                    {/* Filtering and Sorting Section for Parent Postings */}
+                    <div className="bg-white p-4 rounded shadow-sm mb-4 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+                        <div className="d-flex flex-wrap gap-3 align-items-center">
+                            <span className="fw-medium text-secondary me-2">Lọc bài đăng theo:</span>
+                            <select className="form-select" style={{ width: 140 }}>
+                                <option value="">Môn học</option>
+                                <option value="math">Toán</option>
+                                <option value="literature">Văn</option>
+                                <option value="english">Tiếng Anh</option>
+                                <option value="physics">Vật lý</option>
+                            </select>
+                            <select className="form-select" style={{ width: 120 }}>
+                                <option value="">Lớp</option>
+                                <option value="1-5">Lớp 1-5</option>
+                                <option value="6-9">Lớp 6-9</option>
+                                <option value="10-12">Lớp 10-12</option>
+                            </select>
+                            <select className="form-select" style={{ width: 130 }}>
+                                <option value="">Khu vực</option>
+                                <option value="q1">Quận 1</option>
+                                <option value="q3">Quận 3</option>
+                                <option value="td">Thủ Đức</option>
+                            </select>
+                            <select className="form-select" style={{ width: 130 }}>
+                                <option value="">Mức lương</option>
+                                <option value="lt150">Dưới 150K</option>
+                                <option value="150-200">150K - 200K</option>
+                                <option value="gt200">Trên 200K</option>
+                            </select>
+                        </div>
+                        <button className="btn btn-primary fw-semibold shadow-sm">
+                            <i className="fas fa-filter me-2"></i>Lọc bài
+                        </button>
+                    </div>
+
+                    {/* Parent Postings List (Grid View) */}
+                    <div className="row g-4">
+                        {parentPosts.map(post => (
+                            <div key={post.id} className="col-lg-4 col-md-6">
+                                <div className="bg-white rounded shadow p-4 d-flex flex-column h-100 hover-shadow">
+                                    <h3 className="fs-5 fw-semibold text-dark mb-2">{post.title}</h3>
+                                    <p className="text-secondary small mb-1"><span className="fw-medium">Môn học:</span> {post.subject}</p>
+                                    <p className="text-secondary small mb-1"><span className="fw-medium">Lớp:</span> {post.grade}</p>
+                                    <p className="text-secondary small mb-1"><span className="fw-medium">Số buổi/tuần:</span> {post.sessions}</p>
+                                    <p className="text-secondary small mb-1"><span className="fw-medium">Thời gian:</span> {post.time}</p>
+                                    <p className="text-secondary small mb-1"><span className="fw-medium">Khu vực:</span> {post.area}</p>
+                                    <p className="text-success fw-bold mt-2 mb-3">Lương: {post.salary}</p>
+                                    <button
+                                        className="btn btn-primary rounded-pill fw-semibold mt-auto align-self-end"
+                                        onClick={() => navigate('/baidang-giasu-cuthe')}
+                                    >
+                                        Xem chi tiết
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
             </div>
         </div>
     )
