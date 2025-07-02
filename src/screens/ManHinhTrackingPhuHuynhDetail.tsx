@@ -11,8 +11,8 @@ interface HistoryItem {
     status: 'completed' | 'late'
 }
 const ManHinhTrackingPhuHuynhDetail: React.FC = () => {
-    const [showModal, setShowModal] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
+    const [showModal] = useState(false)
+    const [errorMessage] = useState('')
     const navigate = useNavigate()
 
 
@@ -43,7 +43,6 @@ const ManHinhTrackingPhuHuynhDetail: React.FC = () => {
                 errorMessage={errorMessage}
                 navigate={navigate}
             >
-
             </TrackingLayout>
         </div>
     )
