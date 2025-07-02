@@ -150,7 +150,7 @@ const PhongChat: React.FC = () => {
     const handleConfirm = () => {
         // In a real app, this would navigate to a confirmation page
         console.log('Class confirmed!');
-        navigate('/lich-giasu');
+        navigate('/xacnhan-giaodich');
         alert('Bạn đã xác nhận nhận lớp thành công!'); // Using alert for demonstration, replace with a better UI message
     };
 

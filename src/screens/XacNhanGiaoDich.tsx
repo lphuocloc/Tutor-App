@@ -8,7 +8,7 @@ const XacNhanGiaoDich: React.FC = () => {
     const handleConfirm = () => {
         // Simulate API call
         setTimeout(() => {
-            navigate('/lich-giasu')
+            navigate('/dieukhoan-thongtinlop')
         }, 1000)
     }
 

@@ -1,26 +1,50 @@
+import { Alert, message } from 'antd';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const DieuKhoanVaThongTinLop: React.FC = () => {
     const [agreed, setAgreed] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
     const navigate = useNavigate();
+    const [messageApi, contextHolder] = message.useMessage();
 
+    // Sử dụng Alert của antd để thể hiện thông báo
     const handleConfirm = () => {
-        setShowPopup(true);
-    };
-
-    const handleOkPopup = () => {
-        setShowPopup(false);
-        navigate('/xacnhan-giaodich');
+        messageApi.success('Bạn đã đồng ý với điều khoản và xác nhận thông tin lớp học!');
+        setTimeout(() => {
+            navigate('/trangchu');
+        }, 1200); // Hiển thị Alert 1.2s rồi chuyển trang
     };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-4 px-2 sm:px-4 lg:px-6">
-            <div className="bg-white rounded-2xl shadow-xl p-3 md:p-5 w-full max-w-7xl transition-all duration-300 ease-in-out">
+            <div className="bg-white rounded-2xl shadow-xl p-3 md:p-5 w-full max-w-7xl mt-20 transition-all duration-300 ease-in-out">
+                {/* Alert xác nhận */}
+                <div className="mb-4">
+                    <Alert
+                        message="Bạn đã đồng ý với điều khoản và xác nhận thông tin lớp học!"
+                        type="success"
+                        showIcon
+                    />
+                </div>
+
                 {/* Header xác nhận */}
                 <div className="text-center mb-6 animate-fadeIn">
-                    <i className="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                    <style>
+                        {`
+                        @keyframes bounceIcon {
+                            0%, 100% { transform: translateY(0);}
+                            20% { transform: translateY(-15px);}
+                            40% { transform: translateY(0);}
+                            60% { transform: translateY(-10px);}
+                            80% { transform: translateY(0);}
+                        }
+                        .bounce-vertical {
+                            animation: bounceIcon 1.5s infinite;
+                            display: inline-block;
+                        }
+                        `}
+                    </style>
+                    <i className="fas fa-check-circle text-green-500 text-3xl mb-2 bounce-vertical"></i>
                     <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Lớp học của bạn đã được xác nhận!</h1>
                     <p className="text-gray-600 text-base">Chúc mừng bạn đã tìm được gia sư/lớp học phù hợp.</p>
                 </div>
@@ -32,12 +56,11 @@ const DieuKhoanVaThongTinLop: React.FC = () => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Thẻ Gia sư */}
-                        <div className="flex flex-col items-center bg-blue-50 rounded-lg p-3 transition-all duration-300 hover:shadow">
+                        <div className="flex flex-col items-center bg-blue-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md">
                             <img
                                 src="https://placehold.co/80x80/A0D9FF/FFFFFF?text=GS"
                                 alt="Avatar Gia sư"
-                                className="rounded-full border-2 border-blue-400 mb-2"
-                                style={{ width: 80, height: 80 }}
+                                className="rounded-full border-2 border-blue-400 mb-2 w-20 h-20 object-cover"
                             />
                             <p className="font-bold text-gray-900 text-base mb-1">Gia sư Nguyễn Văn A</p>
                             <div className="text-blue-700 text-sm mb-3 flex items-center justify-center gap-1">
@@ -54,12 +77,11 @@ const DieuKhoanVaThongTinLop: React.FC = () => {
                             </div>
                         </div>
                         {/* Thẻ Phụ huynh */}
-                        <div className="flex flex-col items-center bg-cyan-50 rounded-lg p-3 transition-all duration-300 hover:shadow">
+                        <div className="flex flex-col items-center bg-cyan-50 rounded-lg p-3 transition-all duration-300 hover:shadow-md">
                             <img
                                 src="https://placehold.co/80x80/FF7F50/FFFFFF?text=PH"
                                 alt="Avatar Phụ huynh"
-                                className="rounded-full border-2 border-cyan-400 mb-2"
-                                style={{ width: 80, height: 80 }}
+                                className="rounded-full border-2 border-cyan-400 mb-2 w-20 h-20 object-cover"
                             />
                             <p className="font-bold text-gray-900 text-base mb-1">Phụ huynh Trần Thị B</p>
                             <div className="text-cyan-700 text-sm mb-3 flex items-center justify-center gap-1">
@@ -87,43 +109,43 @@ const DieuKhoanVaThongTinLop: React.FC = () => {
                         {/* Trái */}
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-book text-blue-400"></i> Môn học:
                                 </span>
-                                Toán
+                                <span>Toán</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-graduation-cap text-purple-400"></i> Lớp:
                                 </span>
-                                9
+                                <span>9</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-calendar-alt text-red-400"></i> Số buổi/tuần:
                                 </span>
-                                3 buổi
+                                <span>3 buổi</span>
                             </div>
                         </div>
                         {/* Phải */}
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-clock text-orange-400"></i> Thời gian dạy:
                                 </span>
-                                Tối Thứ 2, 4, 6 (19:00 - 21:00)
+                                <span>Tối Thứ 2, 4, 6 (19:00 - 21:00)</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-money-bill-wave text-green-500"></i> Lương/buổi:
                                 </span>
                                 <span className="font-bold text-green-600 text-base">180.000 VNĐ</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <span className="font-semibold text-gray-700">
+                                <span className="font-semibold text-gray-700 flex items-center gap-1">
                                     <i className="fas fa-map-marker-alt text-indigo-400"></i> Địa điểm:
                                 </span>
-                                123 Đường ABC, Phường XYZ, Quận 3, TP.HCM
+                                <span>123 Đường ABC, Phường XYZ, Quận 3, TP.HCM</span>
                             </div>
                         </div>
                     </div>
@@ -134,7 +156,7 @@ const DieuKhoanVaThongTinLop: React.FC = () => {
                     <h2 className="text-lg font-bold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
                         <i className="fas fa-file-contract text-gray-500"></i> Điều khoản & Quy định Lớp học
                     </h2>
-                    <div className="overflow-y-auto rounded-lg p-3 bg-gray-50 text-gray-800 text-xs mb-4 custom-scrollbar" style={{ maxHeight: 120 }}>
+                    <div className="overflow-y-auto rounded-lg p-3 bg-gray-50 text-gray-800 text-xs mb-4 custom-scrollbar max-h-32">
                         <ul className="list-disc pl-4 space-y-2">
                             <li>Gia sư cam kết đến đúng giờ, chuẩn bị bài giảng đầy đủ và có trách nhiệm với kết quả học tập của học viên.</li>
                             <li>Phụ huynh cam kết tạo điều kiện học tập tốt nhất cho học viên, thanh toán học phí đúng hạn theo thỏa thuận.</li>
@@ -169,29 +191,7 @@ const DieuKhoanVaThongTinLop: React.FC = () => {
                     Xác nhận thông tin lớp học
                 </button>
             </div>
-
-            {/* Popup xác nhận lại */}
-            {showPopup && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-2">
-                    <div className="bg-white rounded-xl shadow-xl p-5 text-center animate-zoomIn max-w-xs w-full border-t-4 border-blue-500">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
-                            <i className="fas fa-exclamation-triangle text-orange-500"></i> Xác nhận lại
-                        </h3>
-                        <p className="text-gray-800 text-base mb-5 leading-relaxed">
-                            Buổi dạy sẽ là <span className="font-extrabold text-green-700">180.000 VNĐ/buổi</span>,<br />
-                            vào <span className="font-extrabold">Thứ 2, 4, 6</span>, lúc <span className="font-extrabold">19:00</span>.
-                            <br />
-                            Bạn có chắc chắn muốn xác nhận?
-                        </p>
-                        <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold text-base transition-all duration-200 shadow hover:shadow-md"
-                            onClick={handleOkPopup}
-                        >
-                            Đồng ý
-                        </button>
-                    </div>
-                </div>
-            )}
+            {contextHolder}
         </div>
     );
 };

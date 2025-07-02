@@ -17,33 +17,59 @@ import XacThuc1 from './screens/XacThuc1'
 import XacThuc2 from './screens/XacThuc2'
 import ManHinhTrackingPhuHuynhDetail from './screens/ManHinhTrackingPhuHuynhDetail'
 import ChiTietLopHoc from './screens/ChiTietLopHoc'
+import TaoBaiDangTimGiaSu from './screens/TaoBaiDangTimGiaSu'
+
+import Header from './components/Header'
+import Footer from './components/Footer'
+
+function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
+      <Header />
+      <main className="flex-1">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  )
+}
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        {/* Route mặc định chuyển đến màn hình đăng nhập */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+    <Routes>
+      {/* Route mặc định chuyển đến màn hình đăng nhập */}
+      <Route path="/" element={<Navigate to="/trangchu" replace />} />
 
-        {/* Các route theo thứ tự màn hình */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/xacthuc1" element={<XacThuc1 />} />
-        <Route path="/xacthuc2" element={<XacThuc2 />} />
-        <Route path="/trangchu" element={<TrangChu />} />
-        <Route path="/dangky-lamgiasu" element={<DangKyLamGiaSu />} />
-        <Route path="/baidang-giasu-cuthe" element={<BaiDangGiaSuCuThe />} />
-        <Route path="/xacnhan-datcoc" element={<XacNhanDatCoc />} />
-        <Route path="/phongchat" element={<PhongChat />} />
-        <Route path="/dieukhoan-thongtinlop" element={<DieuKhoanVaThongTinLop />} />
-        <Route path="/xacnhan-giaodich" element={<XacNhanGiaoDich />} />
-        <Route path="/lich-giasu" element={<TrangLichGiaSu />} />
-        <Route path="/tracking-giasu-detail" element={<ManHinhTrackingGiaSuDetail />} />
-        <Route path="/tracking-phuhuynh-detail" element={<ManHinhTrackingPhuHuynhDetail />} />
-        <Route path="/danhgia-giasu" element={<ManHinhDangGiaGiaSu />} />
-        <Route path="/danhgia-phuhuynh" element={<ManHinhDanhGiaPhuHuynh />} />
-        <Route path="/chitiet-lophoc" element={<ChiTietLopHoc />} />
-      </Routes>
-    </div>
+      {/* Các route không cần layout */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Các route có layout */}
+      <Route
+        path="*"
+        element={
+          <Layout>
+            <Routes>
+              <Route path="/xacthuc1" element={<XacThuc1 />} />
+              <Route path="/xacthuc2" element={<XacThuc2 />} />
+              <Route path="/trangchu" element={<TrangChu />} />
+              <Route path="/dangky-lamgiasu" element={<DangKyLamGiaSu />} />
+              <Route path="/baidang-giasu-cuthe" element={<BaiDangGiaSuCuThe />} />
+              <Route path="/xacnhan-datcoc" element={<XacNhanDatCoc />} />
+              <Route path="/phongchat" element={<PhongChat />} />
+              <Route path="/dieukhoan-thongtinlop" element={<DieuKhoanVaThongTinLop />} />
+              <Route path="/xacnhan-giaodich" element={<XacNhanGiaoDich />} />
+              <Route path="/lich-giasu" element={<TrangLichGiaSu />} />
+              <Route path="/tracking-giasu-detail" element={<ManHinhTrackingGiaSuDetail />} />
+              <Route path="/tracking-phuhuynh-detail" element={<ManHinhTrackingPhuHuynhDetail />} />
+              <Route path="/danhgia-giasu" element={<ManHinhDangGiaGiaSu />} />
+              <Route path="/danhgia-phuhuynh" element={<ManHinhDanhGiaPhuHuynh />} />
+              <Route path="/chitiet-lophoc" element={<ChiTietLopHoc />} />
+              <Route path="/tao-baidang-timgiasu" element={<TaoBaiDangTimGiaSu />} />
+            </Routes>
+          </Layout>
+        }
+      />
+    </Routes>
   )
 }
 

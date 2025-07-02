@@ -39,7 +39,7 @@ export const TrackingLayout: React.FC<TrackingLayoutProps> = ({
             : 'bg-yellow-400 text-yellow-900'
     }
     return (
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10 w-full max-w-3xl transform origin-center">
+        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10 w-full max-w-7xl transform origin-center">
             <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-4">Theo dõi buổi dạy</h1>
             <p className="text-center text-gray-500 mb-6 text-lg">
                 Quản lý và theo dõi các buổi học của bạn một cách dễ dàng.
@@ -88,7 +88,7 @@ export const TrackingLayout: React.FC<TrackingLayoutProps> = ({
                 <button className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold py-3 rounded-lg text-lg shadow-lg transition">
                     <i className="fas fa-exclamation-circle"></i> Báo cáo vấn đề
                 </button>
-                <button onClick={() => { navigate('/danhgia-giasu') }} className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg text-lg shadow-lg transition">
+                <button onClick={() => { navigate('/danhgia-phuhuynh') }} className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg text-lg shadow-lg transition">
                     <i className="fas fa-stop-circle"></i> Dừng theo dõi lớp học
                 </button>
                 <p className="text-center text-gray-400 text-sm mt-2">
@@ -97,7 +97,7 @@ export const TrackingLayout: React.FC<TrackingLayoutProps> = ({
             </div>
             {/* Modal nhập mã bảo mật */}
             {showModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="fixed inset-0 flex items-center justify-center">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 text-center animate-fadeIn w-full max-w-sm">
                         <h3 className="text-xl font-bold text-gray-800 mb-3">
                             Nhập mã bảo mật để {actionType === 'checkin' ? 'Check-in' : 'Check-out'}

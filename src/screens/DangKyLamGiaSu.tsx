@@ -29,7 +29,7 @@ const DangKyLamGiaSu: React.FC = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen py-8">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-4 mt-20">
                 <div className="bg-white rounded-xl shadow-lg">
                     <div className="p-6">
                         <h1 className="text-center font-bold text-2xl text-gray-900 mb-3">Trở thành Gia sư của chúng tôi</h1>

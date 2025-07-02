@@ -2,6 +2,7 @@ import { Calendar, Badge } from 'antd'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router-dom'
 import 'antd/dist/reset.css'
+import Header from '../components/Header'
 
 const events = [
     {
@@ -10,7 +11,7 @@ const events = [
         student: 'Lan (Q.3)',
         time: '09:00 - 10:30',
         type: 'math',
-        date: '2024-06-24',
+        date: '2024-06-15',
     },
     {
         id: 2,
@@ -44,6 +45,87 @@ const events = [
         type: 'chemistry',
         date: '2024-06-24',
     },
+    // Thêm data mới
+    {
+        id: 6,
+        title: 'Sinh Học Lớp 8',
+        student: 'Phúc (Q.1)',
+        time: '08:00 - 09:30',
+        type: 'biology',
+        date: '2024-06-27',
+    },
+    {
+        id: 7,
+        title: 'Lịch Sử Lớp 12',
+        student: 'Mai (Q.5)',
+        time: '16:00 - 17:30',
+        type: 'history',
+        date: '2024-06-29',
+    },
+    {
+        id: 8,
+        title: 'Toán Lớp 6',
+        student: 'Tú (Q.10)',
+        time: '10:00 - 11:30',
+        type: 'math',
+        date: '2024-05-29',
+    },
+    {
+        id: 9,
+        title: 'Tiếng Anh Lớp 9',
+        student: 'Vy (Q.2)',
+        time: '13:00 - 14:30',
+        type: 'english',
+        date: '2024-06-30',
+    },
+    {
+        id: 10,
+        title: 'Vật Lý Lớp 10',
+        student: 'Nam (Q.4)',
+        time: '18:00 - 19:30',
+        type: 'physics',
+        date: '2024-05-26',
+    },
+    {
+        id: 11,
+        title: 'Toán Lớp 9',
+        student: 'Lan (Q.3)',
+        time: '09:00 - 10:30',
+        type: 'math',
+        date: '2024-06-18',
+    },
+    {
+        id: 12,
+        title: 'Hóa Học Lớp 11',
+        student: 'Bảo Anh (Q.7)',
+        time: '15:00 - 16:30',
+        type: 'chemistry',
+        date: '2024-06-06',
+    },
+    {
+        id: 13,
+        title: 'Tin Học Lớp 8',
+        student: 'Khoa (Q.6)',
+        time: '17:00 - 18:30',
+        type: 'informatics',
+        date: '2024-06-03',
+    },
+    {
+        id: 14,
+        title: 'Địa Lý Lớp 7',
+        student: 'Hà (Q.8)',
+        time: '08:00 - 09:30',
+        type: 'geography',
+        date: '2024-06-09',
+    },
+    {
+        id: 15,
+        title: 'Toán Lớp 12',
+        student: 'Linh (Q.BT)',
+        time: '19:00 - 20:30',
+        type: 'math',
+        date: '2024-06-21',
+    },
 ]
 
 function getEventColor(type) {
@@ -51,6 +133,10 @@ function getEventColor(type) {
     if (type === 'english') return 'purple'
     if (type === 'physics') return 'magenta'
     if (type === 'chemistry') return 'red'
+    if (type === 'informatics') return 'teal'
+    if (type === 'geography') return 'green'
+    if (type === 'history') return 'orange'
+    if (type === 'biology') return 'lime'
     return 'default'
 }
 
@@ -86,16 +172,22 @@ export default function TrangLichGiaSu() {
     }
 
     return (
-        <div style={{ background: '#f5f6fa', minHeight: '100vh', padding: 24 }}>
-            <div className="bg-white rounded-4 shadow p-4 mb-4">
-                <h1 className="h2 fw-bold text-dark mb-4 text-center">Lịch dạy hàng tháng của Gia sư</h1>
-                <Calendar
-                    dateCellRender={dateCellRender}
-                    fullscreen={true}
-                    defaultValue={dayjs('2024-06-01')}
-                    onSelect={handleSelect}
-                />
-            </div>
+        <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
+            {/* Header */}
+            <Header />
+
+            {/* Main Content Area */}
+            <main className="flex-1 max-w-7xl mx-auto p-6 mt-20 sm:mt-24 w-full">
+                <div className="bg-white rounded-4 shadow p-4 mb-4">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Lịch dạy hàng tháng của Gia sư</h1>
+                    <Calendar
+                        dateCellRender={dateCellRender}
+                        fullscreen={true}
+                        defaultValue={dayjs('2024-06-01')}
+                        onSelect={handleSelect}
+                    />
+                </div>
+            </main>
         </div>
     )
 }

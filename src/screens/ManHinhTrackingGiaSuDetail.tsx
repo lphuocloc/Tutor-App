@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TrackingLayout } from '../components/TrackingLayout'
+import Header from '../components/Header'
 
 interface HistoryItem {
     id: string
@@ -129,25 +130,31 @@ const ManHinhTrackingGiaSuDetail: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100 font-sans">
-            <TrackingLayout
-                historyData={historyData}
-                showModal={showModal}
-                actionType={actionType}
-                securityCode={securityCode}
-                errorMessage={errorMessage}
-                onSecurityCodeChange={setSecurityCode}
-                onCancelModal={handleCancelModal}
-                onConfirmModal={handleConfirmModal}
-                navigate={navigate}
-            >
-                <LessonStatusSection
-                    isCheckedIn={isCheckedIn}
-                    currentStatus={currentStatus}
-                    onCheckIn={handleCheckIn}
-                    onCheckOut={handleCheckOut}
-                />
-            </TrackingLayout>
+        <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
+            {/* Header */}
+            <Header />
+
+            {/* Main Content Area */}
+            <main className="flex-1 max-w-7xl mx-auto p-6 mt-20 sm:mt-24 w-full">
+                <TrackingLayout
+                    historyData={historyData}
+                    showModal={showModal}
+                    actionType={actionType}
+                    securityCode={securityCode}
+                    errorMessage={errorMessage}
+                    onSecurityCodeChange={setSecurityCode}
+                    onCancelModal={handleCancelModal}
+                    onConfirmModal={handleConfirmModal}
+                    navigate={navigate}
+                >
+                    <LessonStatusSection
+                        isCheckedIn={isCheckedIn}
+                        currentStatus={currentStatus}
+                        onCheckIn={handleCheckIn}
+                        onCheckOut={handleCheckOut}
+                    />
+                </TrackingLayout>
+            </main>
         </div>
     )
 }
