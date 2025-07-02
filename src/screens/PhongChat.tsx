@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Phone, Info, Paperclip, Send, Check, Calendar, Clock, DollarSign, Book, Edit, Save, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Custom Modal Component
 interface ModalProps {
@@ -43,6 +44,7 @@ interface Message {
 }
 
 const PhongChat: React.FC = () => {
+    const navigate = useNavigate();
     const [messages, setMessages] = useState<Message[]>([
         {
             id: 1,
@@ -148,6 +150,7 @@ const PhongChat: React.FC = () => {
     const handleConfirm = () => {
         // In a real app, this would navigate to a confirmation page
         console.log('Class confirmed!');
+        navigate('/lich-giasu');
         alert('Bạn đã xác nhận nhận lớp thành công!'); // Using alert for demonstration, replace with a better UI message
     };
 

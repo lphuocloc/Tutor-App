@@ -233,7 +233,7 @@ const TrangChu: React.FC = () => {
                                     <p className="text-success fw-bold mt-2 mb-3">Lương: {post.salary}</p>
                                     <button
                                         className="btn btn-primary rounded-pill fw-semibold mt-auto align-self-end"
-                                        onClick={() => navigate('/baidang-giasu-cuthe')}
+                                        onClick={() => navigate('/chitiet-lophoc')}
                                     >
                                         Xem chi tiết
                                     </button>

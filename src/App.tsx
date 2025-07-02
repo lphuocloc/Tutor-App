@@ -16,6 +16,7 @@ import ManHinhDanhGiaPhuHuynh from './screens/ManHinhDanhGiaPhuHuynh'
 import XacThuc1 from './screens/XacThuc1'
 import XacThuc2 from './screens/XacThuc2'
 import ManHinhTrackingPhuHuynhDetail from './screens/ManHinhTrackingPhuHuynhDetail'
+import ChiTietLopHoc from './screens/ChiTietLopHoc'
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/tracking-phuhuynh-detail" element={<ManHinhTrackingPhuHuynhDetail />} />
         <Route path="/danhgia-giasu" element={<ManHinhDangGiaGiaSu />} />
         <Route path="/danhgia-phuhuynh" element={<ManHinhDanhGiaPhuHuynh />} />
+        <Route path="/chitiet-lophoc" element={<ChiTietLopHoc />} />
       </Routes>
     </div>
   )
