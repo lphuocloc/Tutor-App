@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Basic reset */
+* {
+    box-sizing: border-box;
+}
+
+/* App container */
+.App {
+    min-height: 100vh;
+}
+
+/* Hide scrollbar for nav */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-search {
+        margin: 0 1rem;
+    }
+
+    .user-name,
+    .user-dropdown-icon {
+        display: none;
+    }
+}
+
+@media (min-width: 640px) {
+    .nav-container {
+        justify-content: center;
+    }
+
+    .nav-link {
+        font-size: 1rem;
+    }
+
+    .user-name,
+    .user-dropdown-icon {
+        display: block;
+    }
+}
+
+/* Animation for dropdown */
+.user-dropdown-menu {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects */
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+
+/* Focus states for accessibility */
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading states */
+.header-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Notification badge animation */
+.notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}

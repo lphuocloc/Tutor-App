@@ -1,0 +1,199 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const DieuKhoanVaThongTinLop: React.FC = () => {
+    const [agreed, setAgreed] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const navigate = useNavigate();
+
+    const handleConfirm = () => {
+        setShowPopup(true);
+    };
+
+    const handleOkPopup = () => {
+        setShowPopup(false);
+        navigate('/xacnhan-giaodich');
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-4 px-2 sm:px-4 lg:px-6">
+            <div className="bg-white rounded-2xl shadow-xl p-3 md:p-5 w-full max-w-7xl transition-all duration-300 ease-in-out">
+                {/* Header xác nhận */}
+                <div className="text-center mb-6 animate-fadeIn">
+                    <i className="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                    <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Lớp học của bạn đã được xác nhận!</h1>
+                    <p className="text-gray-600 text-base">Chúc mừng bạn đã tìm được gia sư/lớp học phù hợp.</p>
+                </div>
+
+                {/* Thông tin liên hệ */}
+                <div className="bg-white rounded-xl p-4 mb-6 shadow-md">
+                    <h2 className="text-lg font-bold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+                        <i className="fas fa-address-book text-blue-500"></i> Thông tin liên hệ
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Thẻ Gia sư */}
+                        <div className="flex flex-col items-center bg-blue-50 rounded-lg p-3 transition-all duration-300 hover:shadow">
+                            <img
+                                src="https://placehold.co/80x80/A0D9FF/FFFFFF?text=GS"
+                                alt="Avatar Gia sư"
+                                className="rounded-full border-2 border-blue-400 mb-2"
+                                style={{ width: 80, height: 80 }}
+                            />
+                            <p className="font-bold text-gray-900 text-base mb-1">Gia sư Nguyễn Văn A</p>
+                            <div className="text-blue-700 text-sm mb-3 flex items-center justify-center gap-1">
+                                <i className="fas fa-phone-alt"></i>
+                                <span>0987 654 321</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <a href="tel:0987654321" className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-full transition-all duration-200 shadow">
+                                    <i className="fas fa-phone"></i> Gọi
+                                </a>
+                                <a href="sms:0987654321" className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full transition-all duration-200 shadow">
+                                    <i className="fas fa-sms"></i> Nhắn tin
+                                </a>
+                            </div>
+                        </div>
+                        {/* Thẻ Phụ huynh */}
+                        <div className="flex flex-col items-center bg-cyan-50 rounded-lg p-3 transition-all duration-300 hover:shadow">
+                            <img
+                                src="https://placehold.co/80x80/FF7F50/FFFFFF?text=PH"
+                                alt="Avatar Phụ huynh"
+                                className="rounded-full border-2 border-cyan-400 mb-2"
+                                style={{ width: 80, height: 80 }}
+                            />
+                            <p className="font-bold text-gray-900 text-base mb-1">Phụ huynh Trần Thị B</p>
+                            <div className="text-cyan-700 text-sm mb-3 flex items-center justify-center gap-1">
+                                <i className="fas fa-phone-alt"></i>
+                                <span>0912 345 678</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <a href="tel:0912345678" className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-full transition-all duration-200 shadow">
+                                    <i className="fas fa-phone"></i> Gọi
+                                </a>
+                                <a href="sms:0912345678" className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-full transition-all duration-200 shadow">
+                                    <i className="fas fa-sms"></i> Nhắn tin
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Thông tin lớp học */}
+                <div className="bg-white rounded-xl p-4 mb-6 shadow-md">
+                    <h2 className="text-lg font-bold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+                        <i className="fas fa-info-circle text-gray-500"></i> Thông tin lớp học
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 text-gray-800 text-sm">
+                        {/* Trái */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-book text-blue-400"></i> Môn học:
+                                </span>
+                                Toán
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-graduation-cap text-purple-400"></i> Lớp:
+                                </span>
+                                9
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-calendar-alt text-red-400"></i> Số buổi/tuần:
+                                </span>
+                                3 buổi
+                            </div>
+                        </div>
+                        {/* Phải */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-clock text-orange-400"></i> Thời gian dạy:
+                                </span>
+                                Tối Thứ 2, 4, 6 (19:00 - 21:00)
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-money-bill-wave text-green-500"></i> Lương/buổi:
+                                </span>
+                                <span className="font-bold text-green-600 text-base">180.000 VNĐ</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="font-semibold text-gray-700">
+                                    <i className="fas fa-map-marker-alt text-indigo-400"></i> Địa điểm:
+                                </span>
+                                123 Đường ABC, Phường XYZ, Quận 3, TP.HCM
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Điều khoản & Quy định */}
+                <div className="bg-white rounded-xl p-4 mb-6 shadow-md">
+                    <h2 className="text-lg font-bold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+                        <i className="fas fa-file-contract text-gray-500"></i> Điều khoản & Quy định Lớp học
+                    </h2>
+                    <div className="overflow-y-auto rounded-lg p-3 bg-gray-50 text-gray-800 text-xs mb-4 custom-scrollbar" style={{ maxHeight: 120 }}>
+                        <ul className="list-disc pl-4 space-y-2">
+                            <li>Gia sư cam kết đến đúng giờ, chuẩn bị bài giảng đầy đủ và có trách nhiệm với kết quả học tập của học viên.</li>
+                            <li>Phụ huynh cam kết tạo điều kiện học tập tốt nhất cho học viên, thanh toán học phí đúng hạn theo thỏa thuận.</li>
+                            <li>Trong <b>7 ngày đầu tiên</b> kể từ buổi học đầu tiên, nếu có bất kỳ vấn đề phát sinh (gia sư không phù hợp, học viên không hợp...), hai bên có quyền yêu cầu hỗ trợ từ nền tảng để giải quyết. Các trường hợp hoàn phí/đổi gia sư sẽ được xem xét tùy theo mức độ.</li>
+                            <li>Nền tảng sẽ theo dõi quá trình giảng dạy qua chức năng check-in/check-out của gia sư.</li>
+                            <li className="text-red-700 font-medium">Mọi hành vi vi phạm điều khoản, bao gồm nhưng không giới hạn việc cố ý trao đổi thông tin liên lạc cá nhân ngoài luồng hệ thống nhằm trốn tránh phí dịch vụ, sẽ bị xử lý nghiêm khắc (không hoàn cọc, khóa tài khoản...).</li>
+                            <li>Sau khi kết thúc thời gian theo dõi lớp học, hai bên sẽ thực hiện đánh giá lẫn nhau để cải thiện chất lượng dịch vụ.</li>
+                            <li>Các điều khoản khác sẽ được áp dụng theo chính sách chung của Ứng dụng Gia Sư.</li>
+                        </ul>
+                        <p className="font-bold mt-2 text-red-600 text-center text-xs">Vui lòng đọc kỹ trước khi đồng ý.</p>
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <input
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                            type="checkbox"
+                            id="agreeTerms"
+                            checked={agreed}
+                            onChange={e => setAgreed(e.target.checked)}
+                        />
+                        <label className="ml-2 text-sm text-gray-800 select-none cursor-pointer" htmlFor="agreeTerms">
+                            Tôi đã đọc và <b>đồng ý</b> với các điều khoản trên.
+                        </label>
+                    </div>
+                </div>
+
+                {/* Nút Xác nhận */}
+                <button
+                    className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 text-lg font-bold rounded-lg shadow transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md"
+                    disabled={!agreed}
+                    onClick={handleConfirm}
+                >
+                    Xác nhận thông tin lớp học
+                </button>
+            </div>
+
+            {/* Popup xác nhận lại */}
+            {showPopup && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-2">
+                    <div className="bg-white rounded-xl shadow-xl p-5 text-center animate-zoomIn max-w-xs w-full border-t-4 border-blue-500">
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+                            <i className="fas fa-exclamation-triangle text-orange-500"></i> Xác nhận lại
+                        </h3>
+                        <p className="text-gray-800 text-base mb-5 leading-relaxed">
+                            Buổi dạy sẽ là <span className="font-extrabold text-green-700">180.000 VNĐ/buổi</span>,<br />
+                            vào <span className="font-extrabold">Thứ 2, 4, 6</span>, lúc <span className="font-extrabold">19:00</span>.
+                            <br />
+                            Bạn có chắc chắn muốn xác nhận?
+                        </p>
+                        <button
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold text-base transition-all duration-200 shadow hover:shadow-md"
+                            onClick={handleOkPopup}
+                        >
+                            Đồng ý
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default DieuKhoanVaThongTinLop;

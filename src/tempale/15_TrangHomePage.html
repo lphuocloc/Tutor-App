@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng hợp Bài đăng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Tailwind: bg-slate-50 */
+        }
+        .header-shadow {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white py-4 px-6 header-shadow fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="text-blue-600 font-bold text-2xl">Gia Sư App</a>
+
+            <!-- Search Bar -->
+            <div class="flex-grow max-w-xl mx-8">
+                <div class="relative">
+                    <input type="text" placeholder="Tìm kiếm gia sư, bài đăng, môn học, khu vực..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Icons & User Menu -->
+            <div class="flex items-center space-x-6">
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200 relative">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                </a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200 relative">
+                    <i class="fas fa-comment-dots text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">1</span>
+                </a>
+                <div class="relative group">
+                    <button class="flex items-center space-x-2 focus:outline-none">
+                        <img src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-blue-400">
+                        <span class="font-medium text-gray-700 hidden md:block">Nguyễn Minh</span>
+                        <i class="fas fa-chevron-down text-gray-500 text-sm hidden md:block"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 transform scale-95 group-hover:scale-100 origin-top-right">
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600">Hồ sơ của tôi</a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600">Lịch sử hoạt động</a>
+                        <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600">Cài đặt</a>
+                        <hr class="my-1 border-gray-200">
+                        <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50">Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation (below header) -->
+    <nav class="bg-blue-600 text-white py-3 mt-[72px] shadow-md z-40">
+        <div class="max-w-7xl mx-auto flex justify-around sm:justify-center space-x-4 overflow-x-auto pb-1 scrollbar-hide">
+            <a href="#" class="px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">Trang chủ</a>
+            <a href="#" class="px-4 py-2 rounded-full bg-blue-700 font-medium text-sm sm:text-base whitespace-nowrap">Tìm gia sư</a>
+            <a href="#" class="px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">Tìm lớp học</a>
+            <a href="#" class="px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">Đăng bài</a>
+            <a href="#" class="px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">Quản lý lớp</a>
+            <a href="#" class="px-4 py-2 rounded-full hover:bg-blue-700 transition-colors duration-200 font-medium text-sm sm:text-base whitespace-nowrap">Hỗ trợ</a>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-6 mt-4">
+
+        <!-- Section: Tutor Listings (for Parents to view) -->
+        <section class="mb-12">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Các gia sư hiện có</h1>
+
+            <!-- Filtering and Sorting Section for Tutors -->
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-8 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <span class="font-medium text-gray-700 mr-2">Lọc gia sư theo:</span>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Môn học</option>
+                        <option value="math">Toán</option>
+                        <option value="literature">Văn</option>
+                        <option value="english">Tiếng Anh</option>
+                        <option value="physics">Vật lý</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Lớp</option>
+                        <option value="1-5">Lớp 1-5</option>
+                        <option value="6-9">Lớp 6-9</option>
+                        <option value="10-12">Lớp 10-12</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Khu vực</option>
+                        <option value="q1">Quận 1</option>
+                        <option value="q3">Quận 3</option>
+                        <option value="td">Thủ Đức</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Mức giá</option>
+                        <option value="lt150">Dưới 150K</option>
+                        <option value="150-200">150K - 200K</option>
+                        <option value="gt200">Trên 200K</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Đánh giá</option>
+                        <option value="4+">4 sao trở lên</option>
+                        <option value="4.5+">4.5 sao trở lên</option>
+                    </select>
+                </div>
+                <button class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                    <i class="fas fa-filter mr-2"></i>Lọc gia sư
+                </button>
+            </div>
+
+            <!-- Tutor Listings (Grid View) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tutor Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="https://placehold.co/100x100/A0D9FF/FFFFFF?text=GS" alt="Gia sư Nguyễn Văn A" class="w-24 h-24 rounded-full border-4 border-blue-200 mb-4 shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-1">Nguyễn Văn A</h3>
+                    <p class="text-blue-600 font-medium mb-2">Gia sư Toán, Lý, Hóa</p>
+                    <div class="flex items-center text-yellow-500 mb-2">
+                        <i class="fas fa-star text-sm mr-1"></i>4.9 (120 đánh giá)
+                    </div>
+                    <p class="text-gray-600 mb-1">Kinh nghiệm: 5 năm</p>
+                    <p class="text-gray-600 mb-4">Giá: Từ <span class="font-bold text-lg text-green-600">200.000 VNĐ/buổi</span></p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                        Xem chi tiết
+                    </button>
+                </div>
+
+                <!-- Tutor Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="https://placehold.co/100x100/FFB3A7/FFFFFF?text=GS" alt="Gia sư Trần Thị B" class="w-24 h-24 rounded-full border-4 border-pink-200 mb-4 shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-1">Trần Thị B</h3>
+                    <p class="text-blue-600 font-medium mb-2">Gia sư Tiếng Anh, Văn</p>
+                    <div class="flex items-center text-yellow-500 mb-2">
+                        <i class="fas fa-star text-sm mr-1"></i>4.8 (95 đánh giá)
+                    </div>
+                    <p class="text-gray-600 mb-1">Kinh nghiệm: 3 năm</p>
+                    <p class="text-gray-600 mb-4">Giá: Từ <span class="font-bold text-lg text-green-600">180.000 VNĐ/buổi</span></p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                        Xem chi tiết
+                    </button>
+                </div>
+
+                <!-- Tutor Card 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-105 hover:shadow-xl">
+                    <img src="https://placehold.co/100x100/B0E0E6/FFFFFF?text=GS" alt="Gia sư Lê Văn C" class="w-24 h-24 rounded-full border-4 border-green-200 mb-4 shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-1">Lê Văn C</h3>
+                    <p class="text-blue-600 font-medium mb-2">Gia sư Lập trình, Tin học</p>
+                    <div class="flex items-center text-yellow-500 mb-2">
+                        <i class="fas fa-star text-sm mr-1"></i>4.7 (70 đánh giá)
+                    </div>
+                    <p class="text-gray-600 mb-1">Kinh nghiệm: 4 năm</p>
+                    <p class="text-gray-600 mb-4">Giá: Từ <span class="font-bold text-lg text-green-600">250.000 VNĐ/buổi</span></p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                        Xem chi tiết
+                    </button>
+                </div>
+                <!-- Add more tutor cards as needed -->
+            </div>
+        </section>
+
+        <hr class="my-12 border-t-2 border-gray-200">
+
+        <!-- Section: Parent Postings (for Tutors to view) -->
+        <section>
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Các bài đăng tìm gia sư từ Phụ huynh</h1>
+
+            <!-- Filtering and Sorting Section for Parent Postings -->
+            <div class="bg-white p-4 rounded-xl shadow-sm mb-8 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <span class="font-medium text-gray-700 mr-2">Lọc bài đăng theo:</span>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Môn học</option>
+                        <option value="math">Toán</option>
+                        <option value="literature">Văn</option>
+                        <option value="english">Tiếng Anh</option>
+                        <option value="physics">Vật lý</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Lớp</option>
+                        <option value="1-5">Lớp 1-5</option>
+                        <option value="6-9">Lớp 6-9</option>
+                        <option value="10-12">Lớp 10-12</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Khu vực</option>
+                        <option value="q1">Quận 1</option>
+                        <option value="q3">Quận 3</option>
+                        <option value="td">Thủ Đức</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                        <option value="">Mức lương</option>
+                        <option value="lt150">Dưới 150K</option>
+                        <option value="150-200">150K - 200K</option>
+                        <option value="gt200">Trên 200K</option>
+                    </select>
+                </div>
+                <button class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md">
+                    <i class="fas fa-filter mr-2"></i>Lọc bài
+                </button>
+            </div>
+
+            <!-- Parent Postings List (Grid View) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Posting Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col hover:shadow-xl transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Cần gia sư Toán lớp 9</h3>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Môn học:</span> Toán</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Lớp:</span> 9</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Số buổi/tuần:</span> 3 buổi</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Thời gian:</span> Tối Thứ 2, 4, 6 (19:00 - 21:00)</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Khu vực:</span> Quận 3, TP.HCM</p>
+                    <p class="text-green-600 text-lg font-bold mt-2 mb-4">Lương: 180.000 VNĐ / buổi</p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md self-end">
+                        Xem chi tiết
+                    </button>
+                </div>
+
+                <!-- Posting Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col hover:shadow-xl transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Tìm gia sư Tiếng Anh giao tiếp</h3>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Môn học:</span> Tiếng Anh</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Lớp:</span> 7 (Tiếng Anh giao tiếp)</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Số buổi/tuần:</span> 2 buổi</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Thời gian:</span> Chiều Thứ 3, 5 (16:00 - 17:30)</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Khu vực:</span> Quận Bình Thạnh, TP.HCM</p>
+                    <p class="text-green-600 text-lg font-bold mt-2 mb-4">Lương: 150.000 VNĐ / buổi</p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md self-end">
+                        Xem chi tiết
+                    </button>
+                </div>
+
+                <!-- Posting Card 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col hover:shadow-xl transition-shadow duration-300">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Gia sư Vật lý lớp 11</h3>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Môn học:</span> Vật lý</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Lớp:</span> 11</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Số buổi/tuần:</span> 2 buổi</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Thời gian:</span> Tối Thứ 7, Chủ Nhật (20:00 - 21:30)</p>
+                    <p class="text-gray-600 text-sm mb-1"><span class="font-medium">Khu vực:</span> Quận Thủ Đức, TP.HCM</p>
+                    <p class="text-green-600 text-lg font-bold mt-2 mb-4">Lương: 220.000 VNĐ / buổi</p>
+                    <button class="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-md self-end">
+                        Xem chi tiết
+                    </button>
+                </div>
+
+                <!-- Add more posting cards as needed -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-lg font-semibold mb-2">Ứng dụng Gia Sư</p>
+            <p class="text-sm text-gray-400">© 2025 Tất cả quyền được bảo lưu.</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
