@@ -1,6 +1,19 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+/**
+ * Lý do xuất hiện thanh cuộn dọc/ngang khi chuyển sang sign up:
+ * - Form đăng ký có nhiều trường hơn form đăng nhập, làm tăng chiều cao của box.
+ * - Nếu chiều cao vượt quá viewport hoặc vượt quá max-height của container, sẽ xuất hiện thanh cuộn.
+ * - Ngoài ra, việc sử dụng w-screen có thể gây ra overflow ngang nếu cộng thêm margin/padding.
+ * 
+ * Cách khắc phục:
+ * - Sử dụng max-w-full thay vì w-screen để tránh overflow ngang.
+ * - Đảm bảo container không vượt quá chiều rộng màn hình.
+ * - Cho phép box scroll nội bộ nếu quá cao, hoặc cho phép trang scroll tự nhiên.
+ * - Tránh dùng w-screen trên div cha nếu không cần thiết.
+ */
+
 const Login: React.FC = () => {
     const navigate = useNavigate()
     const [isLoginMode, setIsLoginMode] = useState(true)
@@ -53,11 +66,10 @@ const Login: React.FC = () => {
 
     return (
         <>
-
-            <div className="min-h-screen w-screen flex items-center justify-center bg-[#f5f6fa]">
+            <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f6fa] px-2">
                 <div className="bg-white rounded-3xl shadow-lg p-6 md:p-10 w-full max-w-lg mx-4 my-10">
                     <h1 className="text-center text-gray-900 mb-6 font-bold text-2xl md:text-3xl">
-                        Chào mừng bạn đến với Ứng dụng Gia Sư
+                        Chào mừng bạn đến với Sutido
                     </h1>
 
                     {/* Tab buttons */}

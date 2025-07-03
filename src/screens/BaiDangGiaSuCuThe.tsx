@@ -26,7 +26,7 @@ const BaiDangGiaSuCuThe: React.FC = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen py-6">
-            <div className="max-w-7xl mx-auto px-4">
+            <div className="max-w-7xl mx-auto px-4 mt-20">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Thông tin gia sư */}
                     <div className="flex-1">
@@ -149,32 +149,7 @@ const BaiDangGiaSuCuThe: React.FC = () => {
 
                     {/* Sidebar */}
                     <div className="w-full lg:w-[380px] flex-shrink-0">
-                        <div className="bg-white rounded-xl shadow p-6 mb-6">
-                            <h5 className="font-semibold text-lg mb-3">Thông tin liên hệ</h5>
-                            <div className="mb-4 flex flex-col gap-2">
-                                <button className="border border-blue-500 text-blue-600 hover:bg-blue-50 font-medium rounded-lg py-2 w-full flex items-center justify-center transition">
-                                    <i className="fas fa-phone mr-2"></i>
-                                    Gọi điện
-                                </button>
-                                <button className="border border-green-500 text-green-600 hover:bg-green-50 font-medium rounded-lg py-2 w-full flex items-center justify-center transition">
-                                    <i className="fab fa-facebook-messenger mr-2"></i>
-                                    Messenger
-                                </button>
-                                <button className="border border-cyan-500 text-cyan-600 hover:bg-cyan-50 font-medium rounded-lg py-2 w-full flex items-center justify-center transition">
-                                    <i className="fas fa-comments mr-2"></i>
-                                    Chat
-                                </button>
-                            </div>
-                            <hr className="my-4" />
-                            <div className="text-center">
-                                <button
-                                    className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg font-semibold transition"
-                                    onClick={handleContact}
-                                >
-                                    Đặt lịch học ngay
-                                </button>
-                            </div>
-                        </div>
+
 
                         <div className="bg-white rounded-xl shadow p-6">
                             <h5 className="font-semibold text-lg mb-3">Gia sư tương tự</h5>
