@@ -151,7 +151,6 @@ const PhongChat: React.FC = () => {
         // In a real app, this would navigate to a confirmation page
         console.log('Class confirmed!');
         navigate('/xacnhan-giaodich');
-        alert('Bạn đã xác nhận nhận lớp thành công!'); // Using alert for demonstration, replace with a better UI message
     };
 
     // Handlers for editable class info
@@ -171,241 +170,234 @@ const PhongChat: React.FC = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
-            {/* Header */}
-            <header className="bg-blue-600 text-white p-4 shadow-lg z-10">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => console.log('Go back')} // Replaced navigate(-1)
-                            className="text-white p-0 border-0 focus:outline-none"
-                        >
-                            <ArrowLeft className="w-6 h-6" />
-                        </button>
-                        <img
-                            src="https://placehold.co/50x50/A0D9FF/FFFFFF?text=AV"
-                            alt="Avatar đối phương"
-                            className="rounded-full border border-blue-200"
-                            style={{ width: '48px', height: '48px' }}
-                        />
-                        <div>
-                            <h1 className="text-lg font-semibold mb-0">Phòng trò chuyện với Gia sư Nguyễn Văn A</h1>
-                            <p className="text-blue-200 text-sm mb-0">Online</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
-                            Hết hạn sau: 1 ngày 23 giờ
-                        </span>
-                        <button className="text-white p-0 border-0 focus:outline-none">
-                            <Phone className="w-6 h-6" />
-                        </button>
-                        <button className="text-white p-0 border-0 focus:outline-none">
-                            <Info className="w-6 h-6" />
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Chat Area */}
-            <main className="flex-1 max-w-4xl mx-auto w-full p-4 flex flex-col lg:flex-row gap-4">
-                {/* Chat Container */}
-                <div className="flex-1 flex flex-col min-h-0">
-                    {/* Rules Banner */}
-                    {showRules && (
-                        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg flex items-start justify-between mb-4" role="alert">
-                            <div className="flex-grow">
-                                <h3 className="font-bold text-lg mb-2">Nội quy phòng chat</h3>
-                                <ul className="list-none text-sm mb-0 pl-0">
-                                    <li className="mb-1">• Không trao đổi thông tin liên lạc cá nhân (số điện thoại, email, địa chỉ).</li>
-                                    <li className="mb-1">• Không sử dụng ngôn ngữ xúc phạm, thiếu văn hóa.</li>
-                                    <li className="mb-1">• Chỉ thảo luận về nội dung lớp học và các vấn đề liên quan.</li>
-                                    <li>• Mọi vi phạm có thể dẫn đến việc không được hoàn cọc và bị khóa tài khoản.</li>
-                                </ul>
-                            </div>
+            <div className="w-full max-w-7xl mx-auto mt-20">
+                <header className="bg-blue-600 text-white shadow-lg z-10 p-4 w-full rounded-t-2xl">
+                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                        <div className="flex items-center gap-3">
                             <button
-                                onClick={() => setShowRules(false)}
-                                className="text-yellow-700 p-0 border-0 ml-3 focus:outline-none"
+                                onClick={() => navigate('/chitiet-lophoc')} // Replaced navigate(-1)
+                                className="text-white p-0 border-0 focus:outline-none"
                             >
-                                <XCircle className="w-6 h-6" />
+                                <ArrowLeft className="w-6 h-6" />
+                            </button>
+                            <img
+                                src="https://placehold.co/50x50/A0D9FF/FFFFFF?text=AV"
+                                alt="Avatar đối phương"
+                                className="rounded-full border border-blue-200"
+                                style={{ width: '48px', height: '48px' }}
+                            />
+                            <div>
+                                <h1 className="text-lg font-semibold mb-0">Phòng trò chuyện với Gia sư Nguyễn Văn A</h1>
+                                <p className="text-blue-200 text-sm mb-0">Online</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
+                                Hết hạn sau: 1 ngày 23 giờ
+                            </span>
+                            <button className="text-white p-0 border-0 focus:outline-none">
+                                <Phone className="w-6 h-6" />
+                            </button>
+                            <button className="text-white p-0 border-0 focus:outline-none">
+                                <Info className="w-6 h-6" />
                             </button>
                         </div>
-                    )}
+                    </div>
+                </header>
 
-                    {/* Chat Messages */}
-                    <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-auto mb-4 max-h-[400px]">
-                        {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`flex items-start mb-4 ${message.isMyMessage ? 'justify-end' : ''}`}
-                            >
-                                {!message.isMyMessage && (
-                                    <img
-                                        src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV"
-                                        alt="Avatar đối phương"
-                                        className="rounded-full border border-gray-200 mr-3"
-                                        style={{ width: '40px', height: '40px' }}
-                                    />
-                                )}
-                                <div
-                                    className={`p-3 rounded-lg shadow-sm ${message.isMyMessage
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-100 text-gray-800'
-                                        }`}
-                                    style={{ maxWidth: '70%' }}
-                                >
-                                    <p className="text-sm mb-1">{message.text}</p>
-                                    <span className={`text-xs ${message.isMyMessage ? 'text-blue-200 text-right block' : 'text-gray-500'}`}>
-                                        {message.timestamp}
-                                    </span>
+                <main className="flex-1 w-full max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4">
+                    <div className="flex-1 flex flex-col min-h-0">
+                        {showRules && (
+                            <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg flex items-start justify-between mb-4" role="alert">
+                                <div className="flex-grow">
+                                    <h3 className="font-bold text-lg mb-2">Nội quy phòng chat</h3>
+                                    <ul className="list-none text-sm mb-0 pl-0">
+                                        <li className="mb-1">• Không trao đổi thông tin liên lạc cá nhân (số điện thoại, email, địa chỉ).</li>
+                                        <li className="mb-1">• Không sử dụng ngôn ngữ xúc phạm, thiếu văn hóa.</li>
+                                        <li className="mb-1">• Chỉ thảo luận về nội dung lớp học và các vấn đề liên quan.</li>
+                                        <li>• Mọi vi phạm có thể dẫn đến việc không được hoàn cọc và bị khóa tài khoản.</li>
+                                    </ul>
                                 </div>
-                                {message.isMyMessage && (
-                                    <img
-                                        src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV"
-                                        alt="Avatar của bạn"
-                                        className="rounded-full border border-gray-200 ml-3"
-                                        style={{ width: '40px', height: '40px' }}
-                                    />
-                                )}
+                                <button
+                                    onClick={() => setShowRules(false)}
+                                    className="text-yellow-700 p-0 border-0 ml-3 focus:outline-none"
+                                >
+                                    <XCircle className="w-6 h-6" />
+                                </button>
                             </div>
-                        ))}
-                        <div ref={messagesEndRef} />
-                    </div>
+                        )}
 
-                    {/* Message Input */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm flex items-center mb-4">
-                        <button className="text-gray-500 mr-3 p-0 border-0 focus:outline-none">
-                            <Paperclip className="w-6 h-6" />
-                        </button>
-                        <input
-                            type="text"
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            placeholder="Gõ tin nhắn của bạn..."
-                            className="border-0 flex-grow px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        />
-                        <button
-                            onClick={handleSendMessage}
-                            className="bg-blue-600 text-white rounded-full ml-3 px-4 py-2 flex items-center justify-center hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            disabled={!newMessage.trim()}
-                        >
-                            <Send className="w-5 h-5" />
-                        </button>
-                    </div>
+                        <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-auto mb-4 max-h-[400px]">
+                            {messages.map((message) => (
+                                <div
+                                    key={message.id}
+                                    className={`flex items-start mb-4 ${message.isMyMessage ? 'justify-end' : ''}`}
+                                >
+                                    {!message.isMyMessage && (
+                                        <img
+                                            src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV"
+                                            alt="Avatar đối phương"
+                                            className="rounded-full border border-gray-200 mr-3"
+                                            style={{ width: '40px', height: '40px' }}
+                                        />
+                                    )}
+                                    <div
+                                        className={`p-3 rounded-lg shadow-sm ${message.isMyMessage
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-100 text-gray-800'
+                                            }`}
+                                        style={{ maxWidth: '70%' }}
+                                    >
+                                        <p className="text-sm mb-1">{message.text}</p>
+                                        <span className={`text-xs ${message.isMyMessage ? 'text-blue-200 text-right block' : 'text-gray-500'}`}>
+                                            {message.timestamp}
+                                        </span>
+                                    </div>
+                                    {message.isMyMessage && (
+                                        <img
+                                            src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV"
+                                            alt="Avatar của bạn"
+                                            className="rounded-full border border-gray-200 ml-3"
+                                            style={{ width: '40px', height: '40px' }}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={handleCancelChat}
-                            className="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-semibold shadow-md hover:bg-red-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
-                        >
-                            Hủy bỏ / Không đồng ý
-                        </button>
-                        <button
-                            onClick={handleConfirm}
-                            className="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg font-semibold shadow-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
-                        >
-                            Xác nhận nhận lớp <Check className="w-5 h-5 ml-2" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Notification Board */}
-                <div className="bg-white rounded-lg shadow-lg p-4 border border-blue-200 lg:w-64 w-full">
-                    <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-bold text-blue-600 text-lg">Thông tin lớp học</h3>
-                        {!isEditingClassInfo ? (
-                            <button
-                                onClick={handleEditClassInfo}
-                                className="text-blue-600 hover:text-blue-800 focus:outline-none"
-                            >
-                                <Edit className="w-5 h-5" />
+                        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center mb-4">
+                            <button className="text-gray-500 mr-3 p-0 border-0 focus:outline-none">
+                                <Paperclip className="w-6 h-6" />
                             </button>
-                        ) : (
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handleSaveClassInfo}
-                                    className="text-green-600 hover:text-green-800 focus:outline-none"
-                                >
-                                    <Save className="w-5 h-5" />
-                                </button>
-                                <button
-                                    onClick={handleCancelEditClassInfo}
-                                    className="text-red-500 hover:text-red-700 focus:outline-none"
-                                >
-                                    <XCircle className="w-5 h-5" />
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    <div className="mb-2">
-                        <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-sm">Thứ dạy: </span>
-                        </div>
-                        {isEditingClassInfo ? (
                             <input
                                 type="text"
-                                value={tempClassInfo.days}
-                                onChange={(e) => setTempClassInfo({ ...tempClassInfo, days: e.target.value })}
-                                className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                placeholder="Gõ tin nhắn của bạn..."
+                                className="border-0 flex-grow px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
-                        ) : (
-                            <strong className="text-sm ml-6">{classInfo.days}</strong>
-                        )}
-                    </div>
-                    <div className="mb-2">
-                        <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-sm">Giờ dạy: </span>
+                            <button
+                                onClick={handleSendMessage}
+                                className="bg-blue-600 text-white rounded-full ml-3 px-4 py-2 flex items-center justify-center hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={!newMessage.trim()}
+                            >
+                                <Send className="w-5 h-5" />
+                            </button>
                         </div>
-                        {isEditingClassInfo ? (
-                            <input
-                                type="text"
-                                value={tempClassInfo.time}
-                                onChange={(e) => setTempClassInfo({ ...tempClassInfo, time: e.target.value })}
-                                className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        ) : (
-                            <strong className="text-sm ml-6">{classInfo.time}</strong>
-                        )}
-                    </div>
-                    <div className="mb-2">
-                        <div className="flex items-center">
-                            <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-sm">Lương mỗi buổi: </span>
-                        </div>
-                        {isEditingClassInfo ? (
-                            <input
-                                type="text"
-                                value={tempClassInfo.salary}
-                                onChange={(e) => setTempClassInfo({ ...tempClassInfo, salary: e.target.value })}
-                                className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        ) : (
-                            <strong className="text-sm text-green-600 ml-6">{classInfo.salary}</strong>
-                        )}
-                    </div>
-                    <div>
-                        <div className="flex items-center">
-                            <Book className="w-4 h-4 mr-2 text-gray-500" />
-                            <span className="text-sm">Môn: </span>
-                        </div>
-                        {isEditingClassInfo ? (
-                            <input
-                                type="text"
-                                value={tempClassInfo.subject}
-                                onChange={(e) => setTempClassInfo({ ...tempClassInfo, subject: e.target.value })}
-                                className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        ) : (
-                            <strong className="text-sm ml-6">{classInfo.subject}</strong>
-                        )}
-                    </div>
-                </div>
-            </main>
 
-            {/* Custom Cancel Confirmation Modal */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleCancelChat}
+                                className="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-semibold shadow-md hover:bg-red-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            >
+                                Hủy bỏ / Không đồng ý
+                            </button>
+                            <button
+                                onClick={handleConfirm}
+                                className="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg font-semibold shadow-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
+                            >
+                                Xác nhận nhận lớp <Check className="w-5 h-5 ml-2" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow-lg p-4 border border-blue-200 lg:w-64 w-full">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-blue-600 text-lg">Thông tin lớp học</h3>
+                            {!isEditingClassInfo ? (
+                                <button
+                                    onClick={handleEditClassInfo}
+                                    className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                                >
+                                    <Edit className="w-5 h-5" />
+                                </button>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleSaveClassInfo}
+                                        className="text-green-600 hover:text-green-800 focus:outline-none"
+                                    >
+                                        <Save className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={handleCancelEditClassInfo}
+                                        className="text-red-500 hover:text-red-700 focus:outline-none"
+                                    >
+                                        <XCircle className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mb-2">
+                            <div className="flex items-center">
+                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                                <span className="text-sm">Thứ dạy: </span>
+                            </div>
+                            {isEditingClassInfo ? (
+                                <input
+                                    type="text"
+                                    value={tempClassInfo.days}
+                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, days: e.target.value })}
+                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            ) : (
+                                <strong className="text-sm ml-6">{classInfo.days}</strong>
+                            )}
+                        </div>
+                        <div className="mb-2">
+                            <div className="flex items-center">
+                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                                <span className="text-sm">Giờ dạy: </span>
+                            </div>
+                            {isEditingClassInfo ? (
+                                <input
+                                    type="text"
+                                    value={tempClassInfo.time}
+                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, time: e.target.value })}
+                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            ) : (
+                                <strong className="text-sm ml-6">{classInfo.time}</strong>
+                            )}
+                        </div>
+                        <div className="mb-2">
+                            <div className="flex items-center">
+                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+                                <span className="text-sm">Lương mỗi buổi: </span>
+                            </div>
+                            {isEditingClassInfo ? (
+                                <input
+                                    type="text"
+                                    value={tempClassInfo.salary}
+                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, salary: e.target.value })}
+                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            ) : (
+                                <strong className="text-sm text-green-600 ml-6">{classInfo.salary}</strong>
+                            )}
+                        </div>
+                        <div>
+                            <div className="flex items-center">
+                                <Book className="w-4 h-4 mr-2 text-gray-500" />
+                                <span className="text-sm">Môn: </span>
+                            </div>
+                            {isEditingClassInfo ? (
+                                <input
+                                    type="text"
+                                    value={tempClassInfo.subject}
+                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, subject: e.target.value })}
+                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            ) : (
+                                <strong className="text-sm ml-6">{classInfo.subject}</strong>
+                            )}
+                        </div>
+                    </div>
+                </main>
+            </div>
+
             <CustomModal
                 message="Bạn có chắc chắn muốn hủy bỏ cuộc trò chuyện này?"
                 onConfirm={handleConfirmCancel}

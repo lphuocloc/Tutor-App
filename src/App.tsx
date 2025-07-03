@@ -21,6 +21,7 @@ import TaoBaiDangTimGiaSu from './screens/TaoBaiDangTimGiaSu'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import XacNhanDatCocGiaSu from './screens/XacNhanDatCocGiaSu'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -55,6 +56,7 @@ function App() {
               <Route path="/dangky-lamgiasu" element={<DangKyLamGiaSu />} />
               <Route path="/baidang-giasu-cuthe" element={<BaiDangGiaSuCuThe />} />
               <Route path="/xacnhan-datcoc" element={<XacNhanDatCoc />} />
+              <Route path="/xacnhan-datcoc-giasu" element={<XacNhanDatCocGiaSu />} />
               <Route path="/phongchat" element={<PhongChat />} />
               <Route path="/dieukhoan-thongtinlop" element={<DieuKhoanVaThongTinLop />} />
               <Route path="/xacnhan-giaodich" element={<XacNhanGiaoDich />} />

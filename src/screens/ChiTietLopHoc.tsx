@@ -1,6 +1,8 @@
 import Header from "../components/Header";
+import { useNavigate } from "react-router-dom";
 
 export default function ChiTietLopHoc() {
+    const navigate = useNavigate();
     return (
         <div className="bg-slate-50 min-h-screen font-inter">
             {/* Header */}
@@ -105,7 +107,7 @@ export default function ChiTietLopHoc() {
                         <div className="flex justify-center mt-6">
                             <button
                                 className="bg-blue-600 text-white px-6 py-2.5 rounded-full font-semibold text-lg hover:bg-blue-700 transition-colors duration-300 shadow-md transform hover:scale-105"
-                                onClick={() => alert('Chuyển đến màn hình đặt cọc để trò chuyện với phụ huynh.')}
+                                onClick={() => navigate('/xacnhan-datcoc-giasu')}
                             >
                                 Tìm hiểu thêm <i className="fas fa-arrow-right ml-2"></i>
                             </button>
@@ -155,13 +157,7 @@ export default function ChiTietLopHoc() {
                 </div>
             </main >
             {/* Footer */}
-            <footer className="bg-gray-800 text-white py-4 mt-8" >
-                <div className="max-w-5xl mx-auto px-4 text-center">
-                    <p className="text-xs text-gray-400">
-                        © 2025 Ứng dụng Gia Sư. Tất cả quyền được bảo lưu.
-                    </p>
-                </div>
-            </footer >
+
             {/* Font and Icon CDN links */}
             <link
                 href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
