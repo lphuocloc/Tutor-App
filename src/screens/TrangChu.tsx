@@ -182,27 +182,6 @@ const TrangChu: React.FC = () => {
 
     return (
         <div className="bg-gray-100 min-h-screen">
-            {/* Header (Placeholder - you might have a global Header component) */}
-            <nav className="bg-white shadow-md py-4 px-6 flex items-center justify-between fixed w-full top-0 z-10">
-                <div className="text-xl font-bold text-blue-800">Sutido App</div>
-                <div className="flex-grow max-w-md mx-4">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm gia sư, môn học, khu vực..."
-                        className="w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                </div>
-                <div className="flex items-center space-x-4">
-                    {/* Notification Icon */}
-                    <svg className="w-6 h-6 text-gray-600 cursor-pointer hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    {/* Message Icon */}
-                    <svg className="w-6 h-6 text-gray-600 cursor-pointer hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    {/* User Avatar/Profile Icon */}
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm cursor-pointer hover:bg-blue-600">AV</div>
-                </div>
-            </nav>
-
-
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 pt-24 pb-10">
                 {/* Verification Alert */}
