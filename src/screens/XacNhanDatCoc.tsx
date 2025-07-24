@@ -1,42 +1,106 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const XacNhanDatCoc: React.FC = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    // Giá cố định cho mỗi buổi học
+    const PRICE_PER_SESSION = 200000; // 200.000 VNĐ
+    // Số tiền đặt cọc cố định
+    const FIXED_DEPOSIT_AMOUNT = 50000; // 50.000 VNĐ
+    // Tỷ lệ quy đổi điểm: 1 điểm = 1 VNĐ (vì 1000 điểm = 1 nghìn VNĐ)
+    const POINTS_TO_VND_RATE = 1;
+
+    // State cho thông tin form
     const [formData, setFormData] = useState({
         numberOfSessions: '',
-        totalAmount: '',
-        depositAmount: '',
         paymentMethod: '',
         agreeTerms: false
-    })
+    });
+
+    // State cho điểm thưởng của người dùng (giả định)
+    const [userLoyaltyPoints, setUserLoyaltyPoints] = useState(1250); // Ví dụ: 1250 điểm
+    // State cho số điểm muốn sử dụng
+    const [pointsToUse, setPointsToUse] = useState('');
+
+    // Các giá trị tính toán
+    const [estimatedTotalAmount, setEstimatedTotalAmount] = useState(0);
+    const [discountFromPoints, setDiscountFromPoints] = useState(0);
+    const [finalTotalAmount, setFinalTotalAmount] = useState(0);
+    const [remainingAmountToPay, setRemainingAmountToPay] = useState(0);
+
+    // Effect để tính toán lại tổng tiền và số tiền còn lại mỗi khi numberOfSessions hoặc pointsToUse thay đổi
+    useEffect(() => {
+        const sessions = parseInt(formData.numberOfSessions) || 0;
+        const estimated = sessions * PRICE_PER_SESSION;
+        setEstimatedTotalAmount(estimated);
+
+        let appliedPoints = parseInt(pointsToUse) || 0;
+        // Đảm bảo số điểm sử dụng không vượt quá điểm hiện có
+        appliedPoints = Math.min(appliedPoints, userLoyaltyPoints);
+        // Đảm bảo số tiền giảm giá không làm tổng tiền âm
+        const maxDiscountAllowed = Math.max(0, estimated); // Không giảm giá quá tổng tiền
+        appliedPoints = Math.min(appliedPoints, maxDiscountAllowed / POINTS_TO_VND_RATE);
+
+
+        const discount = appliedPoints * POINTS_TO_VND_RATE;
+        setDiscountFromPoints(discount);
+
+        const final = Math.max(0, estimated - discount); // Tổng tiền sau giảm giá, không âm
+        setFinalTotalAmount(final);
+
+        // Số tiền còn lại phải trả sau khi trừ đặt cọc
+        const remaining = Math.max(0, final - FIXED_DEPOSIT_AMOUNT);
+        setRemainingAmountToPay(remaining);
+
+    }, [formData.numberOfSessions, pointsToUse, userLoyaltyPoints]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target
+        const { name, value, type } = e.target;
         if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked
+            const checked = (e.target as HTMLInputElement).checked;
             setFormData(prev => ({
                 ...prev,
                 [name]: checked
-            }))
+            }));
         } else {
             setFormData(prev => ({
                 ...prev,
                 [name]: value
-            }))
+            }));
         }
-    }
+    };
+
+    const handlePointsToUseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = parseInt(e.target.value) || 0;
+        // Đảm bảo số điểm không âm
+        value = Math.max(0, value);
+        // Đảm bảo số điểm không vượt quá điểm hiện có
+        value = Math.min(value, userLoyaltyPoints);
+        setPointsToUse(value.toString());
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log('Deposit form:', formData)
-        navigate('/phongchat')
-    }
+        e.preventDefault();
+        // Cập nhật điểm của người dùng sau khi sử dụng (trong ứng dụng thực tế sẽ gửi lên backend)
+        setUserLoyaltyPoints(userLoyaltyPoints - (parseInt(pointsToUse) || 0));
 
-    // Số tiền đặt cọc auto là 50 chục ngàn (tức 500,000 VNĐ)
-    const calculateDeposit = () => {
-        return `50.000`
-    }
+        console.log('Deposit form submitted:', {
+            ...formData,
+            estimatedTotalAmount,
+            discountFromPoints,
+            finalTotalAmount,
+            depositAmount: FIXED_DEPOSIT_AMOUNT,
+            remainingAmountToPay,
+            pointsUsed: parseInt(pointsToUse) || 0
+        });
+        navigate('/phongchat'); // Uncomment this line if you have a routing setup
+    };
+
+    // Hàm định dạng số tiền
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 py-8 flex flex-col items-center">
@@ -56,10 +120,11 @@ const XacNhanDatCoc: React.FC = () => {
                             <h6 className="font-semibold text-gray-800 mb-1">Nguyễn Văn A</h6>
                             <p className="text-gray-500 text-sm mb-2">Gia sư Toán, Lý, Hóa</p>
                             <div className="flex items-center text-yellow-500 text-sm mb-2">
-                                <i className="fas fa-star"></i>
+                                {/* Font Awesome star icon */}
+                                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.683-1.532 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.777.565-1.832-.197-1.532-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.92 7.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z"></path></svg>
                                 <span className="ml-1">4.9 (120 đánh giá)</span>
                             </div>
-                            <p className="text-green-600 font-bold text-base mb-0">200.000 VNĐ/buổi</p>
+                            <p className="text-green-600 font-bold text-base mb-0">{formatCurrency(PRICE_PER_SESSION)}/buổi</p>
                         </div>
                         {/* Lớp học */}
                         <div className="flex-1 bg-cyan-50 border border-cyan-300 rounded-xl p-6">
@@ -96,39 +161,29 @@ const XacNhanDatCoc: React.FC = () => {
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Ví dụ: 12 buổi"
+                                    min="1" // Đảm bảo số buổi học là số dương
                                     required
                                 />
                             </div>
                             <div>
-                                <label htmlFor="totalAmount" className="block font-medium text-gray-700 mb-1">
-                                    Tổng tiền (VNĐ)
+                                <label htmlFor="loyaltyPoints" className="block font-medium text-gray-700 mb-1">
+                                    Điểm thưởng hiện có: <span className="font-bold text-purple-600">{userLoyaltyPoints} điểm</span>
                                 </label>
                                 <input
                                     type="number"
-                                    id="totalAmount"
-                                    name="totalAmount"
-                                    value={formData.totalAmount}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none"
-                                    placeholder="Tự động tính"
-                                    readOnly
+                                    id="pointsToUse"
+                                    name="pointsToUse"
+                                    value={pointsToUse}
+                                    onChange={handlePointsToUseChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Số điểm muốn sử dụng"
+                                    min="0"
+                                    max={userLoyaltyPoints} // Không cho phép sử dụng quá số điểm hiện có
                                 />
+                                <small className="text-gray-500">1000 điểm = 1.000 VNĐ</small>
                             </div>
-                            <div>
-                                <label htmlFor="depositAmount" className="block font-medium text-gray-700 mb-1">
-                                    Số tiền đặt cọc (cố định)
-                                </label>
-                                <input
-                                    type="number"
-                                    id="depositAmount"
-                                    name="depositAmount"
-                                    value={calculateDeposit()}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-100 text-gray-700"
-                                    disabled={true}
-                                    readOnly
-                                />
-                                <small className="text-gray-500">Số tiền còn lại sẽ thanh toán sau buổi học đầu tiên</small>
-                            </div>
+                            {/* Dòng trống để căn chỉnh layout */}
+                            <div></div>
                             <div>
                                 <label htmlFor="paymentMethod" className="block font-medium text-gray-700 mb-1">
                                     Phương thức thanh toán
@@ -156,20 +211,33 @@ const XacNhanDatCoc: React.FC = () => {
                                 <h6 className="font-semibold text-gray-700 mb-4">Tóm tắt thanh toán</h6>
                                 <div className="flex justify-between mb-2 text-gray-700">
                                     <span>Giá mỗi buổi:</span>
-                                    <span>200.000 VNĐ</span>
+                                    <span>{formatCurrency(PRICE_PER_SESSION)}</span>
                                 </div>
                                 <div className="flex justify-between mb-2 text-gray-700">
                                     <span>Số buổi:</span>
                                     <span>{formData.numberOfSessions || 0} buổi</span>
                                 </div>
                                 <div className="flex justify-between mb-2 text-gray-700">
-                                    <span>Tổng tiền:</span>
-                                    <span className="font-bold">{formData.totalAmount || 0} VNĐ</span>
+                                    <span>Tổng tiền dự kiến:</span>
+                                    <span className="font-bold">{formatCurrency(estimatedTotalAmount)}</span>
                                 </div>
-                                <div className="flex justify-between mt-2">
-                                    <span className="font-semibold">Số tiền đặt cọc:</span>
-                                    <span className="font-bold text-blue-600 text-lg">{calculateDeposit()} VNĐ</span>
+                                <div className="flex justify-between mb-2 text-gray-700">
+                                    <span>Giảm giá từ điểm thưởng:</span>
+                                    <span className="font-bold text-red-600">- {formatCurrency(discountFromPoints)}</span>
                                 </div>
+                                <div className="flex justify-between mb-2 text-gray-700 border-t pt-2 border-gray-300">
+                                    <span className="font-semibold text-lg">Tổng tiền sau giảm giá:</span>
+                                    <span className="font-bold text-blue-700 text-lg">{formatCurrency(finalTotalAmount)}</span>
+                                </div>
+                                <div className="flex justify-between mb-2 text-gray-700">
+                                    <span>Số tiền đặt cọc (cố định):</span>
+                                    <span className="font-bold text-blue-600">{formatCurrency(FIXED_DEPOSIT_AMOUNT)}</span>
+                                </div>
+                                <div className="flex justify-between mt-2 pt-2 border-t border-gray-300">
+                                    <span className="font-semibold text-lg">Số tiền còn lại phải thanh toán:</span>
+                                    <span className="font-bold text-green-600 text-lg">{formatCurrency(remainingAmountToPay)}</span>
+                                </div>
+                                <small className="text-gray-500 mt-1 block">Số tiền còn lại sẽ thanh toán sau buổi học đầu tiên</small>
                             </div>
                         </div>
 
@@ -200,7 +268,8 @@ const XacNhanDatCoc: React.FC = () => {
                                 className={`inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 shadow-lg ${!formData.agreeTerms ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 disabled={!formData.agreeTerms}
                             >
-                                <i className="fas fa-credit-card mr-2"></i>
+                                {/* Font Awesome icon for credit card */}
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                                 Xác nhận đặt cọc
                             </button>
                         </div>
@@ -210,7 +279,8 @@ const XacNhanDatCoc: React.FC = () => {
                     <div className="mt-8">
                         <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
-                                <i className="fas fa-info-circle text-blue-500 mr-2"></i>
+                                {/* Font Awesome info icon */}
+                                <svg className="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"></path></svg>
                                 <span className="font-semibold text-blue-700">Lưu ý quan trọng</span>
                             </div>
                             <ul className="list-disc pl-6 text-gray-700 text-sm space-y-1">
@@ -223,7 +293,7 @@ const XacNhanDatCoc: React.FC = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default XacNhanDatCoc 
+export default XacNhanDatCoc;

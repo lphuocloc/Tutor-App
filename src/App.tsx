@@ -22,6 +22,10 @@ import TaoBaiDangTimGiaSu from './screens/TaoBaiDangTimGiaSu'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import XacNhanDatCocGiaSu from './screens/XacNhanDatCocGiaSu'
+import ChoTaiLieu from './screens/ChoTaiLieu'
+import DangTaiLieu from './screens/DangTaiLieu'
+import TrangCaNhan from './screens/TrangCaNhan'
+import DoiDiemThuong from './screens/DoiDiemThuong'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -67,6 +71,11 @@ function App() {
               <Route path="/danhgia-phuhuynh" element={<ManHinhDanhGiaPhuHuynh />} />
               <Route path="/chitiet-lophoc" element={<ChiTietLopHoc />} />
               <Route path="/tao-baidang-timgiasu" element={<TaoBaiDangTimGiaSu />} />
+              <Route path="/cho-tailieu" element={<ChoTaiLieu />} />
+              <Route path="/dang-tailieu" element={<DangTaiLieu />} />
+              <Route path="/trang-canhan" element={<TrangCaNhan />} />
+              <Route path="/doi-diem-thuong" element={<DoiDiemThuong />} />
+
             </Routes>
           </Layout>
         }

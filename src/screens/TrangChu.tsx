@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
 
 const parentPosts = [
     {
@@ -75,26 +74,7 @@ const TrangChu: React.FC = () => {
     return (
         <div className="bg-gray-100 min-h-screen">
             {/* Header */}
-            <Header />
-            {/* <nav className="fixed top-0 left-0 right-0 bg-blue-600 text-white shadow z-20">
-                <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
-                    <a className="font-bold text-2xl md:text-3xl" href="#">Sutido App</a>
-                    <div className="flex items-center gap-3">
-                        <button
-                            className="border border-white text-white px-4 py-2 rounded hover:bg-white hover:text-blue-600 transition font-medium"
-                            onClick={() => navigate('/dangky-lamgiasu')}
-                        >
-                            Đăng ký làm gia sư
-                        </button>
-                        <button
-                            className="bg-white text-blue-600 px-4 py-2 rounded font-medium hover:bg-blue-100 transition"
-                            onClick={() => navigate('/baidang-giasu-cuthe')}
-                        >
-                            Xem bài đăng
-                        </button>
-                    </div>
-                </div>
-            </nav> */}
+
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 pt-24 pb-10">

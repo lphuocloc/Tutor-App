@@ -68,10 +68,16 @@ export default function Header() {
                                         <NavLink to="/login">Đăng nhập</NavLink>
                                     </Menu.Item>
                                     <Menu.Item key="profile">
-                                        <NavLink to="/trangca-nhan">Trang cá nhân</NavLink>
+                                        <NavLink to="/trang-canhan">Trang cá nhân</NavLink>
                                     </Menu.Item>
                                     <Menu.Item key="schedule">
                                         <NavLink to="/lich-giasu">Lịch học</NavLink>
+                                    </Menu.Item>
+                                    <Menu.Item key="market">
+                                        <NavLink to="/cho-tailieu">Chợ tài liệu</NavLink>
+                                    </Menu.Item>
+                                    <Menu.Item key="voucher">
+                                        <NavLink to="/doi-diem-thuong">Voucher</NavLink>
                                     </Menu.Item>
                                 </Menu>
                             }
