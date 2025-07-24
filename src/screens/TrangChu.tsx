@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom'; // Removed as it requires a Router context
 
 const parentPosts = [
@@ -134,7 +135,7 @@ const TrangChu: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true); // Assume initially there's content to scroll right
-
+    const navigation = useNavigate();
     // Placeholder for navigation function since useNavigate is removed
     const handleNavigation = (path: string) => {
         alert(`Chức năng điều hướng đến "${path}" không khả dụng trong môi trường này.`);
@@ -231,7 +232,7 @@ const TrangChu: React.FC = () => {
                     {/* Scrollable container */}
                     <div
                         ref={scrollContainerRef}
-                        className="flex overflow-x-auto pb-4 space-x-9" // Removed scrollbar-hide to allow default scrollbar for touch devices if needed
+                        className="flex overflow-x-auto pb-4 space-x-6" // Removed scrollbar-hide to allow default scrollbar for touch devices if needed
                         onScroll={checkScrollPosition} // Add onScroll event listener
                     >
                         {featuredTutorCVs.map((tutor) => (
@@ -292,7 +293,7 @@ const TrangChu: React.FC = () => {
                     <h2 className="font-bold text-xl md:text-2xl text-gray-800">Các gia sư nổi bật</h2>
                     <button
                         className="bg-blue-600 text-white px-5 py-2 rounded font-semibold flex items-center gap-2 hover:bg-blue-700 transition"
-                        onClick={() => handleNavigation('/tao-baidang-timgiasu')} // Using placeholder navigation
+                        onClick={() => navigation('/tao-baidang-timgiasu')} // Using placeholder navigation
                     >
                         Đăng bài tìm gia sư
                         {/* Plus Icon */}
@@ -345,6 +346,7 @@ const TrangChu: React.FC = () => {
                                 alt={`Gia sư ${tutor.name}`}
                                 className="rounded-full border-4 border-blue-300 mb-3"
                                 style={{ width: '96px', height: '96px' }}
+
                             />
                             <h5 className="text-lg font-semibold mb-1">{tutor.name}</h5>
                             <p className="text-blue-600 font-medium">{tutor.subjects}</p>
@@ -359,7 +361,7 @@ const TrangChu: React.FC = () => {
                             </p>
                             <button
                                 className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition mt-auto"
-                                onClick={() => handleNavigation('/baidang-giasu-cuthe')} // Using placeholder navigation
+                                onClick={() => navigation('/baidang-giasu-cuthe')} // Using placeholder navigation
                             >
                                 Tìm hiểu thêm
                             </button>
@@ -419,7 +421,7 @@ const TrangChu: React.FC = () => {
                                 <p className="text-green-600 font-bold mt-2 mb-3">Lương: {post.salary}</p>
                                 <button
                                     className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold mt-auto self-end hover:bg-blue-700 transition"
-                                    onClick={() => handleNavigation('/chitiet-lophoc')} // Using placeholder navigation
+                                    onClick={() => navigation('/chitiet-lophoc')} // Using placeholder navigation
                                 >
                                     Xem chi tiết
                                 </button>
