@@ -59,7 +59,7 @@ const ChoTaiLieu = () => {
     ]);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 font-sans text-gray-800">
+        <div className="min-h-screen pb-10 flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100 font-sans text-gray-800">
             {/* Header Section */}
 
             {/* Documents Grid */}
