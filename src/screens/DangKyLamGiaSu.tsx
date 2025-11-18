@@ -1,19 +1,47 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { tutorAPI } from '../api/endpoints'
+
+type EducationLevel =
+    | 'HighSchoolGraduate'
+    | 'CollegeStudent'
+    | 'UniversityStudent'
+    | 'CollegeGraduate'
+    | 'UniversityGraduate'
+    | 'Postgraduate'
+
+interface CertificationItem {
+    doc: string
+    note: string
+    file: File | null
+}
 
 const DangKyLamGiaSu: React.FC = () => {
     const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState(false)
+
     const [formData, setFormData] = useState({
-        fullName: 'Nguyễn Văn A',
-        dob: '',
-        gender: '',
-        address: '',
-        teachingAreas: '',
-        experience: '',
-        desiredPrice: ''
+        education: '' as EducationLevel | '',
+        experienceYears: '',
+        description: ''
     })
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const [certifications, setCertifications] = useState<CertificationItem[]>([
+        { doc: '', note: '', file: null }
+    ])
+
+    // const educationOptions = [
+    //     { value: 'HighSchoolGraduate', label: 'Tốt nghiệp THPT' },
+    //     { value: 'CollegeStudent', label: 'Sinh viên Cao đẳng' },
+    //     { value: 'UniversityStudent', label: 'Sinh viên Đại học' },
+    //     { value: 'CollegeGraduate', label: 'Tốt nghiệp Cao đẳng' },
+    //     { value: 'UniversityGraduate', label: 'Tốt nghiệp Đại học' },
+    //     { value: 'Postgraduate', label: 'Sau đại học' }
+    // ]
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({
             ...prev,
@@ -21,154 +49,296 @@ const DangKyLamGiaSu: React.FC = () => {
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleAddCertification = () => {
+        setCertifications(prev => [...prev, { doc: '', note: '', file: null }])
+    }
+
+    const handleRemoveCertification = (index: number) => {
+        if (certifications.length > 1) {
+            setCertifications(prev => prev.filter((_, i) => i !== index))
+        }
+    }
+
+    const handleCertificationChange = (index: number, field: keyof CertificationItem, value: string) => {
+        setCertifications(prev => {
+            const updated = [...prev]
+            updated[index] = { ...updated[index], [field]: value }
+            return updated
+        })
+    }
+
+    const handleFileChange = (index: number, file: File | null) => {
+        setCertifications(prev => {
+            const updated = [...prev]
+            updated[index] = { ...updated[index], file }
+            return updated
+        })
+    }
+
+    const validateForm = (): string | null => {
+        if (!formData.education) {
+            return 'Vui lòng chọn trình độ học vấn'
+        }
+        if (!formData.experienceYears || parseInt(formData.experienceYears) < 0) {
+            return 'Vui lòng nhập số năm kinh nghiệm hợp lệ'
+        }
+
+        // Kiểm tra certifications
+        for (let i = 0; i < certifications.length; i++) {
+            const cert = certifications[i]
+            if (!cert.doc || !cert.note || !cert.file) {
+                return `Chứng chỉ ${i + 1}: Vui lòng điền đầy đủ thông tin và upload file`
+            }
+        }
+
+        return null
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log('Form data:', formData)
-        navigate('/baidang-giasu-cuthe')
+        setError('')
+        setSuccess(false)
+
+        // Validate
+        const validationError = validateForm()
+        if (validationError) {
+            setError(validationError)
+            return
+        }
+
+        try {
+            setLoading(true)
+
+            // Tạo FormData
+            const submitData = new FormData()
+
+            // Lấy userId từ localStorage hoặc context (giả sử đã có)
+            const userId = localStorage.getItem('userId') || '1' // Thay bằng userId thực tế
+            submitData.append('UserId', userId)
+            submitData.append('Education', formData.education)
+            submitData.append('ExperienceYears', formData.experienceYears)
+
+            if (formData.description) {
+                submitData.append('Description', formData.description)
+            }
+
+            // Append arrays
+            certifications.forEach(cert => {
+                submitData.append('Docs', cert.doc)
+                submitData.append('Notes', cert.note)
+                if (cert.file) {
+                    submitData.append('Files', cert.file)
+                }
+            })
+
+            // Gọi API
+            const response = await tutorAPI.registerProfile(submitData)
+
+            console.log('Đăng ký thành công:', response.data)
+            setSuccess(true)
+
+            // Chuyển hướng sau 2 giây
+            setTimeout(() => {
+                navigate('/trangchu')
+            }, 2000)
+
+        } catch (err: unknown) {
+            console.error('Lỗi đăng ký:', err)
+            let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.'
+
+            if (err && typeof err === 'object' && 'response' in err) {
+                const response = (err as { response?: { data?: { message?: string }; status?: number } }).response
+                if (response?.status === 400) {
+                    errorMessage = response.data?.message || 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.'
+                } else if (response?.status === 401) {
+                    errorMessage = 'Bạn cần đăng nhập để thực hiện chức năng này.'
+                } else {
+                    errorMessage = response?.data?.message || errorMessage
+                }
+            }
+
+            setError(errorMessage)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
-        <div className="bg-gray-100 min-h-screen py-8">
-            <div className="max-w-7xl mx-auto px-4 mt-20">
-                <div className="bg-white rounded-xl shadow-lg">
-                    <div className="p-6">
-                        <h1 className="text-center font-bold text-2xl text-gray-900 mb-3">Trở thành Gia sư của chúng tôi</h1>
-                        <p className="text-center text-gray-500 mb-6">
-                            Để đảm bảo chất lượng dịch vụ, chúng tôi yêu cầu bạn cung cấp các thông tin và văn bằng cần thiết.
-                        </p>
+        <div className="min-h-screen bg-gray-50 py-6 px-4">
+            <div className="max-w-2xl mx-auto">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h1 className="text-2xl font-bold text-center text-blue-600 mb-1">
+                        Đăng Ký Làm Gia Sư
+                    </h1>
+                    <p className="text-center text-gray-600 mb-4 text-sm">
+                        Điền thông tin để trở thành gia sư của chúng tôi
+                    </p>
 
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="fullName" className="block font-medium mb-1">Tên đầy đủ</label>
-                                    <input
-                                        type="text"
-                                        id="fullName"
-                                        name="fullName"
-                                        value={formData.fullName}
-                                        className="w-full bg-gray-100 border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                        readOnly
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="dob" className="block font-medium mb-1">Ngày sinh</label>
-                                    <input
-                                        type="date"
-                                        id="dob"
-                                        name="dob"
-                                        value={formData.dob}
-                                        onChange={handleInputChange}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="gender" className="block font-medium mb-1">Giới tính</label>
-                                    <select
-                                        id="gender"
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={handleInputChange}
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    >
-                                        <option value="">Chọn giới tính</option>
-                                        <option value="Nam">Nam</option>
-                                        <option value="Nữ">Nữ</option>
-                                        <option value="Khác">Khác</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="address" className="block font-medium mb-1">Địa chỉ hiện tại</label>
-                                    <input
-                                        type="text"
-                                        id="address"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        placeholder="Nhập địa chỉ của bạn"
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label htmlFor="teachingAreas" className="block font-medium mb-1">Khu vực có thể giảng dạy</label>
-                                    <input
-                                        type="text"
-                                        id="teachingAreas"
-                                        name="teachingAreas"
-                                        value={formData.teachingAreas}
-                                        onChange={handleInputChange}
-                                        placeholder="Ví dụ: Quận 1, Quận 3, Thủ Đức"
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="experience" className="block font-medium mb-1">Kinh nghiệm giảng dạy (năm)</label>
-                                    <input
-                                        type="number"
-                                        id="experience"
-                                        name="experience"
-                                        value={formData.experience}
-                                        onChange={handleInputChange}
-                                        placeholder="Số năm kinh nghiệm"
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="desiredPrice" className="block font-medium mb-1">Giá tiền mong muốn/buổi (VNĐ)</label>
-                                    <input
-                                        type="number"
-                                        id="desiredPrice"
-                                        name="desiredPrice"
-                                        value={formData.desiredPrice}
-                                        onChange={handleInputChange}
-                                        placeholder="Ví dụ: 150000"
-                                        className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
-                                    />
-                                </div>
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                            {error}
+                        </div>
+                    )}
+
+                    {success && (
+                        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                            Đăng ký thành công! Đang chuyển hướng...
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Trình độ học vấn */}
+                        <div>
+                            <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
+                                Trình độ học vấn <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="education"
+                                name="education"
+                                value={formData.education}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">-- Chọn trình độ --</option>
+                                <option value="HighSchoolGraduate">Tốt nghiệp THPT</option>
+                                <option value="CollegeStudent">Sinh viên Cao đẳng</option>
+                                <option value="UniversityStudent">Sinh viên Đại học</option>
+                                <option value="CollegeGraduate">Tốt nghiệp Cao đẳng</option>
+                                <option value="UniversityGraduate">Tốt nghiệp Đại học</option>
+                                <option value="Postgraduate">Sau đại học</option>
+                            </select>
+                        </div>
+
+                        {/* Số năm kinh nghiệm */}
+                        <div>
+                            <label htmlFor="experienceYears" className="block text-sm font-medium text-gray-700 mb-1">
+                                Số năm kinh nghiệm <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="experienceYears"
+                                name="experienceYears"
+                                value={formData.experienceYears}
+                                onChange={handleInputChange}
+                                min="0"
+                                required
+                                placeholder="VD: 3"
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Mô tả */}
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                                Mô tả về bản thân
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                rows={3}
+                                placeholder="Giới thiệu về kinh nghiệm, phương pháp giảng dạy, thành tích..."
+                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+
+                        {/* Chứng chỉ/Bằng cấp */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Chứng chỉ/Bằng cấp <span className="text-red-500">*</span>
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={handleAddCertification}
+                                    className="px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm"
+                                >
+                                    + Thêm chứng chỉ
+                                </button>
                             </div>
 
-                            <div className="mt-8">
-                                <h3 className="font-semibold text-gray-900 mb-3 text-lg">Tải lên văn bằng</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex flex-col items-center p-4">
-                                        <i className="fas fa-id-card text-blue-500 text-3xl mb-2"></i>
-                                        <p className="text-sm mb-2 text-gray-700">CCCD/CMND (Mặt trước)</p>
-                                        <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded flex items-center">
-                                            <i className="fas fa-upload mr-1"></i>Tải lên
-                                        </button>
-                                    </div>
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex flex-col items-center p-4">
-                                        <i className="fas fa-id-card text-blue-500 text-3xl mb-2"></i>
-                                        <p className="text-sm mb-2 text-gray-700">CCCD/CMND (Mặt sau)</p>
-                                        <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded flex items-center">
-                                            <i className="fas fa-upload mr-1"></i>Tải lên
-                                        </button>
-                                    </div>
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex flex-col items-center p-4">
-                                        <i className="fas fa-graduation-cap text-blue-500 text-3xl mb-2"></i>
-                                        <p className="text-sm mb-2 text-gray-700">Bằng cấp 3</p>
-                                        <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded flex items-center">
-                                            <i className="fas fa-upload mr-1"></i>Tải lên
-                                        </button>
-                                    </div>
-                                    <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex flex-col items-center p-4">
-                                        <i className="fas fa-university text-blue-500 text-3xl mb-2"></i>
-                                        <p className="text-sm mb-2 text-gray-700">Bằng Đại học/Cao đẳng</p>
-                                        <button type="button" className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded flex items-center">
-                                            <i className="fas fa-upload mr-1"></i>Tải lên
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <div className="space-y-3">
+                                {certifications.map((cert, index) => (
+                                    <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <h3 className="font-medium text-gray-700 text-sm">Chứng chỉ {index + 1}</h3>
+                                            {certifications.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveCertification(index)}
+                                                    className="text-red-500 hover:text-red-700 text-xs"
+                                                >
+                                                    Xóa
+                                                </button>
+                                            )}
+                                        </div>
 
-                            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg mt-8 transition">
-                                Gửi yêu cầu đăng ký
+                                        <div className="space-y-2">
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">
+                                                    Tên chứng chỉ <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={cert.doc}
+                                                    onChange={(e) => handleCertificationChange(index, 'doc', e.target.value)}
+                                                    placeholder="VD: Bằng Cử nhân Toán học"
+                                                    required
+                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">
+                                                    Ghi chú <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={cert.note}
+                                                    onChange={(e) => handleCertificationChange(index, 'note', e.target.value)}
+                                                    placeholder="VD: Tốt nghiệp loại Giỏi, năm 2020"
+                                                    required
+                                                    className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">
+                                                    File đính kèm <span className="text-red-500">*</span>
+                                                </label>
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf,.jpg,.jpeg,.png"
+                                                    onChange={(e) => handleFileChange(index, e.target.files?.[0] || null)}
+                                                    required
+                                                    className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                />
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {cert.file ? `Đã chọn: ${cert.file.name}` : 'PDF, JPG, PNG'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Nút submit */}
+                        <div className="pt-4">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`w-full py-3 px-4 rounded-lg font-medium transition ${loading
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                    }`}
+                            >
+                                {loading ? 'Đang xử lý...' : 'Đăng ký'}
                             </button>
-                        </form>
-
-                        <p className="text-center text-gray-500 text-sm mt-6">
-                            Yêu cầu của bạn sẽ được đội ngũ của chúng tôi xem xét và duyệt thủ công trong vòng 3-5 ngày làm việc.
-                        </p>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

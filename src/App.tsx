@@ -19,6 +19,19 @@ import ManHinhTrackingPhuHuynhDetail from './screens/ManHinhTrackingPhuHuynhDeta
 import ChiTietLopHoc from './screens/ChiTietLopHoc'
 import TaoBaiDangTimGiaSu from './screens/TaoBaiDangTimGiaSu'
 
+// import các màn hình cơ bản
+import HomePage from './screens/HomePage'
+
+// Import dashboards theo role
+import AdminDashboard from './screens/AdminDashboard'
+import StaffDashboard from './screens/StaffDashboard'
+import TutorDashboard from './screens/TutorDashboard'
+import CustomerDashboard from './screens/CustomerDashboard'
+import Unauthorized from './screens/Unauthorized'
+
+// Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute'
+
 import Header from './components/Header'
 import Footer from './components/Footer'
 import XacNhanDatCocGiaSu from './screens/XacNhanDatCocGiaSu'
@@ -43,12 +56,54 @@ function App() {
   return (
     <Routes>
       {/* Route mặc định chuyển đến màn hình đăng nhập */}
-      <Route path="/" element={<Navigate to="/trangchu" replace />} />
+      <Route path="/" element={<Navigate to="/home-page" replace />} />
 
       {/* Các route không cần layout */}
       <Route path="/login" element={<Login />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="/home-page" element={<HomePage />} />
 
-      {/* Các route có layout */}
+      {/* Protected Routes - Admin */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['Admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Routes - Staff */}
+      <Route
+        path="/staff/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['Staff']}>
+            <StaffDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Routes - Tutor */}
+      <Route
+        path="/tutor/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['Tutor']}>
+            <TutorDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Routes - Customer */}
+      <Route
+        path="/customer/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={['Customer']}>
+            <CustomerDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Các route có layout - Public hoặc Customer */}
       <Route
         path="*"
         element={
@@ -56,6 +111,7 @@ function App() {
             <Routes>
               <Route path="/xacthuc1" element={<XacThuc1 />} />
               <Route path="/xacthuc2" element={<XacThuc2 />} />
+
               <Route path="/trangchu" element={<TrangChu />} />
               <Route path="/dangky-lamgiasu" element={<DangKyLamGiaSu />} />
               <Route path="/baidang-giasu-cuthe" element={<BaiDangGiaSuCuThe />} />
@@ -75,11 +131,12 @@ function App() {
               <Route path="/dang-tailieu" element={<DangTaiLieu />} />
               <Route path="/trang-canhan" element={<TrangCaNhan />} />
               <Route path="/doi-diem-thuong" element={<DoiDiemThuong />} />
-
             </Routes>
           </Layout>
+
         }
       />
+
     </Routes>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { authAPI } from '../api/endpoints'
 
 /**
  * Lý do xuất hiện thanh cuộn dọc/ngang khi chuyển sang sign up:
@@ -17,6 +18,8 @@ import { useNavigate } from 'react-router-dom'
 const Login: React.FC = () => {
     const navigate = useNavigate()
     const [isLoginMode, setIsLoginMode] = useState(true)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
     // Form states
     const [loginForm, setLoginForm] = useState({
@@ -26,7 +29,8 @@ const Login: React.FC = () => {
     })
 
     const [signupForm, setSignupForm] = useState({
-        name: '',
+        fullName: '',
+        dateOfBirth: '',
         email: '',
         phone: '',
         password: '',
@@ -34,18 +38,110 @@ const Login: React.FC = () => {
         agreeTerms: false
     })
 
-    const handleLoginSubmit = (e: React.FormEvent) => {
+    const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Xử lý đăng nhập
-        console.log('Login:', loginForm)
-        navigate('/xacthuc1')
+        setError('')
+
+        try {
+            setLoading(true)
+
+            const response = await authAPI.login({
+                identifier: loginForm.email,
+                password: loginForm.password,
+            })
+
+            // Lưu token và role nếu backend trả về
+            const data = response.data || {}
+            if (data.token) {
+                localStorage.setItem('accessToken', data.token)
+            }
+            if (data.refreshToken) {
+                localStorage.setItem('refreshToken', data.refreshToken)
+            }
+            if (data.role) {
+                localStorage.setItem('userRole', data.role)
+            }
+
+            console.log('Đăng nhập thành công:', data)
+
+            // Điều hướng dựa trên role
+            const role = data.role
+            if (role === 'Admin') {
+                navigate('/admin/dashboard')
+            } else if (role === 'Staff') {
+                navigate('/staff/dashboard')
+            } else if (role === 'Tutor') {
+                navigate('/tutor/dashboard')
+            } else {
+                // Customer hoặc không có role
+                navigate('/trangchu')
+            }
+        } catch (err: unknown) {
+            console.error('Lỗi đăng nhập:', err)
+            let errorMessage = 'Đăng nhập thất bại. Vui lòng thử lại.'
+            if (err && typeof err === 'object' && 'response' in err) {
+                const response = (err as { response?: { data?: { message?: string } } }).response
+                errorMessage = response?.data?.message || errorMessage
+            }
+            setError(errorMessage)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const handleSignupSubmit = (e: React.FormEvent) => {
+    const handleSignupSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        // Xử lý đăng ký
-        console.log('Signup:', signupForm)
-        navigate('/xacthuc1')
+        setError('')
+
+        // Validate password match
+        if (signupForm.password !== signupForm.confirmPassword) {
+            setError('Mật khẩu xác nhận không khớp')
+            return
+        }
+
+        // Validate terms agreement
+        if (!signupForm.agreeTerms) {
+            setError('Bạn cần đồng ý với điều khoản dịch vụ')
+            return
+        }
+
+        try {
+            setLoading(true)
+
+            // Format date to ISO string
+            const dateOfBirth = signupForm.dateOfBirth
+                ? new Date(signupForm.dateOfBirth).toISOString()
+                : new Date().toISOString()
+
+            const response = await authAPI.register({
+                fullName: signupForm.fullName,
+                dateOfBirth: dateOfBirth,
+                email: signupForm.email,
+                phone: signupForm.phone,
+                password: signupForm.password,
+                confirmPassword: signupForm.confirmPassword
+            })
+
+            console.log('Đăng ký thành công:', response.data)
+
+            // Save email to use in OTP verification
+            // localStorage.setItem('pendingEmail', signupForm.email)
+
+            // Navigate to OTP verification
+            navigate('/trangchu')
+        } catch (err: unknown) {
+            console.error('Lỗi đăng ký:', err)
+            let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.'
+
+            if (err && typeof err === 'object' && 'response' in err) {
+                const response = (err as { response?: { data?: { message?: string } } }).response
+                errorMessage = response?.data?.message || errorMessage
+            }
+
+            setError(errorMessage)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleLoginInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +167,13 @@ const Login: React.FC = () => {
                     <h1 className="text-center text-gray-900 mb-6 font-bold text-2xl md:text-3xl">
                         Chào mừng bạn đến với Sutido
                     </h1>
+
+                    {/* Error message */}
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     {/* Tab buttons */}
                     <div className="flex justify-center mb-6 gap-3">
@@ -152,9 +255,10 @@ const Login: React.FC = () => {
 
                             <button
                                 type="submit"
-                                className="w-full py-2 font-semibold rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition text-lg"
+                                disabled={loading}
+                                className="w-full py-2 font-semibold rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                Đăng nhập
+                                {loading ? 'Đang xử lý...' : 'Đăng nhập'}
                             </button>
 
                             <p className="text-center text-gray-500 text-sm mt-3">
@@ -181,10 +285,25 @@ const Login: React.FC = () => {
                                     type="text"
                                     className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                     id="signupName"
-                                    name="name"
-                                    value={signupForm.name}
+                                    name="fullName"
+                                    value={signupForm.fullName}
                                     onChange={handleSignupInputChange}
                                     placeholder="Nhập họ và tên của bạn"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="signupDateOfBirth" className="block text-gray-700 font-medium mb-1">
+                                    Ngày sinh
+                                </label>
+                                <input
+                                    type="date"
+                                    className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    id="signupDateOfBirth"
+                                    name="dateOfBirth"
+                                    value={signupForm.dateOfBirth}
+                                    onChange={handleSignupInputChange}
                                     required
                                 />
                             </div>
@@ -272,9 +391,10 @@ const Login: React.FC = () => {
 
                             <button
                                 type="submit"
-                                className="w-full py-2 font-semibold rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition text-lg"
+                                disabled={loading}
+                                className="w-full py-2 font-semibold rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
                             >
-                                Đăng ký
+                                {loading ? 'Đang xử lý...' : 'Đăng ký'}
                             </button>
 
                             <p className="text-center text-gray-500 text-sm mt-3">
