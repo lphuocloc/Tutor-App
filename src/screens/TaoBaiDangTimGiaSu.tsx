@@ -1,47 +1,51 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { message } from "antd";
+import { classAPI } from "../api/endpoints";
 
 const subjects = [
     { value: "", label: "Chọn môn học" },
-    { value: "math", label: "Toán" },
-    { value: "literature", label: "Văn" },
-    { value: "english", label: "Tiếng Anh" },
-    { value: "physics", label: "Vật lý" },
-    { value: "chemistry", label: "Hóa học" },
-    { value: "biology", label: "Sinh học" },
-    { value: "history", label: "Lịch sử" },
-    { value: "geography", label: "Địa lý" },
-    { value: "informatics", label: "Tin học" },
+    { value: "Toán", label: "Toán" },
+    { value: "Văn", label: "Văn" },
+    { value: "Tiếng Anh", label: "Tiếng Anh" },
+    { value: "Vật lý", label: "Vật lý" },
+    { value: "Hóa học", label: "Hóa học" },
+    { value: "Sinh học", label: "Sinh học" },
+    { value: "Lịch sử", label: "Lịch sử" },
+    { value: "Địa lý", label: "Địa lý" },
+    { value: "Tin học", label: "Tin học" },
 ];
 
 const grades = [
     { value: "", label: "Chọn lớp" },
-    { value: "1", label: "Lớp 1" },
-    { value: "2", label: "Lớp 2" },
-    { value: "3", label: "Lớp 3" },
-    { value: "4", label: "Lớp 4" },
-    { value: "5", label: "Lớp 5" },
-    { value: "6", label: "Lớp 6" },
-    { value: "7", label: "Lớp 7" },
-    { value: "8", label: "Lớp 8" },
-    { value: "9", label: "Lớp 9" },
-    { value: "10", label: "Lớp 10" },
-    { value: "11", label: "Lớp 11" },
-    { value: "12", label: "Lớp 12" },
-    { value: "other", label: "Khác (Luyện thi, Giao tiếp...)" },
+    { value: "Lớp 1", label: "Lớp 1" },
+    { value: "Lớp 2", label: "Lớp 2" },
+    { value: "Lớp 3", label: "Lớp 3" },
+    { value: "Lớp 4", label: "Lớp 4" },
+    { value: "Lớp 5", label: "Lớp 5" },
+    { value: "Lớp 6", label: "Lớp 6" },
+    { value: "Lớp 7", label: "Lớp 7" },
+    { value: "Lớp 8", label: "Lớp 8" },
+    { value: "Lớp 9", label: "Lớp 9" },
+    { value: "Lớp 10", label: "Lớp 10" },
+    { value: "Lớp 11", label: "Lớp 11" },
+    { value: "Lớp 12", label: "Lớp 12" },
+    { value: "Khác", label: "Khác (Luyện thi, Giao tiếp...)" },
 ];
 
 export default function TaoBaiDangTimGiaSu() {
-    const [messageApi, contextHolder] = message.useMessage();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         postTitle: "",
         subject: "",
         grade: "",
         sessionsPerWeek: "",
+        preferredDays: "",
         preferredTime: "",
         salaryPerSession: "",
-        area: "",
         description: "",
     });
 
@@ -49,14 +53,64 @@ export default function TaoBaiDangTimGiaSu() {
         setForm({ ...form, [e.target.id]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        messageApi.success("Đăng bài thành công!");
+
+        // Lấy userId từ localStorage
+        const userId = localStorage.getItem('userId');
+        console.log('userId from localStorage:', userId);
+
+        if (!userId) {
+            console.log('No userId found, redirecting to login');
+            message.error('Vui lòng đăng nhập để tạo bài đăng');
+            setTimeout(() => {
+                navigate('/login');
+            }, 1500);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // Chuẩn bị data theo format API
+            const postData = {
+                creatorUserId: parseInt(userId),
+                title: form.postTitle,
+                subject: form.subject,
+                studentGrade: form.grade,
+                sessionsPerWeek: parseInt(form.sessionsPerWeek),
+                preferredDays: form.preferredDays,
+                preferredTime: form.preferredTime,
+                pricePerSession: parseFloat(form.salaryPerSession),
+                description: form.description || undefined
+            };
+
+            console.log('Sending post data:', postData);
+
+            // Gọi API
+            const response = await classAPI.createPost(postData);
+
+            console.log('Post created successfully:', response.data);
+
+            // Hiển thị thông báo thành công
+            message.success('Đăng bài tìm gia sư thành công!', 2);
+
+            // Chuyển hướng sau 2 giây
+            setTimeout(() => {
+                navigate('/trangchu');
+            }, 2000);
+
+        } catch (error) {
+            console.error('Error creating post:', error);
+            const errorMessage = (error as any)?.response?.data?.message || 'Có lỗi xảy ra khi đăng bài. Vui lòng thử lại.';
+            message.error(errorMessage);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
-            {contextHolder}
             {/* Header */}
             <Header />
 
@@ -178,15 +232,15 @@ export default function TaoBaiDangTimGiaSu() {
                                 />
                             </div>
                             <div>
-                                <label htmlFor="area" className="block text-gray-700 text-sm font-medium mb-1">
-                                    Khu vực dạy <span className="text-red-500">*</span>
+                                <label htmlFor="preferredDays" className="block text-gray-700 text-sm font-medium mb-1">
+                                    Ngày có thể học <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
-                                    id="area"
-                                    value={form.area}
+                                    id="preferredDays"
+                                    value={form.preferredDays}
                                     onChange={handleChange}
-                                    placeholder="Ví dụ: Quận 3, TP.HCM"
+                                    placeholder="Ví dụ: Thứ 2, Thứ 4, Thứ 6"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
@@ -211,9 +265,13 @@ export default function TaoBaiDangTimGiaSu() {
 
                         <button
                             type="submit"
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300 shadow-lg mt-8"
+                            disabled={loading}
+                            className={`w-full py-3 rounded-lg font-semibold transition-colors duration-300 shadow-lg mt-8 ${loading
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                }`}
                         >
-                            Đăng bài tìm gia sư
+                            {loading ? 'Đang đăng bài...' : 'Đăng bài tìm gia sư'}
                         </button>
                     </form>
                 </div>

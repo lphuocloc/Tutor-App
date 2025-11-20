@@ -1,183 +1,529 @@
-import React from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import PostsContent from '../components/PostsContent';
+import { message } from 'antd';
+import { classAPI } from '../api/endpoints';
+
+type MenuType = 'dashboard' | 'posts' | 'createPost' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages';
 
 const TutorDashboard: React.FC = () => {
     const navigate = useNavigate();
     const userName = localStorage.getItem('userName') || 'Gia sư';
+    const [activeMenu, setActiveMenu] = useState<MenuType>('dashboard');
+    const [sidebarOpen, setSidebarOpen] = useState(true);
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userRole');
         localStorage.removeItem('userName');
+        localStorage.removeItem('userId');
         navigate('/login');
     };
 
+    const menuItems = [
+        { id: 'dashboard' as MenuType, label: 'Dashboard', icon: '📊' },
+        { id: 'posts' as MenuType, label: 'Bài đăng phụ huynh', icon: '📝' },
+        { id: 'createPost' as MenuType, label: 'Đăng bài tìm học sinh', icon: '✏️' },
+        { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
+        { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
+        { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
+        { id: 'messages' as MenuType, label: 'Tin nhắn', icon: '💬' },
+        { id: 'profile' as MenuType, label: 'Hồ sơ cá nhân', icon: '👤' },
+    ];
+
+    const renderContent = () => {
+        switch (activeMenu) {
+            case 'dashboard':
+                return <DashboardContent />;
+            case 'posts':
+                return <PostsContent />;
+            case 'createPost':
+                return <CreatePostContent />;
+            case 'schedule':
+                return <ScheduleContent />;
+            case 'students':
+                return <StudentsContent />;
+            case 'earnings':
+                return <EarningsContent />;
+            case 'profile':
+                return <ProfileContent />;
+            case 'messages':
+                return <MessagesContent />;
+            default:
+                return <DashboardContent />;
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
-            <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Trang Gia Sư</h1>
-                            <p className="text-gray-600 mt-2">Chào mừng, {userName}</p>
-                        </div>
+        <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+            {/* Sidebar */}
+            <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-br from-indigo-600 to-purple-600 text-white transition-all duration-300 flex flex-col shadow-2xl`}>
+                {/* Header with Toggle */}
+                <div className={`p-4 flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'} border-b border-indigo-500`}>
+                    {sidebarOpen && <h2 className="text-xl font-bold">Tutor Panel</h2>}
+                    <button
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                        title={sidebarOpen ? 'Thu gọn' : 'Mở rộng'}
+                    >
+                        <span className="text-lg font-bold">{sidebarOpen ? '◀' : '▶'}</span>
+                    </button>
+                </div>
+
+                {/* Menu Items */}
+                <nav className={`flex-1 ${sidebarOpen ? 'p-4' : 'p-2'} space-y-2 overflow-y-auto scrollbar-hide`}>
+                    {menuItems.map(item => (
                         <button
-                            onClick={handleLogout}
-                            className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                            key={item.id}
+                            onClick={() => setActiveMenu(item.id)}
+                            className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4' : 'justify-center'} py-3 rounded-lg transition-all group relative ${activeMenu === item.id
+                                ? 'bg-white text-indigo-600 shadow-lg scale-105'
+                                : 'hover:bg-white/20 hover:scale-105'
+                                }`}
+                            title={!sidebarOpen ? item.label : ''}
                         >
-                            Đăng xuất
+                            <span className={`${sidebarOpen ? 'text-xl' : 'text-2xl'} flex-shrink-0`}>{item.icon}</span>
+                            {sidebarOpen && <span className="font-medium text-sm whitespace-nowrap">{item.label}</span>}
+
+                            {/* Tooltip khi sidebar đóng */}
+                            {!sidebarOpen && (
+                                <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                    {item.label}
+                                </div>
+                            )}
+                        </button>
+                    ))}
+                </nav>
+
+                {/* User Info & Logout */}
+                <div className={`${sidebarOpen ? 'p-4' : 'p-2'} border-t border-indigo-500`}>
+                    {sidebarOpen && (
+                        <div className="mb-3 px-2">
+                            <p className="text-sm text-indigo-200">Xin chào,</p>
+                            <p className="font-semibold truncate">{userName}</p>
+                        </div>
+                    )}
+                    <button
+                        onClick={handleLogout}
+                        className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4' : 'justify-center'} py-3 bg-red-500 hover:bg-red-600 rounded-lg transition-all hover:scale-105 group relative`}
+                        title={!sidebarOpen ? 'Đăng xuất' : ''}
+                    >
+                        <span className={`${sidebarOpen ? 'text-xl' : 'text-2xl'} flex-shrink-0`}>🚪</span>
+                        {sidebarOpen && <span className="font-medium">Đăng xuất</span>}
+
+                        {/* Tooltip khi sidebar đóng */}
+                        {!sidebarOpen && (
+                            <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                                Đăng xuất
+                            </div>
+                        )}
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 overflow-auto bg-gray-50">
+                {renderContent()}
+            </main>
+        </div>
+    );
+};
+
+const DashboardContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-600 text-sm">Lớp đang dạy</p>
+                        <p className="text-3xl font-bold text-gray-800 mt-1">5</p>
+                    </div>
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                        <span className="text-3xl">📚</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-600 text-sm">Học sinh</p>
+                        <p className="text-3xl font-bold text-gray-800 mt-1">23</p>
+                    </div>
+                    <div className="p-3 bg-green-100 rounded-lg">
+                        <span className="text-3xl">👥</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-600 text-sm">Giờ dạy tháng này</p>
+                        <p className="text-3xl font-bold text-gray-800 mt-1">48</p>
+                    </div>
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                        <span className="text-3xl">⏰</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-600 text-sm">Thu nhập tháng này</p>
+                        <p className="text-3xl font-bold text-gray-800 mt-1">12M</p>
+                    </div>
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                        <span className="text-3xl">💰</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Hoạt động gần đây</h2>
+            <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
+                    <span className="text-2xl">📝</span>
+                    <div className="flex-1">
+                        <p className="font-medium text-gray-800">Bài đăng mới từ phụ huynh Nguyễn Văn A</p>
+                        <p className="text-sm text-gray-600">Cần gia sư Toán lớp 10 - 30 phút trước</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
+                    <span className="text-2xl">✅</span>
+                    <div className="flex-1">
+                        <p className="font-medium text-gray-800">Hoàn thành buổi học với Trần Thị B</p>
+                        <p className="text-sm text-gray-600">Vật lý lớp 11 - 2 giờ trước</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg">
+                    <span className="text-2xl">⭐</span>
+                    <div className="flex-1">
+                        <p className="font-medium text-gray-800">Nhận đánh giá 5 sao từ Lê Văn C</p>
+                        <p className="text-sm text-gray-600">Hóa học lớp 12 - 1 ngày trước</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const ScheduleContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Lịch dạy của tôi</h1>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <p className="text-gray-600">Chức năng lịch dạy đang được phát triển...</p>
+        </div>
+    </div>
+);
+
+const StudentsContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Học sinh của tôi</h1>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <p className="text-gray-600">Danh sách học sinh đang được phát triển...</p>
+        </div>
+    </div>
+);
+
+const EarningsContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Thu nhập</h1>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <p className="text-gray-600">Thống kê thu nhập đang được phát triển...</p>
+        </div>
+    </div>
+);
+
+const ProfileContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <p className="text-gray-600">Trang hồ sơ cá nhân đang được phát triển...</p>
+        </div>
+    </div>
+);
+
+const MessagesContent: React.FC = () => (
+    <div className="p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
+        <div className="bg-white rounded-xl shadow-md p-6">
+            <p className="text-gray-600">Hệ thống tin nhắn đang được phát triển...</p>
+        </div>
+    </div>
+);
+
+const CreatePostContent: React.FC = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [form, setForm] = useState({
+        postTitle: "",
+        subject: "",
+        grade: "",
+        sessionsPerWeek: "",
+        preferredDays: "",
+        preferredTime: "",
+        salaryPerSession: "",
+        description: "",
+    });
+
+    const subjects = [
+        { value: "", label: "Chọn môn học" },
+        { value: "Toán", label: "Toán" },
+        { value: "Văn", label: "Văn" },
+        { value: "Tiếng Anh", label: "Tiếng Anh" },
+        { value: "Vật lý", label: "Vật lý" },
+        { value: "Hóa học", label: "Hóa học" },
+        { value: "Sinh học", label: "Sinh học" },
+        { value: "Lịch sử", label: "Lịch sử" },
+        { value: "Địa lý", label: "Địa lý" },
+        { value: "Tin học", label: "Tin học" },
+    ];
+
+    const grades = [
+        { value: "", label: "Chọn lớp" },
+        { value: "Lớp 1", label: "Lớp 1" },
+        { value: "Lớp 2", label: "Lớp 2" },
+        { value: "Lớp 3", label: "Lớp 3" },
+        { value: "Lớp 4", label: "Lớp 4" },
+        { value: "Lớp 5", label: "Lớp 5" },
+        { value: "Lớp 6", label: "Lớp 6" },
+        { value: "Lớp 7", label: "Lớp 7" },
+        { value: "Lớp 8", label: "Lớp 8" },
+        { value: "Lớp 9", label: "Lớp 9" },
+        { value: "Lớp 10", label: "Lớp 10" },
+        { value: "Lớp 11", label: "Lớp 11" },
+        { value: "Lớp 12", label: "Lớp 12" },
+        { value: "Khác", label: "Khác (Luyện thi, Giao tiếp...)" },
+    ];
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        setForm({ ...form, [e.target.id]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const userId = localStorage.getItem('userId');
+
+        if (!userId) {
+            message.error('Vui lòng đăng nhập để tạo bài đăng');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const postData = {
+                creatorUserId: parseInt(userId),
+                title: form.postTitle,
+                subject: form.subject,
+                studentGrade: form.grade,
+                sessionsPerWeek: parseInt(form.sessionsPerWeek),
+                preferredDays: form.preferredDays,
+                preferredTime: form.preferredTime,
+                pricePerSession: parseFloat(form.salaryPerSession),
+                description: form.description || undefined
+            };
+
+            await classAPI.createPost(postData);
+
+            message.success('Đăng bài tìm học sinh thành công!');
+
+            // Reset form
+            setForm({
+                postTitle: "",
+                subject: "",
+                grade: "",
+                sessionsPerWeek: "",
+                preferredDays: "",
+                preferredTime: "",
+                salaryPerSession: "",
+                description: "",
+            });
+
+        } catch (error) {
+            console.error('Error creating post:', error);
+            message.error('Có lỗi xảy ra khi đăng bài. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="p-8">
+            <div className="bg-white rounded-xl shadow-xl p-8">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">Đăng bài tìm học sinh</h1>
+                <p className="text-gray-600 mb-8">
+                    Vui lòng điền đầy đủ thông tin về lớp học bạn muốn tìm học sinh.
+                </p>
+
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                    {/* Tiêu đề */}
+                    <div>
+                        <label htmlFor="postTitle" className="block text-gray-700 text-sm font-medium mb-2">
+                            Tiêu đề bài đăng <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="postTitle"
+                            value={form.postTitle}
+                            onChange={handleChange}
+                            placeholder="Ví dụ: Tìm học sinh học Toán lớp 9"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Môn học và Lớp */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label htmlFor="subject" className="block text-gray-700 text-sm font-medium mb-2">
+                                Môn học <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="subject"
+                                value={form.subject}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                required
+                            >
+                                {subjects.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="grade" className="block text-gray-700 text-sm font-medium mb-2">
+                                Lớp <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                                id="grade"
+                                value={form.grade}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                required
+                            >
+                                {grades.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Số buổi/tuần */}
+                    <div>
+                        <label htmlFor="sessionsPerWeek" className="block text-gray-700 text-sm font-medium mb-2">
+                            Số buổi/tuần <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="sessionsPerWeek"
+                            value={form.sessionsPerWeek}
+                            onChange={handleChange}
+                            placeholder="Ví dụ: 3"
+                            min="1"
+                            max="7"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Ngày học */}
+                    <div>
+                        <label htmlFor="preferredDays" className="block text-gray-700 text-sm font-medium mb-2">
+                            Ngày học trong tuần <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="preferredDays"
+                            value={form.preferredDays}
+                            onChange={handleChange}
+                            placeholder="Ví dụ: Thứ 2, Thứ 4, Thứ 6"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Thời gian */}
+                    <div>
+                        <label htmlFor="preferredTime" className="block text-gray-700 text-sm font-medium mb-2">
+                            Thời gian học <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="preferredTime"
+                            value={form.preferredTime}
+                            onChange={handleChange}
+                            placeholder="Ví dụ: 18:00 - 20:00"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Lương/buổi */}
+                    <div>
+                        <label htmlFor="salaryPerSession" className="block text-gray-700 text-sm font-medium mb-2">
+                            Lương/buổi (VNĐ) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="salaryPerSession"
+                            value={form.salaryPerSession}
+                            onChange={handleChange}
+                            placeholder="Ví dụ: 200000"
+                            min="0"
+                            step="10000"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required
+                        />
+                    </div>
+
+                    {/* Mô tả */}
+                    <div>
+                        <label htmlFor="description" className="block text-gray-700 text-sm font-medium mb-2">
+                            Mô tả thêm
+                        </label>
+                        <textarea
+                            id="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            placeholder="Thêm mô tả chi tiết về yêu cầu..."
+                            rows={4}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex gap-4">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Đang đăng...' : 'Đăng bài'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setForm({
+                                postTitle: "",
+                                subject: "",
+                                grade: "",
+                                sessionsPerWeek: "",
+                                preferredDays: "",
+                                preferredTime: "",
+                                salaryPerSession: "",
+                                description: "",
+                            })}
+                            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                        >
+                            Làm mới
                         </button>
                     </div>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-600 text-sm">Lớp đang dạy</p>
-                                <p className="text-3xl font-bold text-gray-800 mt-1">5</p>
-                            </div>
-                            <div className="p-3 bg-blue-100 rounded-lg">
-                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-600 text-sm">Học sinh</p>
-                                <p className="text-3xl font-bold text-gray-800 mt-1">23</p>
-                            </div>
-                            <div className="p-3 bg-green-100 rounded-lg">
-                                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-600 text-sm">Giờ dạy tháng này</p>
-                                <p className="text-3xl font-bold text-gray-800 mt-1">48</p>
-                            </div>
-                            <div className="p-3 bg-purple-100 rounded-lg">
-                                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-600 text-sm">Thu nhập tháng này</p>
-                                <p className="text-3xl font-bold text-gray-800 mt-1">12M</p>
-                            </div>
-                            <div className="p-3 bg-orange-100 rounded-lg">
-                                <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Main Content */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Schedule */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">Lịch dạy hôm nay</h2>
-                        <div className="space-y-3">
-                            <div className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">Toán lớp 10 - Nguyễn Văn A</p>
-                                        <p className="text-sm text-gray-600 mt-1">📍 123 Nguyễn Huệ, Q1, HCM</p>
-                                    </div>
-                                    <span className="px-3 py-1 bg-blue-500 text-white text-sm rounded-full">14:00 - 16:00</span>
-                                </div>
-                            </div>
-
-                            <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded-lg">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">Vật lý lớp 11 - Trần Thị B</p>
-                                        <p className="text-sm text-gray-600 mt-1">📍 456 Lê Lợi, Q3, HCM</p>
-                                    </div>
-                                    <span className="px-3 py-1 bg-green-500 text-white text-sm rounded-full">18:00 - 20:00</span>
-                                </div>
-                            </div>
-
-                            <div className="p-4 bg-purple-50 border-l-4 border-purple-500 rounded-lg">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">Hóa học lớp 12 - Lê Văn C</p>
-                                        <p className="text-sm text-gray-600 mt-1">📍 789 Trần Hưng Đạo, Q5, HCM</p>
-                                    </div>
-                                    <span className="px-3 py-1 bg-purple-500 text-white text-sm rounded-full">20:00 - 22:00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="bg-white rounded-2xl shadow-lg p-6">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">Thao tác nhanh</h2>
-                        <div className="space-y-3">
-                            <button className="w-full p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition font-medium">
-                                📅 Xem lịch dạy
-                            </button>
-                            <button className="w-full p-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition font-medium">
-                                📚 Tìm lớp mới
-                            </button>
-                            <button className="w-full p-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition font-medium">
-                                💬 Tin nhắn
-                            </button>
-                            <button className="w-full p-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-medium">
-                                ⭐ Đánh giá
-                            </button>
-                            <button className="w-full p-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg hover:from-pink-600 hover:to-pink-700 transition font-medium">
-                                👤 Hồ sơ cá nhân
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Recent Reviews */}
-                <div className="mt-6 bg-white rounded-2xl shadow-lg p-6">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Đánh giá gần đây</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 border border-gray-200 rounded-lg">
-                            <div className="flex items-center mb-2">
-                                <div className="flex text-yellow-400">
-                                    ⭐⭐⭐⭐⭐
-                                </div>
-                                <span className="ml-2 text-sm text-gray-600">5.0</span>
-                            </div>
-                            <p className="text-gray-700 text-sm mb-2">"Giáo viên rất tận tâm và nhiệt tình!"</p>
-                            <p className="text-xs text-gray-500">- Nguyễn Văn A • 2 ngày trước</p>
-                        </div>
-                        <div className="p-4 border border-gray-200 rounded-lg">
-                            <div className="flex items-center mb-2">
-                                <div className="flex text-yellow-400">
-                                    ⭐⭐⭐⭐⭐
-                                </div>
-                                <span className="ml-2 text-sm text-gray-600">5.0</span>
-                            </div>
-                            <p className="text-gray-700 text-sm mb-2">"Con em học tiến bộ rất nhiều!"</p>
-                            <p className="text-xs text-gray-500">- Trần Thị B • 1 tuần trước</p>
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     );

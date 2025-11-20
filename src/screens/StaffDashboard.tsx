@@ -38,6 +38,7 @@ const StaffDashboard: React.FC = () => {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userRole');
         localStorage.removeItem('userName');
+        localStorage.removeItem('userId');
         navigate('/login');
     };
 

@@ -115,8 +115,24 @@ export const tutorAPI = {
 // ==================== CLASS APIs ====================
 export const classAPI = {
     // Tạo bài đăng tìm gia sư
-    createPost: (data: any) =>
-        axiosInstance.post('/class/create', data),
+    createPost: (data: {
+        creatorUserId: number;
+        title: string;
+        subject: string;
+        studentGrade: string;
+        sessionsPerWeek: number;
+        preferredDays: string;
+        preferredTime: string;
+        pricePerSession: number;
+        description?: string;
+    }) => axiosInstance.post('/posts', data),
+
+    // Lấy danh sách bài đăng của Customer
+    getCustomerPosts: (params?: {
+        sortOrder?: 'asc' | 'desc';
+        page?: number;
+        pageSize?: number;
+    }) => axiosInstance.get('/posts/cus-posts', { params }),
 
     // Lấy danh sách lớp học
     getList: (params?: any) =>

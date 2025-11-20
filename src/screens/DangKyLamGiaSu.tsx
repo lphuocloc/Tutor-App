@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { message } from 'antd'
 import { tutorAPI } from '../api/endpoints'
 
 type EducationLevel =
@@ -106,14 +107,23 @@ const DangKyLamGiaSu: React.FC = () => {
             return
         }
 
+        // Kiểm tra userId trước khi submit
+        const userId = localStorage.getItem('userId')
+        console.log('userId from localStorage:', userId)
+
+        if (!userId) {
+            message.error('Vui lòng đăng nhập để đăng ký làm gia sư')
+            setTimeout(() => {
+                navigate('/login')
+            }, 1500)
+            return
+        }
+
         try {
             setLoading(true)
 
             // Tạo FormData
             const submitData = new FormData()
-
-            // Lấy userId từ localStorage hoặc context (giả sử đã có)
-            const userId = localStorage.getItem('userId') || '1' // Thay bằng userId thực tế
             submitData.append('UserId', userId)
             submitData.append('Education', formData.education)
             submitData.append('ExperienceYears', formData.experienceYears)
@@ -135,6 +145,9 @@ const DangKyLamGiaSu: React.FC = () => {
             const response = await tutorAPI.registerProfile(submitData)
 
             console.log('Đăng ký thành công:', response.data)
+
+            // Hiển thị thông báo thành công
+            message.success('Đăng ký làm gia sư thành công!', 2)
             setSuccess(true)
 
             // Chuyển hướng sau 2 giây
@@ -157,6 +170,7 @@ const DangKyLamGiaSu: React.FC = () => {
                 }
             }
 
+            message.error(errorMessage)
             setError(errorMessage)
         } finally {
             setLoading(false)

@@ -52,6 +52,15 @@ const Login: React.FC = () => {
 
             // Lưu token và role nếu backend trả về
             const data = response.data || {}
+
+            // Debug: Log toàn bộ response để kiểm tra
+            console.log('=== LOGIN RESPONSE ===')
+            console.log('Full response.data:', data)
+            console.log('userId:', data.userId)
+            console.log('role:', data.role)
+            console.log('userName:', data.userName || data.fullName)
+            console.log('=====================')
+
             if (data.token) {
                 localStorage.setItem('accessToken', data.token)
             }
@@ -60,6 +69,12 @@ const Login: React.FC = () => {
             }
             if (data.role) {
                 localStorage.setItem('userRole', data.role)
+            }
+            if (data.userId) {
+                localStorage.setItem('userId', data.userId.toString())
+            }
+            if (data.userName || data.fullName) {
+                localStorage.setItem('userName', data.userName || data.fullName)
             }
 
             console.log('Đăng nhập thành công:', data)
