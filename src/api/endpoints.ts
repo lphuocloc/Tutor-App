@@ -134,6 +134,31 @@ export const classAPI = {
         pageSize?: number;
     }) => axiosInstance.get('/posts/cus-posts', { params }),
 
+    // Lấy danh sách bài đăng của Tutor
+    getTutorPosts: (params?: {
+        sortOrder?: 'asc' | 'desc';
+        page?: number;
+        pageSize?: number;
+    }) => axiosInstance.get('/posts/tutor-posts', { params }),
+
+    // Xóa bài đăng
+    deletePost: (id: number) => axiosInstance.delete(`/posts/${id}`),
+
+    // Lấy chi tiết bài đăng
+    getPostDetail: (id: number) => axiosInstance.get(`/posts/${id}`),
+
+    // Tìm gia sư phù hợp với bài đăng
+    findMatchingTutors: (postId: number, params?: {
+        page?: number;
+        pageSize?: number;
+    }) => axiosInstance.get(`/posts/${postId}/matches`, { params }),
+
+    // Lấy bài đăng của user theo userId
+    getUserPosts: (userId: number, params?: {
+        page?: number;
+        pageSize?: number;
+    }) => axiosInstance.get(`/posts/user/${userId}`, { params }),
+
     // Lấy danh sách lớp học
     getList: (params?: any) =>
         axiosInstance.get('/class/list', { params }),
@@ -157,6 +182,13 @@ export const classAPI = {
     // Xác nhận gia sư
     confirmTutor: (classId: string, tutorId: string) =>
         axiosInstance.post(`/class/${classId}/confirm-tutor`, { tutorId }),
+};
+
+// ==================== PAYMENT APIs ====================
+export const paymentAPI = {
+    // Tạo yêu cầu thanh toán (deposit)
+    // body: { orderCode, amount, description, cancelUrl, returnUrl, buyerName, buyerEmail }
+    createPayment: (data: any) => axiosInstance.post('/Payment/create', data),
 };
 
 // ==================== DOCUMENT APIs ====================
@@ -202,23 +234,23 @@ export const chatAPI = {
 };
 
 // ==================== PAYMENT APIs ====================
-export const paymentAPI = {
-    // Tạo giao dịch đặt cọc
-    createDeposit: (data: { classId: string; amount: number }) =>
-        axiosInstance.post('/payment/deposit', data),
+// export const paymentAPI = {
+//     // Tạo giao dịch đặt cọc
+//     createDeposit: (data: { classId: string; amount: number }) =>
+//         axiosInstance.post('/payment/deposit', data),
 
-    // Xác nhận thanh toán
-    confirmPayment: (transactionId: string) =>
-        axiosInstance.post(`/payment/${transactionId}/confirm`),
+//     // Xác nhận thanh toán
+//     confirmPayment: (transactionId: string) =>
+//         axiosInstance.post(`/payment/${transactionId}/confirm`),
 
-    // Lấy lịch sử giao dịch
-    getHistory: (params?: any) =>
-        axiosInstance.get('/payment/history', { params }),
+//     // Lấy lịch sử giao dịch 
+//     getHistory: (params?: any) =>
+//         axiosInstance.get('/payment/history', { params }),
 
-    // Đổi điểm thưởng
-    redeemPoints: (data: { points: number; rewardId: string }) =>
-        axiosInstance.post('/payment/redeem-points', data),
-};
+//     // Đổi điểm thưởng
+//     redeemPoints: (data: { points: number; rewardId: string }) =>
+//         axiosInstance.post('/payment/redeem-points', data),
+// };
 
 // ==================== NOTIFICATION APIs ====================
 export const notificationAPI = {

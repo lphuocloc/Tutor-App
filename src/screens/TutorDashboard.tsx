@@ -1,10 +1,11 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PostsContent from '../components/PostsContent';
+import TutorPostsContent from '../components/TutorPostsContent';
 import { message } from 'antd';
 import { classAPI } from '../api/endpoints';
 
-type MenuType = 'dashboard' | 'posts' | 'createPost' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages';
+type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages';
 
 const TutorDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -25,6 +26,7 @@ const TutorDashboard: React.FC = () => {
         { id: 'dashboard' as MenuType, label: 'Dashboard', icon: '📊' },
         { id: 'posts' as MenuType, label: 'Bài đăng phụ huynh', icon: '📝' },
         { id: 'createPost' as MenuType, label: 'Đăng bài tìm học sinh', icon: '✏️' },
+        { id: 'myPosts' as MenuType, label: 'Bài đăng của tôi', icon: '📋' },
         { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
         { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
         { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
@@ -40,6 +42,8 @@ const TutorDashboard: React.FC = () => {
                 return <PostsContent />;
             case 'createPost':
                 return <CreatePostContent />;
+            case 'myPosts':
+                return <TutorPostsContent />;
             case 'schedule':
                 return <ScheduleContent />;
             case 'students':

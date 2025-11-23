@@ -76,6 +76,9 @@ const Login: React.FC = () => {
             if (data.userName || data.fullName) {
                 localStorage.setItem('userName', data.userName || data.fullName)
             }
+            if (data.email) {
+                localStorage.setItem('userEmail', data.email)
+            }
 
             console.log('Đăng nhập thành công:', data)
 

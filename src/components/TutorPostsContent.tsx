@@ -1,29 +1,64 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchPosts, usePosts } from '../store/posts';
+import React, { useEffect, useState } from 'react';
 import type { Post } from '../types/post';
+import { message, Modal } from 'antd';
+import { classAPI } from '../api/endpoints';
 
-const PostsContent: React.FC = () => {
-    const posts = usePosts()
-    const navigate = useNavigate();
+const TutorPostsContent: React.FC = () => {
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [deleting, setDeleting] = useState<number | null>(null);
 
-    console.log('=== PostsContent Render ===');
-    console.log('Posts:', posts);
-    console.log('Posts length:', posts?.length);
-
+    const fetchUserPosts = async () => {
+        try {
+            setLoading(true);
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                message.error('Vui lòng đăng nhập để xem bài đăng');
+                return;
+            }
+            const response = await classAPI.getUserPosts(Number(userId), {
+                page: 1,
+                pageSize: 10
+            });
+            setPosts(response.data);
+        } catch (error) {
+            console.error('Error fetching user posts:', error);
+            message.error('Không thể tải bài đăng');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        // Gọi API khi component mount
-        console.log('Fetching posts...');
-        fetchPosts();
+        console.log('Fetching tutor posts...');
+        fetchUserPosts();
     }, []);
 
     const handleRefresh = () => {
-        fetchPosts();
+        fetchUserPosts();
     };
 
-    const handleViewDetail = (postId: number) => {
-        navigate(`/post/${postId}`);
+    const handleDelete = async (postId: number) => {
+        Modal.confirm({
+            title: 'Xác nhận xóa bài đăng',
+            content: 'Bạn có chắc chắn muốn xóa bài đăng này?',
+            okText: 'Xóa',
+            cancelText: 'Hủy',
+            okType: 'danger',
+            onOk: async () => {
+                try {
+                    setDeleting(postId);
+                    await classAPI.deletePost(postId);
+                    message.success('Xóa bài đăng thành công!');
+                    fetchUserPosts(); // Reload danh sách
+                } catch (error) {
+                    console.error('Error deleting post:', error);
+                    message.error('Có lỗi xảy ra khi xóa bài đăng');
+                } finally {
+                    setDeleting(null);
+                }
+            },
+        });
     };
 
     const formatCurrency = (amount: number) => {
@@ -34,7 +69,6 @@ const PostsContent: React.FC = () => {
     };
 
     const getTimeAgo = (postId: number) => {
-        // Tạm thời dùng logic đơn giản dựa vào postId
         if (postId === 1) return 'Mới';
         if (postId === 2) return '2h trước';
         if (postId === 3) return '1 ngày trước';
@@ -43,18 +77,6 @@ const PostsContent: React.FC = () => {
 
     const getBorderColor = (index: number) => {
         const colors = ['border-blue-500', 'border-purple-500', 'border-green-500', 'border-orange-500', 'border-pink-500', 'border-indigo-500'];
-        return colors[index % colors.length];
-    };
-
-    const getButtonColor = (index: number) => {
-        const colors = [
-            'bg-blue-600 hover:bg-blue-700',
-            'bg-purple-600 hover:bg-purple-700',
-            'bg-green-600 hover:bg-green-700',
-            'bg-orange-600 hover:bg-orange-700',
-            'bg-pink-600 hover:bg-pink-700',
-            'bg-indigo-600 hover:bg-indigo-700'
-        ];
         return colors[index % colors.length];
     };
 
@@ -67,21 +89,29 @@ const PostsContent: React.FC = () => {
     return (
         <div className="p-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Bài đăng phụ huynh</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Bài đăng tìm học sinh của tôi</h1>
                 <button
                     onClick={handleRefresh}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                    disabled={loading}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 disabled:opacity-50"
                 >
-                    <span>🔄</span>
-                    <span>Làm mới</span>
+                    <span>{loading ? '⏳' : '🔄'}</span>
+                    <span>{loading ? 'Đang tải...' : 'Làm mới'}</span>
                 </button>
             </div>
 
-            {posts.length === 0 ? (
+            {loading ? (
+                <div className="flex justify-center items-center py-20">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Đang tải bài đăng...</p>
+                    </div>
+                </div>
+            ) : posts.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-md p-12 text-center">
                     <span className="text-6xl mb-4 block">📝</span>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có bài đăng nào</h3>
-                    <p className="text-gray-600">Hiện tại chưa có bài đăng tìm gia sư nào từ phụ huynh.</p>
+                    <p className="text-gray-600">Bạn chưa có bài đăng tìm học sinh nào. Hãy tạo bài đăng mới!</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -124,10 +154,11 @@ const PostsContent: React.FC = () => {
                             </div>
 
                             <button
-                                onClick={() => handleViewDetail(post.postId)}
-                                className={`w-full py-2 ${getButtonColor(index)} text-white rounded-lg transition font-medium`}
+                                onClick={() => handleDelete(post.postId)}
+                                disabled={deleting === post.postId}
+                                className="w-full py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Xem chi tiết & Ứng tuyển
+                                {deleting === post.postId ? 'Đang xóa...' : 'Xóa bài đăng'}
                             </button>
                         </div>
                     ))}
@@ -137,4 +168,4 @@ const PostsContent: React.FC = () => {
     );
 };
 
-export default PostsContent;
+export default TutorPostsContent;

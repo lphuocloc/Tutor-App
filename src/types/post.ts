@@ -1,14 +1,17 @@
 export interface Post {
     postId: number;
     title: string;
-    subject: string;
+    subject?: string;
     studentGrade: string;
     sessionsPerWeek: number;
     preferredDays: string;
     preferredTime: string;
     pricePerSession: number;
-    location: string;
-    isPublished: boolean;
+    location?: string;
+    isPublished?: boolean;
+    creatorUserId?: number;
+    createdAt?: string;
+    description?: string;
 }
 
 export interface PostsResponse {

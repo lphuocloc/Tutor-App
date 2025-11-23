@@ -52,6 +52,8 @@ const Header = () => {
 
     // Dropdown Menu items (Content from Ant Design Menu)
     const menuItems = [
+        { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
+        { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
         { key: "login", title: "Đăng nhập", to: "/login" },
         { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
         { key: "schedule", title: "Lịch học", to: "/lich-giasu" },

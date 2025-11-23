@@ -27,6 +27,9 @@ import AdminDashboard from './screens/AdminDashboard'
 import StaffDashboard from './screens/StaffDashboard'
 import TutorDashboard from './screens/TutorDashboard'
 import CustomerDashboard from './screens/CustomerDashboard'
+import TutorPostsPage from './screens/TutorPostsPage'
+import PostDetailPage from './screens/PostDetailPage'
+import CustomerPostsPage from './screens/CustomerPostsPage'
 import Unauthorized from './screens/Unauthorized'
 
 // Import ProtectedRoute
@@ -113,6 +116,9 @@ function App() {
               <Route path="/xacthuc2" element={<XacThuc2 />} />
 
               <Route path="/trangchu" element={<TrangChu />} />
+              <Route path="/tutor-posts" element={<TutorPostsPage />} />
+              <Route path="/my-posts" element={<CustomerPostsPage />} />
+              <Route path="/post/:id" element={<PostDetailPage />} />
               <Route path="/dangky-lamgiasu" element={<DangKyLamGiaSu />} />
               <Route path="/baidang-giasu-cuthe" element={<BaiDangGiaSuCuThe />} />
               <Route path="/xacnhan-datcoc" element={<XacNhanDatCoc />} />
