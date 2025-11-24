@@ -7,6 +7,7 @@ import DangKyLamGiaSu from './screens/DangKyLamGiaSu'
 import BaiDangGiaSuCuThe from './screens/BaiDangGiaSuCuThe'
 import XacNhanDatCoc from './screens/XacNhanDatCoc'
 import PhongChat from './screens/PhongChat'
+import ChatRoomsPage from './screens/ChatRoomsPage'
 import DieuKhoanVaThongTinLop from './screens/DieuKhoanVaThongTinLop'
 import XacNhanGiaoDich from './screens/XacNhanGiaoDich'
 import TrangLichGiaSu from './screens/TrangLichGiaSu'
@@ -30,6 +31,8 @@ import CustomerDashboard from './screens/CustomerDashboard'
 import TutorPostsPage from './screens/TutorPostsPage'
 import PostDetailPage from './screens/PostDetailPage'
 import CustomerPostsPage from './screens/CustomerPostsPage'
+import PaymentSuccess from './screens/PaymentSuccess'
+import PaymentCancel from './screens/PaymentCancel'
 import Unauthorized from './screens/Unauthorized'
 
 // Import ProtectedRoute
@@ -124,6 +127,7 @@ function App() {
               <Route path="/xacnhan-datcoc" element={<XacNhanDatCoc />} />
               <Route path="/xacnhan-datcoc-giasu" element={<XacNhanDatCocGiaSu />} />
               <Route path="/phongchat" element={<PhongChat />} />
+              <Route path="/tinnhan" element={<ChatRoomsPage />} />
               <Route path="/dieukhoan-thongtinlop" element={<DieuKhoanVaThongTinLop />} />
               <Route path="/xacnhan-giaodich" element={<XacNhanGiaoDich />} />
               <Route path="/lich-giasu" element={<TrangLichGiaSu />} />
@@ -135,6 +139,8 @@ function App() {
               <Route path="/tao-baidang-timgiasu" element={<TaoBaiDangTimGiaSu />} />
               <Route path="/cho-tailieu" element={<ChoTaiLieu />} />
               <Route path="/dang-tailieu" element={<DangTaiLieu />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/cancel" element={<PaymentCancel />} />
               <Route path="/trang-canhan" element={<TrangCaNhan />} />
               <Route path="/doi-diem-thuong" element={<DoiDiemThuong />} />
             </Routes>

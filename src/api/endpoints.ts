@@ -116,7 +116,6 @@ export const tutorAPI = {
 export const classAPI = {
     // Tạo bài đăng tìm gia sư
     createPost: (data: {
-        creatorUserId: number;
         title: string;
         subject: string;
         studentGrade: string;
@@ -191,6 +190,7 @@ export const paymentAPI = {
     createPayment: (data: any) => axiosInstance.post('/Payment/create', data),
 };
 
+
 // ==================== DOCUMENT APIs ====================
 export const documentAPI = {
     // Upload tài liệu
@@ -228,9 +228,55 @@ export const chatAPI = {
     getRooms: () =>
         axiosInstance.get('/chat/rooms'),
 
+    // Lấy danh sách phòng chat cho 1 user (theo yêu cầu API: /ChatRoom/user?userId=...)
+    getUserChatRooms: (userId: number) =>
+        axiosInstance.get('/ChatRoom/user', { params: { userId } }),
+
     // Tạo phòng chat
     createRoom: (data: { participantIds: string[] }) =>
         axiosInstance.post('/chat/room/create', data),
+    // Alias for backend ChatRoom endpoint used by frontend flow
+    createChatRoom: (data: any) => axiosInstance.post('/ChatRoom', data),
+};
+
+// ==================== BOOKING APIs ====================
+export const bookingAPI = {
+    // Tạo booking từ chat
+    // body: { chatRoomId, agreedPricePerSession, sessionsPerWeek, agreedDays, agreedTime }
+    createBooking: (data: {
+        chatRoomId: number;
+        agreedPricePerSession: number;
+        sessionsPerWeek: number;
+        agreedDays: string;
+        agreedTime: string;
+    }) => axiosInstance.post('/Booking', data),
+    // Lấy booking theo user
+    // GET /Booking/user?userId=...
+    getUserBookings: (userId: number) => axiosInstance.get('/Booking/user', { params: { userId } }),
+    // Lấy security code cho booking
+    // GET /Booking/{bookingId}/security-code
+    getSecurityCode: (bookingId: number) => axiosInstance.get(`/Booking/${bookingId}/security-code`),
+    // Lấy tất cả booking (staff)
+    // GET /Booking
+    getAllBookings: () => axiosInstance.get('/Booking'),
+};
+
+// ==================== TRACKING APIs ====================
+export const trackingAPI = {
+    // Tạo tracking cho booking
+    // body: { bookingId, action, location, securityCodeUsed }
+    createTracking: (data: { bookingId: number; action: string; location: string; securityCodeUsed?: string }) =>
+        axiosInstance.post('/Tracking', data),
+    // Lấy tracking theo bookingId
+    // GET /Tracking/booking/{bookingId}
+    getTrackingByBooking: (bookingId: number) => axiosInstance.get(`/Tracking/booking/${bookingId}`),
+};
+
+// ==================== REVIEW APIs ====================
+export const bookingReviewAPI = {
+    // Review a booking
+    // POST /Review { bookingId, rating, comment }
+    reviewBooking: (data: { bookingId: number; rating: number; comment?: string }) => axiosInstance.post('/Review', data),
 };
 
 // ==================== PAYMENT APIs ====================

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types/post';
 import { message, Modal } from 'antd';
 import { classAPI } from '../api/endpoints';
@@ -21,6 +22,8 @@ const CustomerPostsPage: React.FC = () => {
     const [showMatches, setShowMatches] = useState(false);
     const [loadingMatches, setLoadingMatches] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+
+    const navigate = useNavigate();
 
     const fetchUserPosts = async () => {
         try {
@@ -77,6 +80,12 @@ const CustomerPostsPage: React.FC = () => {
 
     const handleFindMatches = async (postId: number) => {
         try {
+            // Save parentPostId when user clicks "Tìm gia sư phù hợp"
+            try {
+                localStorage.setItem('parentPostId', String(postId));
+            } catch {
+                // ignore
+            }
             setLoadingMatches(true);
             setSelectedPostId(postId);
             const response = await classAPI.findMatchingTutors(postId, {
@@ -154,7 +163,16 @@ const CustomerPostsPage: React.FC = () => {
                                 className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${getBorderColor(index)} hover:shadow-lg transition`}
                             >
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-xl font-bold text-gray-800 flex-1">{post.title}</h3>
+                                    <h3 className="text-xl font-bold text-gray-800 flex-1">
+                                        <button
+                                            onClick={() => {
+                                                navigate(`/post/${post.postId}`);
+                                            }}
+                                            className="text-left w-full hover:underline"
+                                        >
+                                            {post.title}
+                                        </button>
+                                    </h3>
                                     <span className={`px-3 py-1 ${getBadgeColor(post.postId)} rounded-full text-sm font-medium ml-2 whitespace-nowrap`}>
                                         {getTimeAgo(post.postId)}
                                     </span>
@@ -225,7 +243,7 @@ const CustomerPostsPage: React.FC = () => {
                                 <div
                                     key={matchPost.postId}
                                     className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-                                    onClick={() => window.open(`/post/${matchPost.postId}`, '_blank')}
+                                    onClick={() => navigate(`/post/${matchPost.postId}`)}
                                 >
                                     <div className="flex justify-between items-start mb-3">
                                         <h3 className="text-lg font-bold text-gray-800">{matchPost.title}</h3>

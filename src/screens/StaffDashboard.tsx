@@ -9,7 +9,7 @@ import {
     getAllTutorProfiles
 } from '../store/tutorProfiles';
 import type { TutorProfile } from '../types/tutorProfile';
-import { tutorAPI } from '../api/endpoints';
+import { tutorAPI, bookingAPI, trackingAPI } from '../api/endpoints';
 
 
 const StaffDashboard: React.FC = () => {
@@ -28,10 +28,45 @@ const StaffDashboard: React.FC = () => {
     const [pendingApprovalId, setPendingApprovalId] = useState<number | null>(null);
     const [reviewConfirmVisible, setReviewConfirmVisible] = useState(false);
     const [pendingReviewStatus, setPendingReviewStatus] = useState<'Approved' | 'Rejected' | 'Suspended' | null>(null);
+    const [bookings, setBookings] = useState<any[]>([]);
+    const [bookingsLoading, setBookingsLoading] = useState(false);
+    const [trackingModalVisible, setTrackingModalVisible] = useState(false);
+    const [trackingEntries, setTrackingEntries] = useState<any[]>([]);
+    const [trackingLoading, setTrackingLoading] = useState(false);
+    const [selectedTrackingBookingId, setSelectedTrackingBookingId] = useState<number | null>(null);
 
     useEffect(() => {
         getAllTutorProfiles();
+        fetchBookings();
     }, []);
+
+    const fetchBookings = async () => {
+        try {
+            setBookingsLoading(true);
+            const resp = await bookingAPI.getAllBookings();
+            setBookings(resp.data || []);
+        } catch (err) {
+            console.error('Error fetching all bookings:', err);
+            message.error('Không thể tải danh sách booking');
+        } finally {
+            setBookingsLoading(false);
+        }
+    };
+
+    const fetchTrackingForBooking = async (bookingId: number) => {
+        try {
+            setTrackingLoading(true);
+            setSelectedTrackingBookingId(bookingId);
+            const resp = await trackingAPI.getTrackingByBooking(bookingId);
+            setTrackingEntries(resp.data || []);
+            setTrackingModalVisible(true);
+        } catch (err) {
+            console.error('Error fetching tracking for booking:', err);
+            message.error('Không thể tải lịch sử tracking');
+        } finally {
+            setTrackingLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
@@ -288,6 +323,66 @@ const StaffDashboard: React.FC = () => {
                         }}
                         scroll={{ x: 1200 }}
                     />
+                </div>
+
+                {/* Bookings Table (Staff) */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách Booking</h2>
+                    <Table
+                        columns={[
+                            { title: 'ID', dataIndex: 'bookingId', key: 'bookingId' },
+                            { title: 'ChatRoom', dataIndex: 'chatRoomId', key: 'chatRoomId' },
+                            { title: 'Giá/Tiết', dataIndex: 'agreedPricePerSession', key: 'agreedPricePerSession', render: (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val) },
+                            { title: 'Buổi/tuần', dataIndex: 'sessionsPerWeek', key: 'sessionsPerWeek' },
+                            { title: 'Ngày dạy', dataIndex: 'agreedDays', key: 'agreedDays' },
+                            { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime' },
+                            { title: 'Từ ngày', dataIndex: 'startDate', key: 'startDate' },
+                            { title: 'Đến ngày', dataIndex: 'endDate', key: 'endDate' },
+                            { title: 'Trạng thái', dataIndex: 'bookingStatus', key: 'bookingStatus' },
+                            { title: 'Tạo lúc', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
+                            {
+                                title: 'Hành động',
+                                key: 'action',
+                                render: (_: any, record: any) => (
+                                    <Space>
+                                        <Button type="link" onClick={() => fetchTrackingForBooking(record.bookingId)}>Xem tracking</Button>
+                                    </Space>
+                                )
+                            }
+                        ]}
+                        dataSource={bookings}
+                        loading={bookingsLoading}
+                        rowKey={(record: any) => record.bookingId}
+                        pagination={{ pageSize: 10 }}
+                    />
+
+                    <Modal
+                        title={selectedTrackingBookingId ? `Lịch sử Tracking #${selectedTrackingBookingId}` : 'Lịch sử Tracking'}
+                        open={trackingModalVisible}
+                        onCancel={() => setTrackingModalVisible(false)}
+                        footer={null}
+                        width={800}
+                    >
+                        {trackingLoading ? (
+                            <div className="text-center py-8"><Spin /></div>
+                        ) : trackingEntries.length === 0 ? (
+                            <p>Không có tracking nào.</p>
+                        ) : (
+                            <Table
+                                dataSource={trackingEntries}
+                                rowKey={(rec: any) => rec.trackingId}
+                                pagination={false}
+                                columns={[
+                                    { title: 'ID', dataIndex: 'trackingId', key: 'trackingId' },
+                                    { title: 'Tutor', dataIndex: 'tutorUserName', key: 'tutorUserName' },
+                                    { title: 'Action', dataIndex: 'action', key: 'action' },
+                                    { title: 'At', dataIndex: 'actionAt', key: 'actionAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
+                                    { title: 'Location', dataIndex: 'location', key: 'location' },
+                                    { title: 'Security', dataIndex: 'securityCodeUsed', key: 'securityCodeUsed' },
+                                ]}
+                            />
+                        )}
+                    </Modal>
                 </div>
 
                 {/* Detail Modal */}

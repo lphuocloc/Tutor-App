@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Phone, Info, Paperclip, Send, Check, Calendar, Clock, DollarSign, Book, Edit, Save, XCircle } from 'lucide-react';
+import { ArrowLeft, Phone, Info, Paperclip, Send, Check, Calendar, Clock, DollarSign, Book, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
+import { classAPI, bookingAPI } from '../api/endpoints';
+import axiosInstance from '../api/axiosConfig';
+import type { Post } from '../types/post';
 
 // Custom Modal Component
 interface ModalProps {
@@ -37,47 +41,34 @@ const CustomModal: React.FC<ModalProps> = ({ message, onConfirm, onCancel, isVis
 };
 
 interface Message {
-    id: number;
-    text: string;
-    isMyMessage: boolean;
-    timestamp: string;
+    messageId: number;
+    chatRoomId: number;
+    senderId: number;
+    senderName: string;
+    content: string;
+    messageType: string;
+    fileUrl?: string | null;
+    isRead: boolean;
+    sentAt: string; // ISO
 }
 
 const PhongChat: React.FC = () => {
     const navigate = useNavigate();
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: 1,
-            text: 'Chào bạn, tôi là gia sư Nguyễn Văn A. Bạn cần tìm gia sư môn gì và cho lớp mấy ạ?',
-            isMyMessage: false,
-            timestamp: '14:30 PM'
-        },
-        {
-            id: 2,
-            text: 'Chào gia sư, tôi muốn tìm gia sư Toán cho con tôi học lớp 9. Cháu cần ôn tập kiến thức cơ bản để chuẩn bị cho kỳ thi cuối kỳ.',
-            isMyMessage: true,
-            timestamp: '14:32 PM'
-        },
-        {
-            id: 3,
-            text: 'À vâng, lớp 9 Toán thì cần nắm vững nhiều kiến thức quan trọng. Bạn mong muốn số buổi học trong tuần là bao nhiêu và thời gian nào thì tiện cho cháu ạ?',
-            isMyMessage: false,
-            timestamp: '14:35 PM'
-        }
-    ]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [chatRoomId, setChatRoomId] = useState<number | null>(null);
     const [newMessage, setNewMessage] = useState('');
     const [showRules, setShowRules] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // State for editable class information
+    // State for editable class information (populated from tutor post details)
     const [classInfo, setClassInfo] = useState({
-        days: 'Thứ 2, Thứ 4, Thứ 6',
-        time: '19:00 - 21:00',
-        salary: '180.000 VNĐ',
-        subject: 'Toán Lớp 9'
+        days: '',
+        time: '',
+        salary: '',
+        subject: ''
     });
-    const [isEditingClassInfo, setIsEditingClassInfo] = useState(false);
-    const [tempClassInfo, setTempClassInfo] = useState(classInfo); // Temporary state for editing
+    const [postDetail, setPostDetail] = useState<Post | null>(null);
+    // No edit functionality: class info is read-only in chat
 
     // State for custom cancel confirmation modal
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -90,35 +81,27 @@ const PhongChat: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSendMessage = () => {
-        if (newMessage.trim()) {
-            const message: Message = {
-                id: Date.now(),
-                text: newMessage,
-                isMyMessage: true,
-                timestamp: new Date().toLocaleTimeString('vi-VN', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                })
-            };
-            setMessages(prev => [...prev, message]);
-            setNewMessage('');
+    const handleSendMessage = async () => {
+        if (!newMessage.trim()) return;
+        if (!chatRoomId) {
+            message.error('Không tìm thấy chatRoomId. Vui lòng chọn phòng chat.');
+            return;
+        }
 
-            // Simulate response after 2 seconds
-            setTimeout(() => {
-                const response: Message = {
-                    id: Date.now() + 1,
-                    text: 'Cảm ơn bạn đã chia sẻ thông tin. Tôi sẽ xem xét và phản hồi sớm nhất có thể.',
-                    isMyMessage: false,
-                    timestamp: new Date().toLocaleTimeString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true
-                    })
-                };
-                setMessages(prev => [...prev, response]);
-            }, 2000);
+        const body = { chatRoomId, content: newMessage.trim() };
+
+        try {
+            await axiosInstance.post('/Message/text', body);
+            // After sending, re-fetch the entire chatroom messages to keep state consistent
+            if (chatRoomId) {
+                const resp2 = await axiosInstance.get(`/Message/chatroom/${chatRoomId}`);
+                const all = resp2.data || [];
+                setMessages(all);
+            }
+            setNewMessage('');
+        } catch (err) {
+            console.error('Error sending message', err);
+            message.error('Gửi tin nhắn thất bại. Vui lòng thử lại.');
         }
     };
 
@@ -147,26 +130,100 @@ const PhongChat: React.FC = () => {
         setShowCancelConfirm(false);
     };
 
-    const handleConfirm = () => {
-        // In a real app, this would navigate to a confirmation page
-        console.log('Class confirmed!');
-        navigate('/xacnhan-giaodich');
+    const handleConfirm = async () => {
+        // Perform booking by calling bookingAPI with fields from the fetched post detail
+        try {
+            if (!chatRoomId) {
+                message.error('Không tìm thấy phòng chat. Vui lòng thử lại.');
+                return;
+            }
+            if (!postDetail) {
+                message.error('Không tìm thấy thông tin lớp học. Vui lòng thử lại.');
+                return;
+            }
+
+            const payload = {
+                chatRoomId,
+                agreedPricePerSession: Number(postDetail.pricePerSession || 0),
+                sessionsPerWeek: Number(postDetail.sessionsPerWeek || 0),
+                agreedDays: postDetail.preferredDays || '',
+                agreedTime: postDetail.preferredTime || ''
+            };
+
+            const resp = await bookingAPI.createBooking(payload);
+            if (resp && (resp.status === 200 || resp.status === 201)) {
+                message.success('Xác nhận nhận lớp thành công.');
+            } else {
+                message.error('Tạo booking thất bại. Vui lòng thử lại.');
+            }
+        } catch (err) {
+            console.error('Error creating booking from chat:', err);
+            message.error('Tạo booking thất bại. Vui lòng thử lại.');
+        }
     };
 
-    // Handlers for editable class info
-    const handleEditClassInfo = () => {
-        setTempClassInfo(classInfo); // Copy current info to temp for editing
-        setIsEditingClassInfo(true);
+    // Edit handlers removed — class info is read-only here
+
+    // Format currency helper
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
     };
 
-    const handleSaveClassInfo = () => {
-        setClassInfo(tempClassInfo); // Save changes from temp to main info
-        setIsEditingClassInfo(false);
-    };
+    // On mount: try to read a tutor post id (from query or localStorage) and fetch its details
+    useEffect(() => {
+        const fetchTutorPost = async (postId: number) => {
+            try {
+                const resp = await classAPI.getPostDetail(postId);
+                const fetched = resp.data as Post;
+                if (fetched) {
+                    setPostDetail(fetched);
+                    const days = fetched.preferredDays || '';
+                    const time = fetched.preferredTime || '';
+                    const salary = fetched.pricePerSession !== undefined && fetched.pricePerSession !== null
+                        ? formatCurrency(Number(fetched.pricePerSession))
+                        : '';
+                    const subject = fetched.subject || fetched.title || fetched.studentGrade || '';
+                    const mapped = { days, time, salary, subject };
+                    setClassInfo(mapped);
+                }
+            } catch (err) {
+                console.error('Error fetching tutor post detail for chat page:', err);
+            }
+        };
 
-    const handleCancelEditClassInfo = () => {
-        setIsEditingClassInfo(false); // Discard changes and exit edit mode
-    };
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const idFromQuery = Number(params.get('tutorPostId') || params.get('postId') || 0);
+            const idFromStorage = Number(localStorage.getItem('tutorPostId') || localStorage.getItem('pendingOrderPostId') || 0);
+            const postId = idFromQuery || idFromStorage;
+            if (postId && postId > 0) {
+                fetchTutorPost(postId);
+            }
+        } catch (e) {
+            console.error('Error determining tutorPostId for chat page:', e);
+        }
+    }, []);
+
+    // Load chat messages if roomId present in querystring
+    useEffect(() => {
+        const loadMessages = async () => {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const rid = Number(params.get('roomId') || 0);
+                if (!rid) return;
+                setChatRoomId(rid);
+                const resp = await axiosInstance.get(`/Message/chatroom/${rid}`);
+                const data = resp.data || [];
+                setMessages(data);
+            } catch (err) {
+                console.error('Error loading chat messages:', err);
+            }
+        };
+        loadMessages();
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
@@ -192,9 +249,9 @@ const PhongChat: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
+                            {/* <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
                                 Hết hạn sau: 1 ngày 23 giờ
-                            </span>
+                            </span> */}
                             <button className="text-white p-0 border-0 focus:outline-none">
                                 <Phone className="w-6 h-6" />
                             </button>
@@ -215,7 +272,7 @@ const PhongChat: React.FC = () => {
                                         <li className="mb-1">• Không trao đổi thông tin liên lạc cá nhân (số điện thoại, email, địa chỉ).</li>
                                         <li className="mb-1">• Không sử dụng ngôn ngữ xúc phạm, thiếu văn hóa.</li>
                                         <li className="mb-1">• Chỉ thảo luận về nội dung lớp học và các vấn đề liên quan.</li>
-                                        <li>• Mọi vi phạm có thể dẫn đến việc không được hoàn cọc và bị khóa tài khoản.</li>
+                                        <li>• Mọi vi phạm có thể dẫn đến việc bị khóa tài khoản.</li>
                                     </ul>
                                 </div>
                                 <button
@@ -228,41 +285,46 @@ const PhongChat: React.FC = () => {
                         )}
 
                         <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-auto mb-4 max-h-[400px]">
-                            {messages.map((message) => (
-                                <div
-                                    key={message.id}
-                                    className={`flex items-start mb-4 ${message.isMyMessage ? 'justify-end' : ''}`}
-                                >
-                                    {!message.isMyMessage && (
-                                        <img
-                                            src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV"
-                                            alt="Avatar đối phương"
-                                            className="rounded-full border border-gray-200 mr-3"
-                                            style={{ width: '40px', height: '40px' }}
-                                        />
-                                    )}
+                            {messages.map((msg) => {
+                                const currentUserId = Number(localStorage.getItem('userId') || 0);
+                                const isMy = currentUserId === msg.senderId;
+                                const time = msg.sentAt ? new Date(msg.sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
+                                return (
                                     <div
-                                        className={`p-3 rounded-lg shadow-sm ${message.isMyMessage
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 text-gray-800'
-                                            }`}
-                                        style={{ maxWidth: '70%' }}
+                                        key={msg.messageId}
+                                        className={`flex items-start mb-4 ${isMy ? 'justify-end' : ''}`}
                                     >
-                                        <p className="text-sm mb-1">{message.text}</p>
-                                        <span className={`text-xs ${message.isMyMessage ? 'text-blue-200 text-right block' : 'text-gray-500'}`}>
-                                            {message.timestamp}
-                                        </span>
+                                        {!isMy && (
+                                            <img
+                                                src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV"
+                                                alt="Avatar đối phương"
+                                                className="rounded-full border border-gray-200 mr-3"
+                                                style={{ width: '40px', height: '40px' }}
+                                            />
+                                        )}
+                                        <div
+                                            className={`p-3 rounded-lg shadow-sm ${isMy ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
+                                            style={{ maxWidth: '70%' }}
+                                        >
+                                            {!isMy && (
+                                                <div className="text-xs text-gray-500 mb-1">{msg.senderName}</div>
+                                            )}
+                                            <p className="text-sm mb-1">{msg.content}</p>
+                                            <span className={`text-xs ${isMy ? 'text-blue-200 text-right block' : 'text-gray-500'}`}>
+                                                {time}
+                                            </span>
+                                        </div>
+                                        {isMy && (
+                                            <img
+                                                src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV"
+                                                alt="Avatar của bạn"
+                                                className="rounded-full border border-gray-200 ml-3"
+                                                style={{ width: '40px', height: '40px' }}
+                                            />
+                                        )}
                                     </div>
-                                    {message.isMyMessage && (
-                                        <img
-                                            src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV"
-                                            alt="Avatar của bạn"
-                                            className="rounded-full border border-gray-200 ml-3"
-                                            style={{ width: '40px', height: '40px' }}
-                                        />
-                                    )}
-                                </div>
-                            ))}
+                                );
+                            })}
                             <div ref={messagesEndRef} />
                         </div>
 
@@ -306,93 +368,34 @@ const PhongChat: React.FC = () => {
                     <div className="bg-white rounded-lg shadow-lg p-4 border border-blue-200 lg:w-64 w-full">
                         <div className="flex justify-between items-center mb-3">
                             <h3 className="font-bold text-blue-600 text-lg">Thông tin lớp học</h3>
-                            {!isEditingClassInfo ? (
-                                <button
-                                    onClick={handleEditClassInfo}
-                                    className="text-blue-600 hover:text-blue-800 focus:outline-none"
-                                >
-                                    <Edit className="w-5 h-5" />
-                                </button>
-                            ) : (
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={handleSaveClassInfo}
-                                        className="text-green-600 hover:text-green-800 focus:outline-none"
-                                    >
-                                        <Save className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={handleCancelEditClassInfo}
-                                        className="text-red-500 hover:text-red-700 focus:outline-none"
-                                    >
-                                        <XCircle className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            )}
                         </div>
                         <div className="mb-2">
                             <div className="flex items-center">
                                 <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                                 <span className="text-sm">Thứ dạy: </span>
                             </div>
-                            {isEditingClassInfo ? (
-                                <input
-                                    type="text"
-                                    value={tempClassInfo.days}
-                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, days: e.target.value })}
-                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            ) : (
-                                <strong className="text-sm ml-6">{classInfo.days}</strong>
-                            )}
+                            <strong className="text-sm ml-6">{classInfo.days}</strong>
                         </div>
                         <div className="mb-2">
                             <div className="flex items-center">
                                 <Clock className="w-4 h-4 mr-2 text-gray-500" />
                                 <span className="text-sm">Giờ dạy: </span>
                             </div>
-                            {isEditingClassInfo ? (
-                                <input
-                                    type="text"
-                                    value={tempClassInfo.time}
-                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, time: e.target.value })}
-                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            ) : (
-                                <strong className="text-sm ml-6">{classInfo.time}</strong>
-                            )}
+                            <strong className="text-sm ml-6">{classInfo.time}</strong>
                         </div>
                         <div className="mb-2">
                             <div className="flex items-center">
                                 <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
                                 <span className="text-sm">Lương mỗi buổi: </span>
                             </div>
-                            {isEditingClassInfo ? (
-                                <input
-                                    type="text"
-                                    value={tempClassInfo.salary}
-                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, salary: e.target.value })}
-                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            ) : (
-                                <strong className="text-sm text-green-600 ml-6">{classInfo.salary}</strong>
-                            )}
+                            <strong className="text-sm text-green-600 ml-6">{classInfo.salary}</strong>
                         </div>
                         <div>
                             <div className="flex items-center">
                                 <Book className="w-4 h-4 mr-2 text-gray-500" />
                                 <span className="text-sm">Môn: </span>
                             </div>
-                            {isEditingClassInfo ? (
-                                <input
-                                    type="text"
-                                    value={tempClassInfo.subject}
-                                    onChange={(e) => setTempClassInfo({ ...tempClassInfo, subject: e.target.value })}
-                                    className="w-full border rounded-md px-2 py-1 text-sm mt-1 focus:ring-blue-500 focus:border-blue-500"
-                                />
-                            ) : (
-                                <strong className="text-sm ml-6">{classInfo.subject}</strong>
-                            )}
+                            <strong className="text-sm ml-6">{classInfo.subject}</strong>
                         </div>
                     </div>
                 </main>

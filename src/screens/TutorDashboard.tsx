@@ -1,11 +1,12 @@
-﻿import React, { useState } from 'react';
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PostsContent from '../components/PostsContent';
 import TutorPostsContent from '../components/TutorPostsContent';
-import { message } from 'antd';
-import { classAPI } from '../api/endpoints';
+import { message, Table, Modal, Button, Rate } from 'antd';
+import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI } from '../api/endpoints';
 
-type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages';
+type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages' | 'bookings';
 
 const TutorDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -30,6 +31,7 @@ const TutorDashboard: React.FC = () => {
         { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
         { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
         { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
+        { id: 'bookings' as MenuType, label: 'Booking', icon: '📆' },
         { id: 'messages' as MenuType, label: 'Tin nhắn', icon: '💬' },
         { id: 'profile' as MenuType, label: 'Hồ sơ cá nhân', icon: '👤' },
     ];
@@ -50,6 +52,8 @@ const TutorDashboard: React.FC = () => {
                 return <StudentsContent />;
             case 'earnings':
                 return <EarningsContent />;
+            case 'bookings':
+                return <BookingsContent />;
             case 'profile':
                 return <ProfileContent />;
             case 'messages':
@@ -253,14 +257,304 @@ const ProfileContent: React.FC = () => (
     </div>
 );
 
-const MessagesContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <p className="text-gray-600">Hệ thống tin nhắn đang được phát triển...</p>
+const MessagesContent: React.FC = () => {
+    const [rooms, setRooms] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const fetchRooms = async () => {
+        try {
+            setLoading(true);
+            const userId = Number(localStorage.getItem('userId') || 0);
+            if (!userId) {
+                message.error('Vui lòng đăng nhập để xem tin nhắn');
+                return;
+            }
+            const resp = await chatAPI.getUserChatRooms(userId);
+            setRooms(resp.data || []);
+        } catch (err) {
+            console.error('Error fetching chat rooms:', err);
+            message.error('Không thể tải danh sách phòng chat');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
+
+    return (
+        <div className="p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
+            <div className="bg-white rounded-xl shadow-md p-6">
+                {loading ? (
+                    <div className="text-center py-8">Đang tải...</div>
+                ) : rooms.length === 0 ? (
+                    <p className="text-gray-600">Bạn chưa có phòng chat nào.</p>
+                ) : (
+                    <div className="space-y-3">
+                        {rooms.map((room: any) => (
+                            <button
+                                key={room.chatRoomId}
+                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&tutorPostId=${room.tutorPostId || ''}`)}
+                                className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 flex items-center justify-between"
+                            >
+                                <div>
+                                    <div className="font-medium">Phòng #{room.chatRoomId}</div>
+                                    <div className="text-sm text-gray-500">Bài đăng phụ huynh: {room.parentPostId} · Bài đăng gia sư: {room.tutorPostId}</div>
+                                </div>
+                                <div className="text-sm text-gray-400">{new Date(room.createdAt).toLocaleString()}</div>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
+
+const BookingsContent: React.FC = () => {
+    const [bookings, setBookings] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [loadingId, setLoadingId] = useState<number | null>(null);
+    const [trackingModalVisible, setTrackingModalVisible] = useState(false);
+    const [trackingBookingId, setTrackingBookingId] = useState<number | null>(null);
+    const [trackingLocation, setTrackingLocation] = useState('');
+    const [trackingSecurity, setTrackingSecurity] = useState('');
+    const [trackingSubmitting, setTrackingSubmitting] = useState(false);
+    const [reviewModalVisible, setReviewModalVisible] = useState(false);
+    const [reviewBookingId, setReviewBookingId] = useState<number | null>(null);
+    const [reviewRating, setReviewRating] = useState<number>(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+    const fetchBookings = async () => {
+        try {
+            setLoading(true);
+            const userId = Number(localStorage.getItem('userId') || 0);
+            if (!userId) {
+                message.error('Vui lòng đăng nhập để xem đặt lịch');
+                return;
+            }
+            const resp = await bookingAPI.getUserBookings(userId);
+            setBookings(resp.data || []);
+        } catch (err) {
+            console.error('Error fetching bookings:', err);
+            message.error('Không thể tải danh sách booking');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    const handleShowSecurityCode = async (bookingId: number) => {
+        try {
+            setLoadingId(bookingId);
+            const resp = await bookingAPI.getSecurityCode(bookingId);
+            const code = resp?.data?.securityCode;
+            if (code) {
+                Modal.info({
+                    title: 'Mã bảo mật',
+                    content: (
+                        <div>
+                            <p>Mã bảo mật cho booking <strong>#{bookingId}</strong>:</p>
+                            <p style={{ fontSize: 20, fontWeight: 700 }}>{code}</p>
+                        </div>
+                    ),
+                });
+            } else {
+                message.error('Không nhận được mã bảo mật từ server');
+            }
+        } catch (err) {
+            console.error('Error fetching security code:', err);
+            message.error('Không thể lấy mã bảo mật. Vui lòng thử lại.');
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
+    const openTrackingModal = (bookingId: number) => {
+        setTrackingBookingId(bookingId);
+        setTrackingLocation('');
+        setTrackingSecurity('');
+        setTrackingModalVisible(true);
+    };
+
+    const openReviewModal = (bookingId: number) => {
+        setReviewBookingId(bookingId);
+        setReviewRating(5);
+        setReviewComment('');
+        setReviewModalVisible(true);
+    };
+
+    const closeReviewModal = () => {
+        setReviewModalVisible(false);
+        setReviewBookingId(null);
+        setReviewRating(5);
+        setReviewComment('');
+    };
+
+    const submitReview = async () => {
+        if (!reviewBookingId) {
+            message.error('Không tìm thấy bookingId');
+            return;
+        }
+        try {
+            setReviewSubmitting(true);
+            const payload = { bookingId: reviewBookingId, rating: reviewRating, comment: reviewComment };
+            const resp = await bookingReviewAPI.reviewBooking(payload);
+            if (resp && (resp.status === 200 || resp.status === 201)) {
+                message.success('Gửi đánh giá thành công');
+                // mark booking as reviewed locally
+                setBookings(prev => prev.map(b => b.bookingId === reviewBookingId ? { ...b, reviewed: true } : b));
+                closeReviewModal();
+            } else {
+                console.warn('Unexpected review response', resp);
+                message.error('Gửi đánh giá thất bại');
+            }
+        } catch (err) {
+            console.error('Error submitting review:', err);
+            message.error('Gửi đánh giá thất bại. Vui lòng thử lại.');
+        } finally {
+            setReviewSubmitting(false);
+        }
+    };
+
+    const closeTrackingModal = () => {
+        setTrackingModalVisible(false);
+        setTrackingBookingId(null);
+        setTrackingLocation('');
+        setTrackingSecurity('');
+    };
+
+    const submitTracking = async () => {
+        if (!trackingBookingId) {
+            message.error('Không tìm thấy bookingId');
+            return;
+        }
+        try {
+            setTrackingSubmitting(true);
+            const payload = {
+                bookingId: trackingBookingId,
+                action: 'arrived',
+                location: trackingLocation,
+                securityCodeUsed: trackingSecurity
+            };
+            const resp = await trackingAPI.createTracking(payload);
+            if (resp && (resp.status === 200 || resp.status === 201)) {
+                message.success('Ghi nhận tracking thành công');
+                closeTrackingModal();
+                // refresh bookings in case server updates status
+                fetchBookings();
+            } else {
+                console.warn('Unexpected tracking response', resp);
+                message.error('Ghi nhận tracking thất bại');
+            }
+        } catch (err) {
+            console.error('Error creating tracking:', err);
+            message.error('Ghi nhận tracking thất bại. Vui lòng thử lại.');
+        } finally {
+            setTrackingSubmitting(false);
+        }
+    };
+
+    const columns = [
+        { title: 'ID', dataIndex: 'bookingId', key: 'bookingId' },
+        { title: 'Phòng chat', dataIndex: 'chatRoomId', key: 'chatRoomId' },
+        { title: 'Giá/Tiết', dataIndex: 'agreedPricePerSession', key: 'agreedPricePerSession', render: (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val) },
+        { title: 'Buổi/tuần', dataIndex: 'sessionsPerWeek', key: 'sessionsPerWeek' },
+        { title: 'Ngày dạy', dataIndex: 'agreedDays', key: 'agreedDays' },
+        { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime' },
+        { title: 'Trạng thái', dataIndex: 'bookingStatus', key: 'bookingStatus' },
+        { title: 'Tạo lúc', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
+        {
+            title: 'Hành động',
+            key: 'action',
+            render: (_: any, record: any) => (
+                <div className="flex items-center gap-2">
+                    <Button type="primary" size="small" onClick={() => handleShowSecurityCode(record.bookingId)} loading={loadingId === record.bookingId}>
+                        Xem mã
+                    </Button>
+                    <Button type="default" size="small" onClick={() => openTrackingModal(record.bookingId)}>
+                        Tracking
+                    </Button>
+                    {!record.reviewed && (
+                        <Button type="link" size="small" onClick={() => openReviewModal(record.bookingId)}>
+                            Đánh giá
+                        </Button>
+                    )}
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className="p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Booking</h1>
+            <div className="bg-white rounded-xl shadow-md p-6">
+                {loading ? (
+                    <div className="text-center py-8">Đang tải...</div>
+                ) : bookings.length === 0 ? (
+                    <p className="text-gray-600">Chưa có booking nào.</p>
+                ) : (
+                    <>
+                        <Table dataSource={bookings} columns={columns} rowKey={(record: any) => record.bookingId} />
+
+                        <Modal
+                            title="Ghi nhận Tracking"
+                            visible={trackingModalVisible}
+                            onCancel={closeTrackingModal}
+                            onOk={submitTracking}
+                            confirmLoading={trackingSubmitting}
+                        >
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Hành động</label>
+                                    <input type="text" value={'arrived'} disabled className="w-full mt-1 p-2 border rounded" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Vị trí</label>
+                                    <input type="text" value={trackingLocation} onChange={(e) => setTrackingLocation(e.target.value)} placeholder="Nhập vị trí (ví dụ: Hà Nội)" className="w-full mt-1 p-2 border rounded" />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Mã bảo mật đã dùng</label>
+                                    <input type="text" value={trackingSecurity} onChange={(e) => setTrackingSecurity(e.target.value)} placeholder="Nhập mã bảo mật" className="w-full mt-1 p-2 border rounded" />
+                                </div>
+                            </div>
+                        </Modal>
+
+                        <Modal
+                            title="Đánh giá booking"
+                            visible={reviewModalVisible}
+                            onCancel={closeReviewModal}
+                            onOk={submitReview}
+                            confirmLoading={reviewSubmitting}
+                        >
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Đánh giá</label>
+                                    <div className="mt-1">
+                                        <Rate value={reviewRating} onChange={(val) => setReviewRating(val)} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Bình luận</label>
+                                    <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="w-full mt-1 p-2 border rounded" rows={4} />
+                                </div>
+                            </div>
+                        </Modal>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
 
 const CreatePostContent: React.FC = () => {
     const navigate = useNavigate();

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomerPostsContent from '../components/CustomerPostsContent';
+import { message } from 'antd';
+import { chatAPI } from '../api/endpoints';
 
 type MenuType = 'dashboard' | 'myPosts' | 'tutors' | 'classes' | 'messages' | 'profile';
 
@@ -281,19 +284,61 @@ const ClassesContent: React.FC<{ navigate: ReturnType<typeof useNavigate> }> = (
     </div>
 );
 
-const MessagesContent: React.FC<{ navigate: ReturnType<typeof useNavigate> }> = ({ navigate }) => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <button
-                onClick={() => navigate('/phong-chat')}
-                className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition font-medium"
-            >
-                Mở phòng chat
-            </button>
+const MessagesContent: React.FC<{ navigate: ReturnType<typeof useNavigate> }> = ({ navigate }) => {
+    const [rooms, setRooms] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    const fetchRooms = async () => {
+        try {
+            setLoading(true);
+            const userId = Number(localStorage.getItem('userId') || 0);
+            if (!userId) {
+                message.error('Vui lòng đăng nhập để xem tin nhắn');
+                return;
+            }
+            const resp = await chatAPI.getUserChatRooms(userId);
+            setRooms(resp.data || []);
+        } catch (err) {
+            console.error('Error fetching chat rooms for customer:', err);
+            message.error('Không thể tải danh sách phòng chat');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
+
+    return (
+        <div className="p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
+            <div className="bg-white rounded-xl shadow-md p-6">
+                {loading ? (
+                    <div className="text-center py-8">Đang tải...</div>
+                ) : rooms.length === 0 ? (
+                    <p className="text-gray-600">Bạn chưa có phòng chat nào.</p>
+                ) : (
+                    <div className="space-y-3">
+                        {rooms.map((room: any) => (
+                            <button
+                                key={room.chatRoomId}
+                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&tutorPostId=${room.tutorPostId || ''}`)}
+                                className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 flex items-center justify-between"
+                            >
+                                <div>
+                                    <div className="font-medium">Phòng #{room.chatRoomId}</div>
+                                    <div className="text-sm text-gray-500">Bài đăng phụ huynh: {room.parentPostId} · Bài đăng gia sư: {room.tutorPostId}</div>
+                                </div>
+                                <div className="text-sm text-gray-400">{room.createdAt ? new Date(room.createdAt).toLocaleString() : ''}</div>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ProfileContent: React.FC<{ navigate: ReturnType<typeof useNavigate> }> = ({ navigate }) => (
     <div className="p-8">

@@ -25,7 +25,19 @@ const PostDetailPage: React.FC = () => {
             setLoading(true);
             const response = await classAPI.getPostDetail(postId);
             console.log('Post detail:', response.data);
-            setPost(response.data);
+            const fetched = response.data;
+            setPost(fetched);
+            try {
+                const fetchedTyped = fetched as unknown as { creatorUserId?: number };
+                if (fetchedTyped && fetchedTyped.creatorUserId !== undefined && fetchedTyped.creatorUserId !== null) {
+                    localStorage.setItem('creatorUserId', String(fetchedTyped.creatorUserId));
+                }
+                if (fetched && fetched.postId !== undefined && fetched.postId !== null) {
+                    localStorage.setItem('currentPostId', String(fetched.postId));
+                }
+            } catch {
+                // ignore storage errors
+            }
         } catch (error) {
             console.error('Error fetching post detail:', error);
             message.error('Không thể tải thông tin bài đăng');
@@ -47,7 +59,7 @@ const PostDetailPage: React.FC = () => {
         }
 
         const orderCode = Date.now(); // numeric order code (milliseconds since epoch)
-        const amount = 50000; // default deposit amount in VND
+        const amount = 2000; // default deposit amount in VND
         const description = `Đặt cọc: ${post.title}`;
 
         const origin = import.meta.env.VITE_DOMAIN || window.location.origin;
