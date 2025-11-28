@@ -92,7 +92,7 @@ const Login: React.FC = () => {
                 navigate('/tutor/dashboard')
             } else {
                 // Customer hoặc không có role
-                navigate('/trangchu')
+                navigate('/tutor-posts')
             }
         } catch (err: unknown) {
             console.error('Lỗi đăng nhập:', err)

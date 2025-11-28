@@ -14,7 +14,6 @@ import TrangLichGiaSu from './screens/TrangLichGiaSu'
 import ManHinhTrackingGiaSuDetail from './screens/ManHinhTrackingGiaSuDetail'
 import ManHinhDangGiaGiaSu from './screens/ManHinhDangGiaGiaSu'
 import ManHinhDanhGiaPhuHuynh from './screens/ManHinhDanhGiaPhuHuynh'
-import XacThuc1 from './screens/XacThuc1'
 import XacThuc2 from './screens/XacThuc2'
 import ManHinhTrackingPhuHuynhDetail from './screens/ManHinhTrackingPhuHuynhDetail'
 import ChiTietLopHoc from './screens/ChiTietLopHoc'
@@ -43,8 +42,11 @@ import Footer from './components/Footer'
 import XacNhanDatCocGiaSu from './screens/XacNhanDatCocGiaSu'
 import ChoTaiLieu from './screens/ChoTaiLieu'
 import DangTaiLieu from './screens/DangTaiLieu'
-import TrangCaNhan from './screens/TrangCaNhan'
+import TrangCaNhan from './screens/ProfileDetails'
 import DoiDiemThuong from './screens/DoiDiemThuong'
+import BankAccountPage from './screens/BankAccountPage'
+import WalletPage from './screens/WalletPage'
+import WalletTopUpSuccess from './screens/WalletTopUpSuccess'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -115,7 +117,6 @@ function App() {
         element={
           <Layout>
             <Routes>
-              <Route path="/xacthuc1" element={<XacThuc1 />} />
               <Route path="/xacthuc2" element={<XacThuc2 />} />
 
               <Route path="/trangchu" element={<TrangChu />} />
@@ -143,6 +144,9 @@ function App() {
               <Route path="/payment/cancel" element={<PaymentCancel />} />
               <Route path="/trang-canhan" element={<TrangCaNhan />} />
               <Route path="/doi-diem-thuong" element={<DoiDiemThuong />} />
+              <Route path="/bank-account" element={<BankAccountPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/wallet/topup-success" element={<WalletTopUpSuccess />} />
             </Routes>
           </Layout>
 

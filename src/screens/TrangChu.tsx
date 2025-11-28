@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useNavigate } from 'react-router-dom'; // Removed as it requires a Router context
+import { Table, Button, Tag, Typography } from 'antd';
+import { EyeOutlined } from '@ant-design/icons';
 
 const parentPosts = [
     {
@@ -39,6 +42,8 @@ const TrangChu: React.FC = () => {
     // const navigate = useNavigate(); // Removed as it requires a Router context
     const [isPaused, setIsPaused] = useState(false);
     const [showVerificationAlert, setShowVerificationAlert] = useState(true);
+
+    const navigation = useNavigate();
 
 
     const tutors = [
@@ -136,7 +141,6 @@ const TrangChu: React.FC = () => {
 
     // Ref for the scrollable container
 
-    const navigation = useNavigate();
     // Placeholder for navigation function since useNavigate is removed
 
 
@@ -385,26 +389,100 @@ const TrangChu: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* Parent Postings List (Grid View) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {parentPosts.map(post => (
-                                <div key={post.id} className="bg-white rounded-xl shadow p-6 flex flex-col h-full hover:shadow-lg transition">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">{post.title}</h3>
-                                    <p className="text-gray-600 text-sm mb-1"><span className="font-medium">Môn học:</span> {post.subject}</p>
-                                    <p className="text-gray-600 text-sm mb-1"><span className="font-medium">Lớp:</span> {post.grade}</p>
-                                    <p className="text-gray-600 text-sm mb-1"><span className="font-medium">Số buổi/tuần:</span> {post.sessions}</p>
-                                    <p className="text-gray-600 text-sm mb-1"><span className="font-medium">Thời gian:</span> {post.time}</p>
-                                    <p className="text-gray-600 text-sm mb-1"><span className="font-medium">Khu vực:</span> {post.area}</p>
-                                    <p className="text-green-600 font-bold mt-2 mb-3">Lương: {post.salary}</p>
-                                    <button
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold mt-auto self-end hover:bg-blue-700 transition"
-                                        onClick={() => navigation('/chitiet-lophoc')} // Using placeholder navigation
-                                    >
-                                        Xem chi tiết
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Parent Postings Table */}
+                        <Table
+                            columns={[
+                                {
+                                    title: 'Tiêu đề',
+                                    dataIndex: 'title',
+                                    key: 'title',
+                                    width: '20%',
+                                    render: (text: string) => (
+                                        <Typography.Text strong style={{ fontSize: '16px' }}>
+                                            {text}
+                                        </Typography.Text>
+                                    ),
+                                },
+                                {
+                                    title: 'Môn học',
+                                    dataIndex: 'subject',
+                                    key: 'subject',
+                                    width: '10%',
+                                    render: (text: string) => <Tag color="blue">{text}</Tag>,
+                                },
+                                {
+                                    title: 'Lớp',
+                                    dataIndex: 'grade',
+                                    key: 'grade',
+                                    width: '8%',
+                                    render: (text: string) => <Tag color="purple">{text}</Tag>,
+                                },
+                                {
+                                    title: 'Số buổi/tuần',
+                                    dataIndex: 'sessions',
+                                    key: 'sessions',
+                                    width: '12%',
+                                },
+                                {
+                                    title: 'Thời gian',
+                                    dataIndex: 'time',
+                                    key: 'time',
+                                    width: '20%',
+                                },
+                                {
+                                    title: 'Khu vực',
+                                    dataIndex: 'area',
+                                    key: 'area',
+                                    width: '15%',
+                                },
+                                {
+                                    title: 'Lương/buổi',
+                                    dataIndex: 'salary',
+                                    key: 'salary',
+                                    width: '12%',
+                                    render: (text: string) => (
+                                        <Typography.Text style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                                            {text}
+                                        </Typography.Text>
+                                    ),
+                                },
+                                {
+                                    title: 'Thao tác',
+                                    key: 'action',
+                                    width: '10%',
+                                    render: () => (
+                                        <Button
+                                            type="primary"
+                                            icon={<EyeOutlined />}
+                                            onClick={() => navigation('/chitiet-lophoc')}
+                                            size="small"
+                                        >
+                                            Xem chi tiết
+                                        </Button>
+                                    ),
+                                },
+                            ]}
+                            dataSource={parentPosts}
+                            rowKey="id"
+                            pagination={{
+                                pageSize: 10,
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                                showTotal: (total, range) =>
+                                    `${range[0]}-${range[1]} của ${total} bài đăng`,
+                            }}
+                            locale={{
+                                emptyText: (
+                                    <div className="text-center py-12">
+                                        <span className="text-6xl mb-4 block">📝</span>
+                                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có bài đăng nào</h3>
+                                        <p className="text-gray-600">Hiện tại chưa có bài đăng tìm gia sư nào.</p>
+                                    </div>
+                                ),
+                            }}
+                            scroll={{ x: 1200 }}
+                            size="middle"
+                        />
                     </section>
                 </div>
             </div>

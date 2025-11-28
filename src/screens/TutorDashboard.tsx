@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PostsContent from '../components/PostsContent';
 import TutorPostsContent from '../components/TutorPostsContent';
 import { message, Table, Modal, Button, Rate } from 'antd';
-import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI } from '../api/endpoints';
+import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI, userAPI } from '../api/endpoints';
 
 type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages' | 'bookings';
 
@@ -248,14 +248,116 @@ const EarningsContent: React.FC = () => (
     </div>
 );
 
-const ProfileContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <p className="text-gray-600">Trang hồ sơ cá nhân đang được phát triển...</p>
+const ProfileContent: React.FC = () => {
+    const [profile, setProfile] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                setError('User ID not found');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await userAPI.getUserProfile(Number(userId));
+                setProfile(response.data);
+            } catch (err) {
+                setError('Failed to fetch profile data');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="p-8">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+                    <p className="text-xl">Đang tải hồ sơ...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="p-8">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+                    <p className="text-xl text-red-600">{error}</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!profile) {
+        return (
+            <div className="p-8">
+                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+                    <p className="text-xl">Không có dữ liệu hồ sơ</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Construct address from street, ward, district, city
+    const addressParts = [profile.street, profile.ward, profile.district, profile.city].filter(Boolean);
+    const address = addressParts.join(', ');
+
+    return (
+        <div className="p-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+
+            {/* Profile Section */}
+            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
+                    <img
+                        src="https://placehold.co/150x150/D1E7DD/000?text=User" // Placeholder for profile picture
+                        alt={`Ảnh đại diện của ${profile.fullName}`}
+                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-blue-300 shadow-md mb-4 sm:mb-0 sm:mr-8"
+                    />
+                    <div className="flex-grow">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-2">
+                            {profile.fullName}
+                        </h2>
+                        <p className="text-lg text-gray-600 mb-4">Gia sư - {profile.role}</p>
+
+                        {/* Points Section */}
+                        <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg shadow-sm mb-4">
+                            <h3 className="text-lg font-bold mb-1">Điểm tích lũy của bạn:</h3>
+                            <p className="text-2xl font-bold text-yellow-700">{profile.totalPoint} điểm</p>
+                            <p className="text-sm mt-2">Sử dụng điểm để giảm giá các tài liệu và khóa học!</p>
+                        </div>
+
+                        {/* Contact Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                            <div>
+                                <p className="mb-2"><span className="font-semibold">Email:</span> {profile.email}</p>
+                                <p className="mb-2"><span className="font-semibold">Số điện thoại:</span> {profile.phone}</p>
+                            </div>
+                            <div>
+                                <p className="mb-2"><span className="font-semibold">Địa chỉ:</span> {address || 'Chưa cập nhật'}</p>
+                                <p><span className="font-semibold">Vai trò:</span> {profile.role}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Additional Info Section */}
+
         </div>
-    </div>
-);
+    );
+};
 
 const MessagesContent: React.FC = () => {
     const [rooms, setRooms] = useState<any[]>([]);

@@ -47,6 +47,9 @@ export const userAPI = {
     // Lấy thông tin profile
     getProfile: () => axiosInstance.get('/user/profile'),
 
+    // Lấy thông tin user detail theo userId
+    getUserProfile: (userId: number) => axiosInstance.get(`/users/${userId}/profile`),
+
     // Cập nhật profile
     updateProfile: (data: any) =>
         axiosInstance.put('/user/profile', data),
@@ -60,6 +63,33 @@ export const userAPI = {
     // Đổi mật khẩu
     changePassword: (data: { oldPassword: string; newPassword: string }) =>
         axiosInstance.put('/user/change-password', data),
+};
+
+// ==================== BANK ACCOUNT APIs ====================
+export const bankAccountAPI = {
+    // Thêm tài khoản ngân hàng
+    addBankAccount: (data: { bankName: string; accountNumber: string; accountHolder: string }) =>
+        axiosInstance.post('/BankAccount', data),
+
+    // Lấy danh sách tài khoản ngân hàng của user hiện tại
+    getMyBankAccounts: () => axiosInstance.get('/BankAccount/me'),
+
+    // Xóa tài khoản ngân hàng
+    deleteBankAccount: (id: number) => axiosInstance.delete(`/BankAccount/${id}`),
+};
+
+// ==================== WALLET APIs ====================
+export const walletAPI = {
+    // Lấy thông tin ví của user hiện tại
+    getMyWallet: () => axiosInstance.get('/Wallet/me'),
+
+    // Nạp tiền vào ví
+    topUpWallet: (data: { amount: number; redirectUrl: string }) =>
+        axiosInstance.post('/Wallet/top-up', data),
+
+    // Xác nhận nạp tiền
+    confirmTopUp: (data: { orderCode: number }) =>
+        axiosInstance.post('/Wallet/confirm-top-up', data),
 };
 
 // ==================== TUTOR APIs ====================

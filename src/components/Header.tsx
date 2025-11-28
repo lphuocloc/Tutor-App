@@ -56,10 +56,20 @@ const Header = () => {
         { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
         { key: "login", title: "Đăng nhập", to: "/login" },
         { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
-        { key: "schedule", title: "Lịch học", to: "/lich-giasu" },
-        { key: "market", title: "Chợ tài liệu", to: "/cho-tailieu" },
-        { key: "voucher", title: "Voucher", to: "/doi-diem-thuong" },
+        { key: "wallet", title: "Ví của tôi", to: "/wallet" },
+        { key: "bankAccount", title: "Tài khoản ngân hàng", to: "/bank-account" },
+        { key: "logout", title: "Đăng xuất", action: "logout" },
     ];
+
+    // Logout function
+    const handleLogout = () => {
+        // Clear all localStorage data
+        localStorage.clear();
+        // Close dropdown
+        setIsDropdownOpen(false);
+        // Navigate to login page
+        navigate('/login');
+    };
 
 
     return (
@@ -143,14 +153,24 @@ const Header = () => {
                                 <div className="absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden animate-fade-in-down origin-top-right">
                                     <div className="py-1">
                                         {menuItems.map(item => (
-                                            <NavLink
-                                                key={item.key}
-                                                to={item.to}
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                                            // onClick={() => setIsDropdownOpen(false)} // Close menu on click
-                                            >
-                                                {item.title}
-                                            </NavLink>
+                                            item.action === "logout" ? (
+                                                <button
+                                                    key={item.key}
+                                                    onClick={handleLogout}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                                >
+                                                    {item.title}
+                                                </button>
+                                            ) : (
+                                                <div key={item.key} onClick={() => setIsDropdownOpen(false)}>
+                                                    <NavLink
+                                                        to={item.to!}
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                                    >
+                                                        {item.title}
+                                                    </NavLink>
+                                                </div>
+                                            )
                                         ))}
                                     </div>
                                 </div>
