@@ -153,6 +153,7 @@ const PhongChat: React.FC = () => {
             const resp = await bookingAPI.createBooking(payload);
             if (resp && (resp.status === 200 || resp.status === 201)) {
                 message.success('Xác nhận nhận lớp thành công.');
+                navigate('/my-posts');
             } else {
                 message.error('Tạo booking thất bại. Vui lòng thử lại.');
             }
@@ -188,9 +189,24 @@ const PhongChat: React.FC = () => {
                     const subject = fetched.subject || fetched.title || fetched.studentGrade || '';
                     const mapped = { days, time, salary, subject };
                     setClassInfo(mapped);
+                } else {
+                    // If no data fetched, set default values
+                    setClassInfo({
+                        days: 'Chưa xác định',
+                        time: 'Chưa xác định',
+                        salary: 'Chưa xác định',
+                        subject: 'Chưa xác định'
+                    });
                 }
             } catch (err) {
                 console.error('Error fetching tutor post detail for chat page:', err);
+                // On error, set default values
+                setClassInfo({
+                    days: 'Chưa xác định',
+                    time: 'Chưa xác định',
+                    salary: 'Chưa xác định',
+                    subject: 'Chưa xác định'
+                });
             }
         };
 
@@ -201,9 +217,24 @@ const PhongChat: React.FC = () => {
             const postId = idFromQuery || idFromStorage;
             if (postId && postId > 0) {
                 fetchTutorPost(postId);
+            } else {
+                // If no postId, set default values
+                setClassInfo({
+                    days: 'Thứ 2, Thứ 5',
+                    time: '19 giờ - 21 giờ',
+                    salary: 10000 + ' VND',
+                    subject: 'Toán'
+                });
             }
         } catch (e) {
             console.error('Error determining tutorPostId for chat page:', e);
+            // On error, set default values
+            setClassInfo({
+                days: 'Thứ 2, Thứ 5',
+                time: '19 giờ - 21 giờ',
+                salary: 10000 + ' VND',
+                subject: 'Toán'
+            });
         }
     }, []);
 

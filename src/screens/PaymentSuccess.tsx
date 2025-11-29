@@ -37,8 +37,10 @@ const PaymentSuccess: React.FC = () => {
 
         try {
             setCreatingRoom(true);
+            console.log("create room with body", body)
             const resp = await chatAPI.createChatRoom(body);
             const data = resp.data || {};
+            console.log("data resp phong chat", data)
             // If backend returns roomId, pass it to chat route
             const roomId = data.roomId || data.data?.roomId || null;
             message.success('Phòng chat đã được tạo. Chuyển tới phòng chat...');

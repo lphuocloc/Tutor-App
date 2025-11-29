@@ -22,6 +22,10 @@ const SearchIcon = (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
 );
 
+const PlusIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+);
+
 
 const Header = () => {
     // State to manage the user profile dropdown visibility
@@ -53,6 +57,8 @@ const Header = () => {
     // Dropdown Menu items (Content from Ant Design Menu)
     const menuItems = [
         { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
+        { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
+
         { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
         { key: "login", title: "Đăng nhập", to: "/login" },
         { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
@@ -130,6 +136,16 @@ const Header = () => {
                                 className="p-2 rounded-full text-gray-600 hover:text-blue-600    transition-colors duration-200 relative"
                             >
                                 <UserPlusIcon className="w-6 h-6" />
+                            </NavLink>
+                        </Tooltip>
+
+                        {/* Create Post Icon */}
+                        <Tooltip title="Đăng bài tìm gia sư">
+                            <NavLink
+                                to="/tao-bai-dang-tim-gia-su"
+                                className="p-2 rounded-full text-gray-600 hover:text-green-600 transition-colors duration-200 relative"
+                            >
+                                <PlusIcon className="w-6 h-6" />
                             </NavLink>
                         </Tooltip>
 

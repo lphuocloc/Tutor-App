@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authAPI } from '../api/endpoints'
+import { message } from 'antd'
 
 /**
  * Lý do xuất hiện thanh cuộn dọc/ngang khi chuyển sang sign up:
@@ -142,11 +143,12 @@ const Login: React.FC = () => {
 
             console.log('Đăng ký thành công:', response.data)
 
+            message.success('Đăng ký thành công!')
+
             // Save email to use in OTP verification
             // localStorage.setItem('pendingEmail', signupForm.email)
 
             // Navigate to OTP verification
-            navigate('/trangchu')
         } catch (err: unknown) {
             console.error('Lỗi đăng ký:', err)
             let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.'
