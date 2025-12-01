@@ -57,7 +57,6 @@ const Header = () => {
     // Dropdown Menu items (Content from Ant Design Menu)
     const menuItems = [
         { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
-        { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
 
         { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
         { key: "login", title: "Đăng nhập", to: "/login" },
@@ -156,11 +155,30 @@ const Header = () => {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center focus:outline-none p-0.5 rounded-full ring-2 ring-transparent hover:ring-blue-400 transition-all"
                                 >
-                                    <img
-                                        src="https://placehold.co/40x40/4F46E5/FFFFFF?text=AV"
-                                        alt="Avatar"
-                                        className="w-10 h-10 rounded-full object-cover shadow-md"
-                                    />
+                                    {(() => {
+                                        const userRole = localStorage.getItem('userRole');
+                                        if (userRole === 'Tutor') {
+                                            return (
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                                                    Tutor
+                                                </div>
+                                            );
+                                        } else if (userRole === 'Customer') {
+                                            return (
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                                                    Parent
+                                                </div>
+                                            );
+                                        } else {
+                                            return (
+                                                <img
+                                                    src="https://placehold.co/40x40/4F46E5/FFFFFF?text=AV"
+                                                    alt="Avatar"
+                                                    className="w-10 h-10 rounded-full object-cover shadow-md"
+                                                />
+                                            );
+                                        }
+                                    })()}
                                 </button>
                             </Tooltip>
 

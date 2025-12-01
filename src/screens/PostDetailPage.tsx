@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message, Spin, Modal } from 'antd';
-import { classAPI, paymentAPI } from '../api/endpoints';
+import { classAPI, paymentAPI, walletAPI, chatAPI } from '../api/endpoints';
 import type { Post } from '../types/post';
 
 
@@ -49,18 +49,105 @@ const PostDetailPage: React.FC = () => {
     const handleBooking = async () => {
         if (!post) return;
 
-        const userId = localStorage.getItem('userId');
-        const buyerName = localStorage.getItem('userName') || '';
-        const buyerEmail = localStorage.getItem('userEmail') || '';
-
-        if (!userId) {
+        if (!localStorage.getItem('userId')) {
             message.error('Vui lòng đăng nhập để đặt cọc và liên hệ');
             return;
         }
 
+        const amount = 50000; // deposit amount in VND
+        const description = `Cọc: ${post.title}`;
+
+        // Show payment method selection modal
+        Modal.confirm({
+            title: 'Chọn phương thức thanh toán',
+            content: (
+                <div>
+                    <p>Bạn cần đặt cọc <strong>{formatCurrency(amount)}</strong> để liên hệ với người đăng bài.</p>
+                    <p>Chọn phương thức thanh toán:</p>
+                </div>
+            ),
+            okText: 'Thanh toán bằng ví',
+            cancelText: 'Thanh toán online',
+            onOk: () => handleWalletPayment(amount, description),
+            onCancel: () => handleOnlinePayment(amount, description),
+        });
+    };
+
+    const handleWalletPayment = async (amount: number, description: string) => {
+        try {
+            setBookingLoading(true);
+
+            const body = {
+                amount,
+                description,
+            };
+
+            const resp = await walletAPI.pay(body);
+
+            if (resp.status === 200) {
+                message.success('Thanh toán thành công! Đang tạo phòng chat...');
+
+                // Set localStorage items like online payment does
+                try {
+                    localStorage.setItem('pendingOrderPostId', String(post!.postId));
+                } catch {
+                    // ignore storage errors
+                }
+
+                // Create chat room after successful payment
+                await createChatRoomAfterPayment();
+            } else {
+                message.error('Thanh toán thất bại. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            console.error('Error making wallet payment:', error);
+            message.error('Thanh toán thất bại. Vui lòng thử lại.');
+        } finally {
+            setBookingLoading(false);
+        }
+    };
+
+    const createChatRoomAfterPayment = async () => {
+        try {
+            const parentPostId = Number(localStorage.getItem('parentPostId') || localStorage.getItem('pendingOrderPostId') || 0);
+            const tutorPostId = Number(localStorage.getItem('pendingOrderPostId') || localStorage.getItem('tutorPostId') || post?.postId || 0);
+            const parentUserId = Number(localStorage.getItem('userId') || 0);
+            const tutorUserId = Number(localStorage.getItem('creatorUserId') || 0);
+
+            const body = {
+                parentPostId,
+                tutorPostId,
+                parentUserId,
+                tutorUserId,
+            };
+
+            console.log("create room with body", body);
+            const resp = await chatAPI.createChatRoom(body);
+            const data = resp.data || {};
+            console.log("data resp phong chat", data);
+
+            // If backend returns roomId, pass it to chat route
+            const roomId = data.chatRoomId || data.data?.roomId || null;
+            console.log("roomId", roomId);
+
+            message.success('Phòng chat đã được tạo. Chuyển tới phòng chat...');
+            if (roomId) {
+                navigate(`/phongchat?roomId=${roomId}`);
+            } else {
+                // fallback: open chat list
+                navigate('/tinnhan');
+            }
+        } catch (error) {
+            console.error('Error creating chat room:', error);
+            message.error('Tạo phòng chat thất bại. Vui lòng thử lại.');
+        }
+    };
+
+    const handleOnlinePayment = async (amount: number, description: string) => {
+        const buyerName = localStorage.getItem('userName') || '';
+        const buyerEmail = localStorage.getItem('userEmail') || '';
+
         const orderCode = Date.now(); // numeric order code (milliseconds since epoch)
-        const amount = 2000; // default deposit amount in VND
-        const description = `Đặt cọc: ${post.title}`;
 
         const origin = import.meta.env.VITE_DOMAIN || window.location.origin;
         const returnUrl = `${origin}/payment/success?orderCode=${orderCode}`;
@@ -99,7 +186,7 @@ const PostDetailPage: React.FC = () => {
                     if (returnedOrderCode !== null && returnedOrderCode !== undefined) {
                         try {
                             localStorage.setItem('pendingOrderCode', String(returnedOrderCode));
-                            localStorage.setItem('pendingOrderPostId', String(post.postId));
+                            localStorage.setItem('pendingOrderPostId', String(post!.postId));
                         } catch {
                             // ignore storage errors
                         }

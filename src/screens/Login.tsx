@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authAPI } from '../api/endpoints'
@@ -36,7 +37,9 @@ const Login: React.FC = () => {
         phone: '',
         password: '',
         confirmPassword: '',
-        agreeTerms: false
+        agreeTerms: false,
+        district: '',
+        city: ''
     })
 
     const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -138,8 +141,10 @@ const Login: React.FC = () => {
                 email: signupForm.email,
                 phone: signupForm.phone,
                 password: signupForm.password,
-                confirmPassword: signupForm.confirmPassword
-            })
+                confirmPassword: signupForm.confirmPassword,
+                district: signupForm.district,
+                city: signupForm.city
+            } as any)
 
             console.log('Đăng ký thành công:', response.data)
 
@@ -356,6 +361,38 @@ const Login: React.FC = () => {
                                     value={signupForm.phone}
                                     onChange={handleSignupInputChange}
                                     placeholder="Nhập số điện thoại"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="signupDistrict" className="block text-gray-700 font-medium mb-1">
+                                    Quận/Huyện
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    id="signupDistrict"
+                                    name="district"
+                                    value={signupForm.district}
+                                    onChange={handleSignupInputChange}
+                                    placeholder="Nhập quận/huyện"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="signupCity" className="block text-gray-700 font-medium mb-1">
+                                    Thành phố/Tỉnh
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    id="signupCity"
+                                    name="city"
+                                    value={signupForm.city}
+                                    onChange={handleSignupInputChange}
+                                    placeholder="Nhập thành phố/tỉnh"
                                     required
                                 />
                             </div>

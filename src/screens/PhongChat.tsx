@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Phone, Info, Paperclip, Send, Check, Calendar, Clock, DollarSign, Book, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
-import { classAPI, bookingAPI } from '../api/endpoints';
+import { message, Button, Input, Card, Avatar, Space } from 'antd';
+import { classAPI, bookingAPI, walletAPI } from '../api/endpoints';
 import axiosInstance from '../api/axiosConfig';
 import type { Post } from '../types/post';
 
@@ -118,11 +118,31 @@ const PhongChat: React.FC = () => {
     };
 
     // Function to confirm cancellation (from modal)
-    const handleConfirmCancel = () => {
+    const handleConfirmCancel = async () => {
         setShowCancelConfirm(false);
-        // In a real app, this would navigate away or close the chat
-        console.log('Chat conversation cancelled.');
-        alert('Cuộc trò chuyện đã được hủy bỏ.'); // Using alert for demonstration, replace with a better UI message
+        if (chatRoomId) {
+            try {
+                await axiosInstance.delete(`/ChatRoom/${chatRoomId}`);
+                message.success('Đã xóa phòng chat.');
+            } catch (err) {
+                console.error('Error deleting chatroom:', err);
+                message.error('Xóa phòng chat thất bại.');
+            }
+        }
+        const userId = Number(localStorage.getItem('userId') || 0);
+        if (userId) {
+            try {
+                const resp = await walletAPI.addFunds({ userId, amount: 50000 });
+                if (resp.status === 200) {
+                    message.success('Hoàn tiền thành công.');
+                }
+                navigate('/tinnhan');
+            } catch (err) {
+                console.error('Error refunding:', err);
+                message.error('Hoàn tiền thất bại.');
+            }
+        }
+        message.info('Cuộc trò chuyện đã được hủy bỏ.');
     };
 
     // Function to close the custom cancel confirmation modal
@@ -212,19 +232,23 @@ const PhongChat: React.FC = () => {
 
         try {
             const params = new URLSearchParams(window.location.search);
-            const idFromQuery = Number(params.get('tutorPostId') || params.get('postId') || 0);
-            const idFromStorage = Number(localStorage.getItem('tutorPostId') || localStorage.getItem('pendingOrderPostId') || 0);
-            const postId = idFromQuery || idFromStorage;
-            if (postId && postId > 0) {
-                fetchTutorPost(postId);
+            const tutorPostId = Number(params.get('tutorPostId') || 0);
+            if (tutorPostId && tutorPostId > 0) {
+                fetchTutorPost(tutorPostId);
             } else {
-                // If no postId, set default values
-                setClassInfo({
-                    days: 'Thứ 2, Thứ 5',
-                    time: '19 giờ - 21 giờ',
-                    salary: 10000 + ' VND',
-                    subject: 'Toán'
-                });
+                // Fallback to localStorage if no tutorPostId in URL
+                const idFromStorage = Number(localStorage.getItem('tutorPostId') || localStorage.getItem('pendingOrderPostId') || 0);
+                if (idFromStorage && idFromStorage > 0) {
+                    fetchTutorPost(idFromStorage);
+                } else {
+                    // If no postId, set default values
+                    setClassInfo({
+                        days: 'Thứ 2, Thứ 5',
+                        time: '19 giờ - 21 giờ',
+                        salary: 10000 + ' VND',
+                        subject: 'Toán'
+                    });
+                }
             }
         } catch (e) {
             console.error('Error determining tutorPostId for chat page:', e);
@@ -248,19 +272,35 @@ const PhongChat: React.FC = () => {
                 setChatRoomId(rid);
                 const resp = await axiosInstance.get(`/Message/chatroom/${rid}`);
                 const data = resp.data || [];
-                setMessages(data);
+                // Only update if messages changed to avoid unnecessary scrolls
+                setMessages(prev => {
+                    if (JSON.stringify(prev) !== JSON.stringify(data)) {
+                        // Scroll only if new messages
+                        setTimeout(scrollToBottom, 100);
+                        return data;
+                    }
+                    return prev;
+                });
             } catch (err) {
                 console.error('Error loading chat messages:', err);
             }
         };
+
+        // Load messages initially
         loadMessages();
+
+        // Set up polling every 2.5 seconds
+        const intervalId = setInterval(loadMessages, 2500);
+
+        // Cleanup interval on unmount
+        return () => clearInterval(intervalId);
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
-            <div className="w-full max-w-7xl mx-auto mt-20">
+        <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 font-sans overflow-hidden">
+            <div className="w-full max-w-5xl mx-auto" style={{ overflow: 'hidden' }}>
                 <header className="bg-blue-600 text-white shadow-lg z-10 p-4 w-full rounded-t-2xl">
-                    <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div className="max-w-5xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => navigate('/chitiet-lophoc')} // Replaced navigate(-1)
@@ -293,7 +333,7 @@ const PhongChat: React.FC = () => {
                     </div>
                 </header>
 
-                <main className="flex-1 w-full max-w-7xl mx-auto p-4 flex flex-col lg:flex-row gap-4">
+                <main className="flex-1 w-full max-w-5xl mx-auto p-4 flex flex-col lg:flex-row gap-4">
                     <div className="flex-1 flex flex-col min-h-0">
                         {showRules && (
                             <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg flex items-start justify-between mb-4" role="alert">
@@ -315,7 +355,7 @@ const PhongChat: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="flex-1 bg-white rounded-lg shadow-sm p-4 overflow-auto mb-4 max-h-[400px]">
+                        <Card className="mb-4" style={{ height: '400px', overflow: 'auto' }}>
                             {messages.map((msg) => {
                                 const currentUserId = Number(localStorage.getItem('userId') || 0);
                                 const isMy = currentUserId === msg.senderId;
@@ -323,112 +363,118 @@ const PhongChat: React.FC = () => {
                                 return (
                                     <div
                                         key={msg.messageId}
-                                        className={`flex items-start mb-4 ${isMy ? 'justify-end' : ''}`}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: isMy ? 'flex-end' : 'flex-start',
+                                            marginBottom: '16px'
+                                        }}
                                     >
                                         {!isMy && (
-                                            <img
-                                                src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV"
-                                                alt="Avatar đối phương"
-                                                className="rounded-full border border-gray-200 mr-3"
-                                                style={{ width: '40px', height: '40px' }}
-                                            />
+                                            <Avatar src="https://placehold.co/40x40/A0D9FF/FFFFFF?text=AV" style={{ marginRight: '8px' }} />
                                         )}
                                         <div
-                                            className={`p-3 rounded-lg shadow-sm ${isMy ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}
-                                            style={{ maxWidth: '70%' }}
+                                            style={{
+                                                padding: '12px',
+                                                borderRadius: '8px',
+                                                backgroundColor: isMy ? '#1890ff' : '#f0f0f0',
+                                                color: isMy ? 'white' : 'black',
+                                                maxWidth: '70%'
+                                            }}
                                         >
                                             {!isMy && (
-                                                <div className="text-xs text-gray-500 mb-1">{msg.senderName}</div>
+                                                <div style={{ fontSize: '12px', color: '#999', marginBottom: '4px' }}>{msg.senderName}</div>
                                             )}
-                                            <p className="text-sm mb-1">{msg.content}</p>
-                                            <span className={`text-xs ${isMy ? 'text-blue-200 text-right block' : 'text-gray-500'}`}>
+                                            <div style={{ marginBottom: '4px' }}>{msg.content}</div>
+                                            <div style={{ fontSize: '12px', color: isMy ? '#e6f7ff' : '#999', textAlign: isMy ? 'right' : 'left' }}>
                                                 {time}
-                                            </span>
+                                            </div>
                                         </div>
                                         {isMy && (
-                                            <img
-                                                src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV"
-                                                alt="Avatar của bạn"
-                                                className="rounded-full border border-gray-200 ml-3"
-                                                style={{ width: '40px', height: '40px' }}
-                                            />
+                                            <Avatar src="https://placehold.co/40x40/FF7F50/FFFFFF?text=AV" style={{ marginLeft: '8px' }} />
                                         )}
                                     </div>
                                 );
                             })}
                             <div ref={messagesEndRef} />
-                        </div>
+                        </Card>
 
-                        <div className="bg-white p-4 rounded-lg shadow-sm flex items-center mb-4">
-                            <button className="text-gray-500 mr-3 p-0 border-0 focus:outline-none">
-                                <Paperclip className="w-6 h-6" />
-                            </button>
-                            <input
-                                type="text"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Gõ tin nhắn của bạn..."
-                                className="border-0 flex-grow px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            <button
-                                onClick={handleSendMessage}
-                                className="bg-blue-600 text-white rounded-full ml-3 px-4 py-2 flex items-center justify-center hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                disabled={!newMessage.trim()}
-                            >
-                                <Send className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <Card className="mb-4">
+                            <Space.Compact style={{ width: '100%' }}>
+                                <Button icon={<Paperclip />} />
+                                <Input
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onPressEnter={handleKeyPress}
+                                    placeholder="Gõ tin nhắn của bạn..."
+                                    style={{ flex: 1 }}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<Send />}
+                                    onClick={handleSendMessage}
+                                    disabled={!newMessage.trim()}
+                                />
+                            </Space.Compact>
+                        </Card>
 
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleCancelChat}
-                                className="flex-1 py-3 px-4 bg-red-500 text-white rounded-lg font-semibold shadow-md hover:bg-red-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
-                            >
-                                Hủy bỏ / Không đồng ý
-                            </button>
-                            <button
-                                onClick={handleConfirm}
-                                className="flex-1 py-3 px-4 bg-green-500 text-white rounded-lg font-semibold shadow-md hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
-                            >
-                                Xác nhận nhận lớp <Check className="w-5 h-5 ml-2" />
-                            </button>
-                        </div>
+                        <Space>
+                            {localStorage.getItem('userRole') !== 'Tutor' && (
+                                <>
+                                    <Button
+                                        danger
+                                        size="large"
+                                        onClick={handleCancelChat}
+                                        style={{ flex: 1 }}
+                                    >
+                                        Hủy bỏ / Không đồng ý
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        size="large"
+                                        onClick={handleConfirm}
+                                        icon={<Check />}
+                                        style={{ flex: 1 }}
+                                    >
+                                        Xác nhận nhận lớp
+                                    </Button>
+                                </>
+                            )}
+                        </Space>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-lg p-4 border border-blue-200 lg:w-64 w-full">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="font-bold text-blue-600 text-lg">Thông tin lớp học</h3>
+                    <Card style={{ width: '100%', maxWidth: '256px' }}>
+                        <div style={{ marginBottom: '12px' }}>
+                            <h3 style={{ fontWeight: 'bold', color: '#1890ff', fontSize: '18px' }}>Thông tin lớp học</h3>
                         </div>
-                        <div className="mb-2">
-                            <div className="flex items-center">
-                                <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                                <span className="text-sm">Thứ dạy: </span>
-                            </div>
-                            <strong className="text-sm ml-6">{classInfo.days}</strong>
+                        <div style={{ marginBottom: '8px' }}>
+                            <Space>
+                                <Calendar style={{ color: '#999' }} />
+                                <span style={{ fontSize: '14px' }}>Thứ dạy: </span>
+                            </Space>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', marginLeft: '24px' }}>{classInfo.days}</div>
                         </div>
-                        <div className="mb-2">
-                            <div className="flex items-center">
-                                <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                                <span className="text-sm">Giờ dạy: </span>
-                            </div>
-                            <strong className="text-sm ml-6">{classInfo.time}</strong>
+                        <div style={{ marginBottom: '8px' }}>
+                            <Space>
+                                <Clock style={{ color: '#999' }} />
+                                <span style={{ fontSize: '14px' }}>Giờ dạy: </span>
+                            </Space>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', marginLeft: '24px' }}>{classInfo.time}</div>
                         </div>
-                        <div className="mb-2">
-                            <div className="flex items-center">
-                                <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                                <span className="text-sm">Lương mỗi buổi: </span>
-                            </div>
-                            <strong className="text-sm text-green-600 ml-6">{classInfo.salary}</strong>
+                        <div style={{ marginBottom: '8px' }}>
+                            <Space>
+                                <DollarSign style={{ color: '#999' }} />
+                                <span style={{ fontSize: '14px' }}>Lương mỗi buổi: </span>
+                            </Space>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#52c41a', marginLeft: '24px' }}>{classInfo.salary}</div>
                         </div>
                         <div>
-                            <div className="flex items-center">
-                                <Book className="w-4 h-4 mr-2 text-gray-500" />
-                                <span className="text-sm">Môn: </span>
-                            </div>
-                            <strong className="text-sm ml-6">{classInfo.subject}</strong>
+                            <Space>
+                                <Book style={{ color: '#999' }} />
+                                <span style={{ fontSize: '14px' }}>Môn: </span>
+                            </Space>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', marginLeft: '24px' }}>{classInfo.subject}</div>
                         </div>
-                    </div>
+                    </Card>
                 </main>
             </div>
 

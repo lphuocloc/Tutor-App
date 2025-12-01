@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types/post';
-import { message, Modal, Table, Button, Tag, Space, Typography } from 'antd';
+import { message, Modal, Button, Tag, Typography, Card, Row, Col } from 'antd';
 import { ReloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { classAPI } from '../api/endpoints';
 
@@ -110,121 +110,15 @@ const CustomerPostsPage: React.FC = () => {
         }).format(amount);
     };
 
-    const getTimeAgo = (postId: number) => {
-        if (postId === 1) return 'Mới';
-        if (postId === 2) return '2h trước';
-        if (postId === 3) return '1 ngày trước';
-        return '2 ngày trước';
-    };
+    // const getTimeAgo = (postId: number) => {
+    //     if (postId === 1) return 'Mới';
+    //     if (postId === 2) return '2h trước';
+    //     if (postId === 3) return '1 ngày trước';
+    //     return '2 ngày trước';
+    // };
 
-    const getTimeAgoTag = (postId: number) => {
-        const time = getTimeAgo(postId);
-        if (postId === 1) return <Tag color="green">{time}</Tag>;
-        if (postId === 2) return <Tag color="blue">{time}</Tag>;
-        return <Tag color="default">{time}</Tag>;
-    };
 
-    const columns = [
-        {
-            title: 'Tiêu đề',
-            dataIndex: 'title',
-            key: 'title',
-            width: '20%',
-            render: (text: string, record: Post) => (
-                <Button
-                    type="link"
-                    onClick={() => navigate(`/post/${record.postId}`)}
-                    style={{ padding: 0, fontSize: '16px', fontWeight: 'bold' }}
-                >
-                    {text}
-                </Button>
-            ),
-        },
-        {
-            title: 'Môn học',
-            dataIndex: 'subject',
-            key: 'subject',
-            width: '10%',
-            render: (text: string) => <Tag color="blue">{text}</Tag>,
-        },
-        {
-            title: 'Lớp',
-            dataIndex: 'studentGrade',
-            key: 'studentGrade',
-            width: '8%',
-            render: (text: string) => <Tag color="purple">{text}</Tag>,
-        },
-        {
-            title: 'Số buổi/tuần',
-            dataIndex: 'sessionsPerWeek',
-            key: 'sessionsPerWeek',
-            width: '12%',
-            render: (sessions: number) => `${sessions} buổi`,
-        },
-        {
-            title: 'Thời gian',
-            key: 'schedule',
-            width: '15%',
-            render: (_: unknown, record: Post) => (
-                <div>
-                    <div>{record.preferredDays}</div>
-                    <div style={{ color: '#666', fontSize: '12px' }}>{record.preferredTime}</div>
-                </div>
-            ),
-        },
-        {
-            title: 'Lương/buổi',
-            dataIndex: 'pricePerSession',
-            key: 'pricePerSession',
-            width: '12%',
-            render: (price: number) => (
-                <Typography.Text style={{ color: '#52c41a', fontWeight: 'bold' }}>
-                    {formatCurrency(price)}
-                </Typography.Text>
-            ),
-        },
-        {
-            title: 'Địa điểm',
-            dataIndex: 'location',
-            key: 'location',
-            width: '13%',
-            render: (location: string) => location || 'Chưa cập nhật',
-        },
-        {
-            title: 'Thời gian đăng',
-            key: 'timeAgo',
-            width: '10%',
-            render: (_: unknown, record: Post) => getTimeAgoTag(record.postId),
-        },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            width: '15%',
-            render: (_: unknown, record: Post) => (
-                <Space>
-                    <Button
-                        type="primary"
-                        icon={<SearchOutlined />}
-                        onClick={() => handleFindMatches(record.postId)}
-                        loading={loadingMatches && selectedPostId === record.postId}
-                        size="small"
-                    >
-                        Tìm gia sư
-                    </Button>
-                    <Button
-                        type="primary"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => handleDelete(record.postId)}
-                        loading={deleting === record.postId}
-                        size="small"
-                    >
-                        Xóa
-                    </Button>
-                </Space>
-            ),
-        },
-    ];
+    // Removed columns for card layout
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -245,29 +139,87 @@ const CustomerPostsPage: React.FC = () => {
                     </Button>
                 </div>
 
-                <Table
-                    columns={columns}
-                    dataSource={posts}
-                    rowKey="postId"
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showQuickJumper: true,
-                        showTotal: (total, range) =>
-                            `${range[0]}-${range[1]} của ${total} bài đăng`,
-                    }}
-                    locale={{
-                        emptyText: (
-                            <div className="text-center py-12">
-                                <span className="text-6xl mb-4 block">📝</span>
-                                <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có bài đăng nào</h3>
-                                <p className="text-gray-600">Bạn chưa có bài đăng tìm gia sư nào. Hãy tạo bài đăng mới!</p>
-                            </div>
-                        ),
-                    }}
-                    scroll={{ x: 1200 }}
-                    size="middle"
-                />
+                {posts.length === 0 ? (
+                    <div className="text-center py-12">
+                        <span className="text-6xl mb-4 block">📝</span>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có bài đăng nào</h3>
+                        <p className="text-gray-600">Bạn chưa có bài đăng tìm gia sư nào. Hãy tạo bài đăng mới!</p>
+                    </div>
+                ) : (
+                    <Row gutter={[16, 16]}>
+                        {posts.map((post) => (
+                            <Col xs={24} sm={12} lg={8} key={post.postId}>
+                                <Card
+                                    hoverable
+                                    title={
+                                        <Button
+                                            type="link"
+                                            onClick={() => navigate(`/post/${post.postId}`)}
+                                            style={{ padding: 0, fontSize: '16px', fontWeight: 'bold', color: '#1890ff' }}
+                                        >
+                                            {post.title}
+                                        </Button>
+                                    }
+                                    actions={[
+                                        <Button
+                                            type="primary"
+                                            icon={<SearchOutlined />}
+                                            onClick={() => handleFindMatches(post.postId)}
+                                            loading={loadingMatches && selectedPostId === post.postId}
+                                            size="small"
+                                            key="find"
+                                        >
+                                            Tìm gia sư
+                                        </Button>,
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => handleDelete(post.postId)}
+                                            loading={deleting === post.postId}
+                                            size="small"
+                                            key="delete"
+                                        >
+                                            Xóa
+                                        </Button>
+                                    ]}
+                                >
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">📚 Môn học:</span>
+                                            <Tag color="blue">{post.subject}</Tag>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">🎓 Lớp:</span>
+                                            <Tag color="purple">{post.studentGrade}</Tag>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">📅 Số buổi/tuần:</span>
+                                            <span>{post.sessionsPerWeek} buổi</span>
+                                        </div>
+                                        <div>
+                                            <span className="font-medium">⏰ Thời gian:</span>
+                                            <div className="ml-2">
+                                                <div>{post.preferredDays}</div>
+                                                <div className="text-gray-500 text-sm">{post.preferredTime}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">💰 Lương/buổi:</span>
+                                            <Typography.Text style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                                                {formatCurrency(post.pricePerSession)}
+                                            </Typography.Text>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">📍 Địa điểm:</span>
+                                            <span>{post.location || 'Chưa cập nhật'}</span>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                )}
 
                 {/* Matching Tutors Modal */}
                 <Modal

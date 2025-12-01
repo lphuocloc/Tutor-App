@@ -23,7 +23,7 @@ import HomePage from './screens/HomePage'
 import AdminDashboard from './screens/AdminDashboard'
 import StaffDashboard from './screens/StaffDashboard'
 import TutorDashboard from './screens/TutorDashboard'
-import CustomerDashboard from './screens/CustomerDashboard'
+// import CustomerDashboard from './screens/CustomerDashboard'
 import TutorPostsPage from './screens/TutorPostsPage'
 import PostDetailPage from './screens/PostDetailPage'
 import CustomerPostsPage from './screens/CustomerPostsPage'
@@ -98,14 +98,7 @@ function App() {
       />
 
       {/* Protected Routes - Customer */}
-      <Route
-        path="/customer/dashboard"
-        element={
-          <ProtectedRoute allowedRoles={['Customer']}>
-            <CustomerDashboard />
-          </ProtectedRoute>
-        }
-      />
+
 
       {/* Các route có layout - Public hoặc Customer */}
       <Route

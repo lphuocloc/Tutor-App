@@ -24,13 +24,12 @@ const TutorDashboard: React.FC = () => {
     };
 
     const menuItems = [
-        { id: 'dashboard' as MenuType, label: 'Dashboard', icon: '📊' },
         { id: 'posts' as MenuType, label: 'Bài đăng phụ huynh', icon: '📝' },
         { id: 'createPost' as MenuType, label: 'Đăng bài tìm học sinh', icon: '✏️' },
         { id: 'myPosts' as MenuType, label: 'Bài đăng của tôi', icon: '📋' },
-        { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
-        { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
-        { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
+        // { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
+        // { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
+        // { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
         { id: 'bookings' as MenuType, label: 'Booking', icon: '📆' },
         { id: 'messages' as MenuType, label: 'Tin nhắn', icon: '💬' },
         { id: 'profile' as MenuType, label: 'Hồ sơ cá nhân', icon: '👤' },
@@ -38,20 +37,12 @@ const TutorDashboard: React.FC = () => {
 
     const renderContent = () => {
         switch (activeMenu) {
-            case 'dashboard':
-                return <DashboardContent />;
             case 'posts':
                 return <PostsContent />;
             case 'createPost':
                 return <CreatePostContent />;
             case 'myPosts':
                 return <TutorPostsContent />;
-            case 'schedule':
-                return <ScheduleContent />;
-            case 'students':
-                return <StudentsContent />;
-            case 'earnings':
-                return <EarningsContent />;
             case 'bookings':
                 return <BookingsContent />;
             case 'profile':
@@ -59,7 +50,7 @@ const TutorDashboard: React.FC = () => {
             case 'messages':
                 return <MessagesContent />;
             default:
-                return <DashboardContent />;
+                return <PostsContent />;
         }
     };
 
@@ -138,115 +129,12 @@ const TutorDashboard: React.FC = () => {
     );
 };
 
-const DashboardContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-600 text-sm">Lớp đang dạy</p>
-                        <p className="text-3xl font-bold text-gray-800 mt-1">5</p>
-                    </div>
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                        <span className="text-3xl">📚</span>
-                    </div>
-                </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-600 text-sm">Học sinh</p>
-                        <p className="text-3xl font-bold text-gray-800 mt-1">23</p>
-                    </div>
-                    <div className="p-3 bg-green-100 rounded-lg">
-                        <span className="text-3xl">👥</span>
-                    </div>
-                </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-600 text-sm">Giờ dạy tháng này</p>
-                        <p className="text-3xl font-bold text-gray-800 mt-1">48</p>
-                    </div>
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                        <span className="text-3xl">⏰</span>
-                    </div>
-                </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-600 text-sm">Thu nhập tháng này</p>
-                        <p className="text-3xl font-bold text-gray-800 mt-1">12M</p>
-                    </div>
-                    <div className="p-3 bg-orange-100 rounded-lg">
-                        <span className="text-3xl">💰</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Hoạt động gần đây</h2>
-            <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                    <span className="text-2xl">📝</span>
-                    <div className="flex-1">
-                        <p className="font-medium text-gray-800">Bài đăng mới từ phụ huynh Nguyễn Văn A</p>
-                        <p className="text-sm text-gray-600">Cần gia sư Toán lớp 10 - 30 phút trước</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
-                    <span className="text-2xl">✅</span>
-                    <div className="flex-1">
-                        <p className="font-medium text-gray-800">Hoàn thành buổi học với Trần Thị B</p>
-                        <p className="text-sm text-gray-600">Vật lý lớp 11 - 2 giờ trước</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg">
-                    <span className="text-2xl">⭐</span>
-                    <div className="flex-1">
-                        <p className="font-medium text-gray-800">Nhận đánh giá 5 sao từ Lê Văn C</p>
-                        <p className="text-sm text-gray-600">Hóa học lớp 12 - 1 ngày trước</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-);
 
-const ScheduleContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Lịch dạy của tôi</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <p className="text-gray-600">Chức năng lịch dạy đang được phát triển...</p>
-        </div>
-    </div>
-);
-
-const StudentsContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Học sinh của tôi</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <p className="text-gray-600">Danh sách học sinh đang được phát triển...</p>
-        </div>
-    </div>
-);
-
-const EarningsContent: React.FC = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Thu nhập</h1>
-        <div className="bg-white rounded-xl shadow-md p-6">
-            <p className="text-gray-600">Thống kê thu nhập đang được phát triển...</p>
-        </div>
-    </div>
-);
 
 const ProfileContent: React.FC = () => {
     const [profile, setProfile] = useState<any>(null);
@@ -263,7 +151,8 @@ const ProfileContent: React.FC = () => {
             }
 
             try {
-                const response = await userAPI.getUserProfile(Number(userId));
+                const userId = localStorage.getItem('userId');
+                const response = await userAPI.getProfile(Number(userId));
                 setProfile(response.data);
             } catch (err) {
                 setError('Failed to fetch profile data');
@@ -320,23 +209,14 @@ const ProfileContent: React.FC = () => {
             {/* Profile Section */}
             <div className="bg-white rounded-xl shadow-md p-6 mb-6">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
-                    <img
-                        src="https://placehold.co/150x150/D1E7DD/000?text=User" // Placeholder for profile picture
-                        alt={`Ảnh đại diện của ${profile.fullName}`}
-                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-blue-300 shadow-md mb-4 sm:mb-0 sm:mr-8"
-                    />
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-4 sm:mb-0 sm:mr-8">
+                        Tutor
+                    </div>
                     <div className="flex-grow">
                         <h2 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-2">
                             {profile.fullName}
                         </h2>
                         <p className="text-lg text-gray-600 mb-4">Gia sư - {profile.role}</p>
-
-                        {/* Points Section */}
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg shadow-sm mb-4">
-                            <h3 className="text-lg font-bold mb-1">Điểm tích lũy của bạn:</h3>
-                            <p className="text-2xl font-bold text-yellow-700">{profile.totalPoint} điểm</p>
-                            <p className="text-sm mt-2">Sử dụng điểm để giảm giá các tài liệu và khóa học!</p>
-                        </div>
 
                         {/* Contact Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
@@ -354,6 +234,41 @@ const ProfileContent: React.FC = () => {
             </div>
 
             {/* Additional Info Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                <div className="flex items-start gap-4">
+                    <div className="text-4xl">👋</div>
+                    <div className="flex-1">
+                        <h3 className="text-lg font-bold text-blue-800 mb-2">Chào mừng bạn đến với Tutor Panel!</h3>
+                        <p className="text-blue-700 mb-4">
+                            Cảm ơn bạn đã tham gia nền tảng của chúng tôi. Hãy bắt đầu hành trình dạy học bổ ích!
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <h4 className="font-semibold text-blue-800 mb-1">💡 Mẹo cho gia sư</h4>
+                                <ul className="text-blue-700 space-y-1">
+                                    <li>• Tạo bài đăng chi tiết, rõ ràng</li>
+                                    <li>• Phản hồi tin nhắn kịp thời</li>
+                                    <li>• Chuẩn bị kỹ cho mỗi buổi học</li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-white/60 rounded-lg p-3">
+                                <h4 className="font-semibold text-blue-800 mb-1">📋 Lưu ý quan trọng</h4>
+                                <ul className="text-blue-700 space-y-1">
+                                    <li>• Tuân thủ lịch học đã thỏa thuận</li>
+                                    <li>• Báo cáo vấn đề kịp thời</li>
+                                    <li>• Duy trì thái độ chuyên nghiệp</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {/* Quick Actions */}
+
 
         </div>
     );

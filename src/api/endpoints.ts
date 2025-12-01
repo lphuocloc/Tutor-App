@@ -45,10 +45,10 @@ export const authAPI = {
 // ==================== USER APIs ====================
 export const userAPI = {
     // Lấy thông tin profile
-    getProfile: () => axiosInstance.get('/user/profile'),
+    getProfile: (userId: number) => axiosInstance.get(`/users/${userId}/profile`),
 
     // Lấy thông tin user detail theo userId
-    getUserProfile: (userId: number) => axiosInstance.get(`/users/${userId}/profile`),
+    getUserProfile: () => axiosInstance.get("/users"),
 
     // Cập nhật profile
     updateProfile: (data: any) =>
@@ -90,6 +90,14 @@ export const walletAPI = {
     // Xác nhận nạp tiền
     confirmTopUp: (data: { orderCode: number }) =>
         axiosInstance.post('/Wallet/confirm-top-up', data),
+
+    // Hoàn tiền
+    addFunds: (data: { userId: number; amount: number }) =>
+        axiosInstance.post('/Wallet/add-funds', data),
+
+    // Thanh toán bằng ví
+    pay: (data: { amount: number; description: string }) =>
+        axiosInstance.post('/Wallet/pay', data),
 };
 
 // ==================== TUTOR APIs ====================

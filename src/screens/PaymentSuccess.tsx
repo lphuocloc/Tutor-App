@@ -42,7 +42,8 @@ const PaymentSuccess: React.FC = () => {
             const data = resp.data || {};
             console.log("data resp phong chat", data)
             // If backend returns roomId, pass it to chat route
-            const roomId = data.roomId || data.data?.roomId || null;
+            const roomId = data.chatRoomId || data.data?.roomId || null;
+            console.log("roomId", roomId)
             message.success('Phòng chat đã được tạo. Chuyển tới phòng chat...');
             if (roomId) {
                 window.location.href = `/phongchat?roomId=${roomId}`;

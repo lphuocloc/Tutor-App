@@ -184,13 +184,13 @@ const HomePage: React.FC = () => {
                     <div className="text-3xl font-bold text-blue-900">Sutido</div>
 
                     <nav className="hidden lg:flex items-center space-x-8 text-lg">
-                        <Link to='/trangchu' className="text-gray-700 hover:text-blue-600 transition-colors">Tìm gia sư</Link>
-                        <Link to='/dangky-lamgiasu' className="text-gray-700 hover:text-blue-600 transition-colors">Trở thành gia sư</Link>
-                        <Link to='' className="text-gray-700 hover:text-blue-600 transition-colors">Tài liệu học tập</Link>
+                        {/* <Link to='/trangchu' className="text-gray-700 hover:text-blue-600 transition-colors">Tìm gia sư</Link> */}
+                        {/* <Link to='/dangky-lamgiasu' className="text-gray-700 hover:text-blue-600 transition-colors">Trở thành gia sư</Link> */}
+                        {/* <Link to='' className="text-gray-700 hover:text-blue-600 transition-colors">Tài liệu học tập</Link> */}
                         <Link to='/login' className="text-gray-700 hover:text-blue-600 transition-colors">Đăng nhập/Đăng ký</Link>
-                        <button className="px-6 py-3 font-semibold text-white bg-blue-900 rounded-full hover:bg-blue-700 transition-colors shadow-md">
+                        <Link to='/login' className="px-6 py-3 font-semibold text-white bg-blue-900 rounded-full hover:bg-blue-700 transition-colors shadow-md">
                             Bắt đầu ngay
-                        </button>
+                        </Link>
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -213,9 +213,9 @@ const HomePage: React.FC = () => {
                                 <a href="#" className="w-full text-center py-2 text-gray-700 hover:text-blue-900 hover:bg-gray-100">Trở thành gia sư</a>
                                 <a href="#" className="w-full text-center py-2 text-gray-700 hover:text-blue-900 hover:bg-gray-100">Tài liệu học tập</a>
                                 <a href="#" className="w-full text-center py-2 text-gray-700 hover:text-blue-900 hover:bg-gray-100">Đăng nhập/Đăng ký</a>
-                                <button className="w-full px-6 py-3 font-semibold text-white bg-blue-900 rounded-full hover:bg-blue-700 transition-colors">
+                                <Link to='/login' className="w-full px-6 py-3 font-semibold text-white bg-blue-900 rounded-full hover:bg-blue-700 transition-colors">
                                     Bắt đầu ngay
-                                </button>
+                                </Link>
                             </nav>
                         </div>
                     )
@@ -234,12 +234,12 @@ const HomePage: React.FC = () => {
                                 Sutido giúp bạn tìm gia sư chất lượng với quy trình xác thực rõ ràng, bảo đảm an toàn & hiệu quả.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
-                                <button className="px-8 py-4 font-semibold text-white bg-blue-900 rounded-full shadow-lg hover:bg-blue-700 transition-colors text-lg">
+                                <Link to='/login' className="px-8 py-4 font-semibold text-white bg-blue-900 rounded-full shadow-lg hover:bg-blue-700 transition-colors text-lg">
                                     Tìm gia sư
-                                </button>
-                                <button className="px-8 py-4 font-semibold text-blue-900 bg-white rounded-full border-2 border-blue-900 shadow-lg hover:bg-blue-100 transition-colors text-lg">
+                                </Link>
+                                <Link to='/login' className="px-8 py-4 font-semibold text-blue-900 bg-white rounded-full border-2 border-blue-900 shadow-lg hover:bg-blue-100 transition-colors text-lg">
                                     Trở thành gia sư
-                                </button>
+                                </Link>
                             </div>
                         </div>
                         <div className="w-full lg:w-1/2 flex justify-center">
@@ -334,9 +334,9 @@ const HomePage: React.FC = () => {
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <h2 className="text-4xl font-bold mb-4">Bắt đầu hành trình học tập cùng Sutido ngay hôm nay</h2>
                         <p className="text-xl opacity-80 mb-8">Tìm gia sư phù hợp hoặc bắt đầu sự nghiệp giảng dạy của bạn.</p>
-                        <button className="px-10 py-4 font-bold text-blue-900 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-lg text-lg">
+                        <Link to='/login' className="px-10 py-4 font-bold text-blue-900 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-lg text-lg">
                             Tham gia ngay
-                        </button>
+                        </Link>
                     </div>
                 </section>
             </main>
