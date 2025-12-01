@@ -5,7 +5,6 @@ import { DeleteOutlined, ReloadOutlined, ClockCircleOutlined, DollarOutlined, En
 import { classAPI } from '../api/endpoints';
 
 const { Title, Text } = Typography;
-const { Meta } = Card;
 
 const TutorPostsContent: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -72,95 +71,92 @@ const TutorPostsContent: React.FC = () => {
         }).format(amount);
     };
 
-    const getTimeAgo = (postId: number) => {
-        if (postId === 1) return 'Mới';
-        if (postId === 2) return '2h trước';
-        if (postId === 3) return '1 ngày trước';
-        return '2 ngày trước';
-    };
 
     const renderPostCard = (post: Post) => (
-        <Col xs={24} sm={12} lg={8} xl={6} key={post.postId}>
+        <Col xs={24} sm={12} md={12} lg={12} xl={12} key={post.postId}>
             <Card
                 hoverable
-                className="h-full shadow-sm hover:shadow-md transition-shadow duration-300"
-                actions={[
+                className="h-full rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-0 overflow-hidden bg-gradient-to-br from-white to-gray-50"
+                bodyStyle={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 240, padding: '16px' }}
+            >
+                <div>
+                    <div className="flex items-center justify-between mb-3">
+                        <Title level={5} className="mb-0 text-base leading-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-bold">
+                            {post.title}
+                        </Title>
+                    </div>
+
+                    <div className="mt-2">
+                        <div className="flex flex-wrap gap-1.5">
+                            <Tag color="blue" className="text-sm rounded-full border-0 px-3">{post.subject}</Tag>
+                            <Tag color="purple" className="text-sm rounded-full border-0 px-3">{post.studentGrade}</Tag>
+                            <Tag color="orange" className="text-sm rounded-full border-0 px-3">{post.sessionsPerWeek} buổi/tuần</Tag>
+                        </div>
+
+                        <div className="mt-2 space-y-1">
+                            <div className="flex items-center gap-2">
+                                <ClockCircleOutlined className="text-gray-500 text-sm" />
+                                <Text className="text-sm">
+                                    {post.preferredDays} - {post.preferredTime}
+                                </Text>
+                            </div>
+
+                            <div className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2.5 rounded-xl border border-green-200 shadow-sm">
+                                <DollarOutlined className="text-green-600 text-base" />
+                                <Text className="text-base font-bold text-green-700">
+                                    {formatCurrency(post.pricePerSession)}/buổi
+                                </Text>
+                            </div>
+
+                            {post.location && (
+                                <div className="flex items-center gap-2">
+                                    <EnvironmentOutlined className="text-gray-500 text-sm" />
+                                    <Text className="text-sm text-gray-600">
+                                        {post.location}
+                                    </Text>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: 12 }}>
                     <Button
                         type="primary"
                         danger
                         icon={<DeleteOutlined />}
                         onClick={() => handleDelete(post.postId)}
                         loading={deleting === post.postId}
-                        size="small"
+                        size="middle"
                         block
+                        className="rounded-lg hover:scale-105 transition-transform duration-200 shadow-md"
                     >
                         Xóa
                     </Button>
-                ]}
-            >
-                <Meta
-                    title={
-                        <div className="flex items-center justify-between">
-                            <Title level={5} className="mb-0 text-lg leading-tight">
-                                {post.title}
-                            </Title>
-                            <Tag color={post.postId === 1 ? 'green' : post.postId === 2 ? 'blue' : 'default'}>
-                                <ClockCircleOutlined /> {getTimeAgo(post.postId)}
-                            </Tag>
-                        </div>
-                    }
-                    description={
-                        <div className="space-y-3 mt-3">
-                            <div className="flex flex-wrap gap-2">
-                                <Tag color="blue">{post.subject}</Tag>
-                                <Tag color="purple">{post.studentGrade}</Tag>
-                                <Tag color="orange">{post.sessionsPerWeek} buổi/tuần</Tag>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <ClockCircleOutlined className="text-gray-500" />
-                                    <Text className="text-sm">
-                                        {post.preferredDays} - {post.preferredTime}
-                                    </Text>
-                                </div>
-
-                                <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                                    <DollarOutlined className="text-green-600 text-lg" />
-                                    <Text className="text-lg font-bold text-green-700">
-                                        {formatCurrency(post.pricePerSession)}/buổi
-                                    </Text>
-                                </div>
-
-                                {post.location && (
-                                    <div className="flex items-center gap-2">
-                                        <EnvironmentOutlined className="text-gray-500" />
-                                        <Text className="text-sm text-gray-600">
-                                            {post.location}
-                                        </Text>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    }
-                />
+                </div>
             </Card>
         </Col>
     );
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Bài đăng tìm học sinh của tôi</h1>
-                <Button
-                    onClick={handleRefresh}
-                    loading={loading}
-                    type="primary"
-                    icon={<ReloadOutlined />}
-                    size="large"
-                >
-                    Làm mới
-                </Button>
+        <div className="p-6">
+            <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 rounded-2xl p-6 mb-6 shadow-lg">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white mb-1">Bài đăng tìm học sinh của tôi</h1>
+                        <p className="text-blue-100 text-sm">Quản lý các bài đăng tìm gia sư của bạn</p>
+                    </div>
+                    <Button
+                        onClick={handleRefresh}
+                        loading={loading}
+                        type="default"
+                        icon={<ReloadOutlined />}
+                        size="middle"
+                        className="bg-white hover:bg-gray-50 border-0 shadow-md"
+                    >
+                        Làm mới
+                    </Button>
+                </div>
             </div>
 
             {posts.length === 0 ? (

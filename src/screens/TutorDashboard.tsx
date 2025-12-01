@@ -3,7 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PostsContent from '../components/PostsContent';
 import TutorPostsContent from '../components/TutorPostsContent';
-import { message, Table, Modal, Button, Rate } from 'antd';
+import {
+    message,
+    Table,
+    Modal,
+    Button,
+    Rate,
+    Form,
+    Input,
+    Select,
+    InputNumber,
+    Card,
+    Space,
+    Typography,
+    Divider,
+    Row,
+    Col,
+    Alert
+} from 'antd';
 import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI, userAPI } from '../api/endpoints';
 
 type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages' | 'bookings';
@@ -57,16 +74,16 @@ const TutorDashboard: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex overflow-hidden">
             {/* Sidebar */}
-            <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-br from-indigo-600 to-purple-600 text-white transition-all duration-300 flex flex-col shadow-2xl`}>
+            <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-br from-indigo-600 to-purple-600 text-white transition-all duration-300 flex flex-col shadow-lg`}>
                 {/* Header with Toggle */}
                 <div className={`p-4 flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'} border-b border-indigo-500`}>
-                    {sidebarOpen && <h2 className="text-xl font-bold">Tutor Panel</h2>}
+                    {sidebarOpen && <h2 className="text-lg font-bold">Tutor Panel</h2>}
                     <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                         className="p-2 hover:bg-white/20 rounded-lg transition-all"
                         title={sidebarOpen ? 'Thu gọn' : 'Mở rộng'}
                     >
-                        <span className="text-lg font-bold">{sidebarOpen ? '◀' : '▶'}</span>
+                        <span className="text-base font-bold">{sidebarOpen ? '◀' : '▶'}</span>
                     </button>
                 </div>
 
@@ -77,12 +94,12 @@ const TutorDashboard: React.FC = () => {
                             key={item.id}
                             onClick={() => setActiveMenu(item.id)}
                             className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4' : 'justify-center'} py-3 rounded-lg transition-all group relative ${activeMenu === item.id
-                                ? 'bg-white text-indigo-600 shadow-lg scale-105'
+                                ? 'bg-white text-indigo-600 shadow-md scale-105'
                                 : 'hover:bg-white/20 hover:scale-105'
                                 }`}
                             title={!sidebarOpen ? item.label : ''}
                         >
-                            <span className={`${sidebarOpen ? 'text-xl' : 'text-2xl'} flex-shrink-0`}>{item.icon}</span>
+                            <span className={`${sidebarOpen ? 'text-lg' : 'text-xl'} flex-shrink-0`}>{item.icon}</span>
                             {sidebarOpen && <span className="font-medium text-sm whitespace-nowrap">{item.label}</span>}
 
                             {/* Tooltip khi sidebar đóng */}
@@ -108,7 +125,7 @@ const TutorDashboard: React.FC = () => {
                         className={`w-full flex items-center ${sidebarOpen ? 'gap-3 px-4' : 'justify-center'} py-3 bg-red-500 hover:bg-red-600 rounded-lg transition-all hover:scale-105 group relative`}
                         title={!sidebarOpen ? 'Đăng xuất' : ''}
                     >
-                        <span className={`${sidebarOpen ? 'text-xl' : 'text-2xl'} flex-shrink-0`}>🚪</span>
+                        <span className={`${sidebarOpen ? 'text-lg' : 'text-xl'} flex-shrink-0`}>🚪</span>
                         {sidebarOpen && <span className="font-medium">Đăng xuất</span>}
 
                         {/* Tooltip khi sidebar đóng */}
@@ -167,9 +184,9 @@ const ProfileContent: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="p-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
-                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+            <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-sm p-6 text-center">
                     <p className="text-xl">Đang tải hồ sơ...</p>
                 </div>
             </div>
@@ -178,9 +195,9 @@ const ProfileContent: React.FC = () => {
 
     if (error) {
         return (
-            <div className="p-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
-                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+            <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-sm p-6 text-center">
                     <p className="text-xl text-red-600">{error}</p>
                 </div>
             </div>
@@ -189,9 +206,9 @@ const ProfileContent: React.FC = () => {
 
     if (!profile) {
         return (
-            <div className="p-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
-                <div className="bg-white rounded-xl shadow-md p-6 text-center">
+            <div className="p-6">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+                <div className="bg-white rounded-xl shadow-sm p-6 text-center">
                     <p className="text-xl">Không có dữ liệu hồ sơ</p>
                 </div>
             </div>
@@ -203,20 +220,20 @@ const ProfileContent: React.FC = () => {
     const address = addressParts.join(', ');
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
+        <div className="p-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Hồ sơ cá nhân</h1>
 
             {/* Profile Section */}
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
-                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-4 sm:mb-0 sm:mr-8">
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-md mb-4 sm:mb-0 sm:mr-8">
                         Tutor
                     </div>
                     <div className="flex-grow">
-                        <h2 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-2">
+                        <h2 className="text-xl sm:text-2xl font-bold text-blue-700 mb-2">
                             {profile.fullName}
                         </h2>
-                        <p className="text-lg text-gray-600 mb-4">Gia sư - {profile.role}</p>
+                        <p className="text-base text-gray-600 mb-4">Gia sư - {profile.role}</p>
 
                         {/* Contact Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
@@ -236,7 +253,7 @@ const ProfileContent: React.FC = () => {
             {/* Additional Info Section */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
                 <div className="flex items-start gap-4">
-                    <div className="text-4xl">👋</div>
+                    <div className="text-3xl">👋</div>
                     <div className="flex-1">
                         <h3 className="text-lg font-bold text-blue-800 mb-2">Chào mừng bạn đến với Tutor Panel!</h3>
                         <p className="text-blue-700 mb-4">
@@ -302,9 +319,9 @@ const MessagesContent: React.FC = () => {
     }, []);
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
-            <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="p-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Tin nhắn</h1>
+            <div className="bg-white rounded-xl shadow-sm p-6">
                 {loading ? (
                     <div className="text-center py-8">Đang tải...</div>
                 ) : rooms.length === 0 ? (
@@ -486,7 +503,6 @@ const BookingsContent: React.FC = () => {
         { title: 'Buổi/tuần', dataIndex: 'sessionsPerWeek', key: 'sessionsPerWeek' },
         { title: 'Ngày dạy', dataIndex: 'agreedDays', key: 'agreedDays' },
         { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime' },
-        { title: 'Trạng thái', dataIndex: 'bookingStatus', key: 'bookingStatus' },
         { title: 'Tạo lúc', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
         {
             title: 'Hành động',
@@ -510,9 +526,9 @@ const BookingsContent: React.FC = () => {
     ];
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Booking</h1>
-            <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="p-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Booking</h1>
+            <div className="bg-white rounded-xl shadow-sm p-6">
                 {loading ? (
                     <div className="text-center py-8">Đang tải...</div>
                 ) : bookings.length === 0 ? (
@@ -576,19 +592,9 @@ const BookingsContent: React.FC = () => {
 const CreatePostContent: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState({
-        postTitle: "",
-        subject: "",
-        grade: "",
-        sessionsPerWeek: "",
-        preferredDays: "",
-        preferredTime: "",
-        salaryPerSession: "",
-        description: "",
-    });
+    const [form] = Form.useForm();
 
     const subjects = [
-        { value: "", label: "Chọn môn học" },
         { value: "Toán", label: "Toán" },
         { value: "Văn", label: "Văn" },
         { value: "Tiếng Anh", label: "Tiếng Anh" },
@@ -601,7 +607,6 @@ const CreatePostContent: React.FC = () => {
     ];
 
     const grades = [
-        { value: "", label: "Chọn lớp" },
         { value: "Lớp 1", label: "Lớp 1" },
         { value: "Lớp 2", label: "Lớp 2" },
         { value: "Lớp 3", label: "Lớp 3" },
@@ -617,13 +622,16 @@ const CreatePostContent: React.FC = () => {
         { value: "Khác", label: "Khác (Luyện thi, Giao tiếp...)" },
     ];
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm({ ...form, [e.target.id]: e.target.value });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values: {
+        postTitle: string;
+        subject: string;
+        grade: string[] | string;
+        sessionsPerWeek: number;
+        preferredDays: string;
+        preferredTime: string;
+        salaryPerSession: number;
+        description?: string;
+    }) => {
         const userId = localStorage.getItem('userId');
 
         if (!userId) {
@@ -637,31 +645,20 @@ const CreatePostContent: React.FC = () => {
 
             const postData = {
                 creatorUserId: parseInt(userId),
-                title: form.postTitle,
-                subject: form.subject,
-                studentGrade: form.grade,
-                sessionsPerWeek: parseInt(form.sessionsPerWeek),
-                preferredDays: form.preferredDays,
-                preferredTime: form.preferredTime,
-                pricePerSession: parseFloat(form.salaryPerSession),
-                description: form.description || undefined
+                title: values.postTitle,
+                subject: values.subject,
+                studentGrade: Array.isArray(values.grade) ? values.grade.join(', ') : values.grade,
+                sessionsPerWeek: values.sessionsPerWeek,
+                preferredDays: values.preferredDays,
+                preferredTime: values.preferredTime,
+                pricePerSession: values.salaryPerSession,
+                description: values.description || undefined
             };
 
             await classAPI.createPost(postData);
 
             message.success('Đăng bài tìm học sinh thành công!');
-
-            // Reset form
-            setForm({
-                postTitle: "",
-                subject: "",
-                grade: "",
-                sessionsPerWeek: "",
-                preferredDays: "",
-                preferredTime: "",
-                salaryPerSession: "",
-                description: "",
-            });
+            form.resetFields();
 
         } catch (error) {
             console.error('Error creating post:', error);
@@ -672,174 +669,182 @@ const CreatePostContent: React.FC = () => {
     };
 
     return (
-        <div className="p-8">
-            <div className="bg-white rounded-xl shadow-xl p-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Đăng bài tìm học sinh</h1>
-                <p className="text-gray-600 mb-8">
-                    Vui lòng điền đầy đủ thông tin về lớp học bạn muốn tìm học sinh.
-                </p>
-
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    {/* Tiêu đề */}
-                    <div>
-                        <label htmlFor="postTitle" className="block text-gray-700 text-sm font-medium mb-2">
-                            Tiêu đề bài đăng <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="postTitle"
-                            value={form.postTitle}
-                            onChange={handleChange}
-                            placeholder="Ví dụ: Tìm học sinh học Toán lớp 9"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required
-                        />
+        <div className="p-4 max-w-3xl mx-auto">
+            <Card className="shadow-sm">
+                <Space direction="vertical" size="middle" className="w-full">
+                    <div className="text-center">
+                        <Typography.Title level={3} className="mb-2">
+                            Đăng bài tìm học sinh
+                        </Typography.Title>
+                        <Typography.Text type="secondary">
+                            Vui lòng điền đầy đủ thông tin về lớp học bạn muốn tìm học sinh.
+                        </Typography.Text>
                     </div>
 
-                    {/* Môn học và Lớp */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label htmlFor="subject" className="block text-gray-700 text-sm font-medium mb-2">
-                                Môn học <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                id="subject"
-                                value={form.subject}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                required
-                            >
-                                {subjects.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                            </select>
-                        </div>
+                    <Alert
+                        message="Lưu ý quan trọng"
+                        description="Hãy điền đầy đủ và chính xác thông tin để thu hút học sinh phù hợp nhất."
+                        type="info"
+                        showIcon
+                    />
 
-                        <div>
-                            <label htmlFor="grade" className="block text-gray-700 text-sm font-medium mb-2">
-                                Lớp <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                id="grade"
-                                value={form.grade}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                required
-                            >
-                                {grades.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-                            </select>
-                        </div>
-                    </div>
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        onFinish={handleSubmit}
+                        size="middle"
+                    >
+                        <Row gutter={12}>
+                            <Col span={24}>
+                                <Form.Item
+                                    label="Tiêu đề bài đăng"
+                                    name="postTitle"
+                                    rules={[{ required: true, message: 'Vui lòng nhập tiêu đề bài đăng!' }]}
+                                >
+                                    <Input
+                                        placeholder="Ví dụ: Tìm học sinh học Toán lớp 9"
+                                        maxLength={100}
+                                        showCount
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
 
-                    {/* Số buổi/tuần */}
-                    <div>
-                        <label htmlFor="sessionsPerWeek" className="block text-gray-700 text-sm font-medium mb-2">
-                            Số buổi/tuần <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="sessionsPerWeek"
-                            value={form.sessionsPerWeek}
-                            onChange={handleChange}
-                            placeholder="Ví dụ: 3"
-                            min="1"
-                            max="7"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required
-                        />
-                    </div>
+                        <Row gutter={12}>
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Môn học"
+                                    name="subject"
+                                    rules={[{ required: true, message: 'Vui lòng chọn môn học!' }]}
+                                >
+                                    <Select placeholder="Chọn môn học">
+                                        {subjects.map(subject => (
+                                            <Select.Option key={subject.value} value={subject.value}>
+                                                {subject.label}
+                                            </Select.Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
 
-                    {/* Ngày học */}
-                    <div>
-                        <label htmlFor="preferredDays" className="block text-gray-700 text-sm font-medium mb-2">
-                            Ngày học trong tuần <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="preferredDays"
-                            value={form.preferredDays}
-                            onChange={handleChange}
-                            placeholder="Ví dụ: Thứ 2, Thứ 4, Thứ 6"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required
-                        />
-                    </div>
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Lớp học (có thể chọn nhiều)"
+                                    name="grade"
+                                    rules={[{ required: true, message: 'Vui lòng chọn ít nhất một lớp!' }]}
+                                >
+                                    <Select
+                                        mode="multiple"
+                                        placeholder="Chọn lớp học"
+                                        maxTagCount={3}
+                                        allowClear
+                                    >
+                                        {grades.map(grade => (
+                                            <Select.Option key={grade.value} value={grade.value}>
+                                                {grade.label}
+                                            </Select.Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        </Row>
 
-                    {/* Thời gian */}
-                    <div>
-                        <label htmlFor="preferredTime" className="block text-gray-700 text-sm font-medium mb-2">
-                            Thời gian học <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="preferredTime"
-                            value={form.preferredTime}
-                            onChange={handleChange}
-                            placeholder="Ví dụ: 18:00 - 20:00"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required
-                        />
-                    </div>
+                        <Row gutter={12}>
+                            <Col xs={24} md={8}>
+                                <Form.Item
+                                    label="Số buổi/tuần"
+                                    name="sessionsPerWeek"
+                                    rules={[{ required: true, message: 'Vui lòng nhập số buổi!' }]}
+                                >
+                                    <InputNumber
+                                        min={1}
+                                        max={7}
+                                        placeholder="Ví dụ: 3"
+                                        className="w-full"
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                    {/* Lương/buổi */}
-                    <div>
-                        <label htmlFor="salaryPerSession" className="block text-gray-700 text-sm font-medium mb-2">
-                            Lương/buổi (VNĐ) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="salaryPerSession"
-                            value={form.salaryPerSession}
-                            onChange={handleChange}
-                            placeholder="Ví dụ: 200000"
-                            min="0"
-                            step="10000"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required
-                        />
-                    </div>
+                            <Col xs={24} md={8}>
+                                <Form.Item
+                                    label="Lương/buổi (VNĐ)"
+                                    name="salaryPerSession"
+                                    rules={[{ required: true, message: 'Vui lòng nhập lương!' }]}
+                                >
+                                    <InputNumber
+                                        min={0}
+                                        step={10000}
+                                        placeholder="Ví dụ: 200000"
+                                        className="w-full"
+                                    />
+                                </Form.Item>
+                            </Col>
 
-                    {/* Mô tả */}
-                    <div>
-                        <label htmlFor="description" className="block text-gray-700 text-sm font-medium mb-2">
-                            Mô tả thêm
-                        </label>
-                        <textarea
-                            id="description"
-                            value={form.description}
-                            onChange={handleChange}
-                            placeholder="Thêm mô tả chi tiết về yêu cầu..."
-                            rows={4}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
-                    </div>
+                            <Col xs={24} md={8}>
+                                <Form.Item
+                                    label="Thời gian học"
+                                    name="preferredTime"
+                                    rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
+                                >
+                                    <Input placeholder="Ví dụ: 18:00 - 20:00" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
 
-                    {/* Buttons */}
-                    <div className="flex gap-4">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? 'Đang đăng...' : 'Đăng bài'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setForm({
-                                postTitle: "",
-                                subject: "",
-                                grade: "",
-                                sessionsPerWeek: "",
-                                preferredDays: "",
-                                preferredTime: "",
-                                salaryPerSession: "",
-                                description: "",
-                            })}
-                            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
-                        >
-                            Làm mới
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        <Row gutter={12}>
+                            <Col span={24}>
+                                <Form.Item
+                                    label="Ngày học trong tuần"
+                                    name="preferredDays"
+                                    rules={[{ required: true, message: 'Vui lòng nhập ngày học!' }]}
+                                >
+                                    <Input placeholder="Ví dụ: Thứ 2, Thứ 4, Thứ 6" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <Row gutter={12}>
+                            <Col span={24}>
+                                <Form.Item
+                                    label="Mô tả thêm"
+                                    name="description"
+                                >
+                                    <Input.TextArea
+                                        rows={3}
+                                        placeholder="Thêm mô tả chi tiết về yêu cầu, kinh nghiệm cần thiết, hoặc thông tin khác..."
+                                        maxLength={500}
+                                        showCount
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <Divider />
+
+                        <Row gutter={12}>
+                            <Col span={24}>
+                                <Space className="w-full justify-end">
+                                    <Button
+                                        onClick={() => form.resetFields()}
+                                        size="middle"
+                                    >
+                                        Làm mới
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        loading={loading}
+                                        size="middle"
+                                        className="bg-blue-600 hover:bg-blue-700"
+                                    >
+                                        {loading ? 'Đang đăng...' : 'Đăng bài'}
+                                    </Button>
+                                </Space>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Space>
+            </Card>
         </div>
     );
 };

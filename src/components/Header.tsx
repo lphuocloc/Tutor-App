@@ -6,9 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 // --- Icon Definitions (Lucide-style Inline SVG) ---
 
-const BellIcon = (props) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.375 21a2 2 0 0 0 3.25 0" /></svg>
-);
+
 
 const MessageIcon = (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -18,9 +16,7 @@ const UserPlusIcon = (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" x2="19" y1="8" y2="14" /><line x1="22" x2="16" y1="11" y2="11" /></svg>
 );
 
-const SearchIcon = (props) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-);
+
 
 const PlusIcon = (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -31,6 +27,9 @@ const Header = () => {
     // State to manage the user profile dropdown visibility
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const navigate = useNavigate();
+
+    // Get user role
+    const userRole = localStorage.getItem('userRole');
 
     // Mock NavLink function for a single file setup
     // This component acts as a placeholder for react-router-dom's NavLink
@@ -54,17 +53,26 @@ const Header = () => {
         </span>
     );
 
-    // Dropdown Menu items (Content from Ant Design Menu)
-    const menuItems = [
-        { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
+    // Dropdown Menu items - conditional based on role
+    const getMenuItems = () => {
+        if (userRole === 'Tutor') {
+            return [
+                { key: "tutorDashboard", title: "Tutor Dashboard", to: "/tutor/dashboard" },
+                { key: "logout", title: "Đăng xuất", action: "logout" },
+            ];
+        }
+        return [
+            { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
+            { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
+            { key: "login", title: "Đăng nhập", to: "/login" },
+            { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
+            { key: "wallet", title: "Ví của tôi", to: "/wallet" },
+            { key: "bankAccount", title: "Tài khoản ngân hàng", to: "/bank-account" },
+            { key: "logout", title: "Đăng xuất", action: "logout" },
+        ];
+    };
 
-        { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
-        { key: "login", title: "Đăng nhập", to: "/login" },
-        { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
-        { key: "wallet", title: "Ví của tôi", to: "/wallet" },
-        { key: "bankAccount", title: "Tài khoản ngân hàng", to: "/bank-account" },
-        { key: "logout", title: "Đăng xuất", action: "logout" },
-    ];
+    const menuItems = getMenuItems();
 
     // Logout function
     const handleLogout = () => {
@@ -91,62 +99,50 @@ const Header = () => {
                     </div>
 
                     {/* Search Bar (Center, Hidden on Mobile, max width on desktop) */}
-                    <div className="flex-grow max-w-lg mx-4 hidden md:block">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm gia sư, môn học, khu vực..."
-                                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-3 focus:ring-blue-300 focus:border-blue-500 transition-all text-sm shadow-inner"
-                            />
-                            {/* Search Icon inside the input field */}
-                            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        </div>
-                    </div>
+
 
                     {/* Action Icons and Profile (Right) */}
                     <div className="flex items-center space-x-3 sm:space-x-4">
 
-                        {/* Notification Icon */}
-                        <Tooltip title="Thông báo">
-                            <NavLink
-                                to="/thongbao"
-                                className="p-2 rounded-full text-gray-600 hover:text-blue-600 transition-all duration-200 relative"
-                            >
-                                <BellIcon className="w-6 h-6 " />
-                                {/* Mock Notification Badge */}
-                                {/* <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span> */}
-                            </NavLink>
-                        </Tooltip>
 
-                        {/* Message Icon */}
-                        <Tooltip title="Tin nhắn">
-                            <NavLink
-                                to="/tinnhan"
-                                className="p-2 rounded-full text-gray-600 hover:text-blue-600  transition-colors duration-200 relative"
-                            >
-                                <MessageIcon className="w-6 h-6" />
-                            </NavLink>
-                        </Tooltip>
 
-                        {/* Register Tutor Icon */}
-                        <Tooltip title="Đăng ký làm gia sư">
-                            <NavLink
-                                to="/dangky-lamgiasu"
-                                className="p-2 rounded-full text-gray-600 hover:text-blue-600    transition-colors duration-200 relative"
-                            >
-                                <UserPlusIcon className="w-6 h-6" />
-                            </NavLink>
-                        </Tooltip>
+                        {/* Message Icon - Hidden for tutors */}
+                        {userRole !== 'Tutor' && (
+                            <Tooltip title="Tin nhắn">
+                                <NavLink
+                                    to="/tinnhan"
+                                    className="p-2 rounded-full text-gray-600 hover:text-blue-600  transition-colors duration-200 relative"
+                                >
+                                    <MessageIcon className="w-6 h-6" />
+                                </NavLink>
+                            </Tooltip>
+                        )}
 
-                        {/* Create Post Icon */}
-                        <Tooltip title="Đăng bài tìm gia sư">
-                            <NavLink
-                                to="/tao-bai-dang-tim-gia-su"
-                                className="p-2 rounded-full text-gray-600 hover:text-green-600 transition-colors duration-200 relative"
-                            >
-                                <PlusIcon className="w-6 h-6" />
-                            </NavLink>
-                        </Tooltip>
+
+                        {/* Register Tutor Icon - Hidden for tutors */}
+                        {userRole !== 'Tutor' && (
+                            <Tooltip title="Đăng ký làm gia sư">
+                                <NavLink
+                                    to="/dangky-lamgiasu"
+                                    className="p-2 rounded-full text-gray-600 hover:text-blue-600    transition-colors duration-200 relative"
+                                >
+                                    <UserPlusIcon className="w-6 h-6" />
+                                </NavLink>
+                            </Tooltip>
+
+                        )}
+
+                        {/* Create Post Icon - Hidden for tutors */}
+                        {userRole !== 'Tutor' && (
+                            <Tooltip title="Đăng bài tìm gia sư">
+                                <NavLink
+                                    to="/tao-bai-dang-tim-gia-su"
+                                    className="p-2 rounded-full text-gray-600 hover:text-green-600 transition-colors duration-200 relative"
+                                >
+                                    <PlusIcon className="w-6 h-6" />
+                                </NavLink>
+                            </Tooltip>
+                        )}
 
                         {/* Profile Dropdown (Emulating Ant Design Dropdown/Menu) */}
                         <div className="relative">

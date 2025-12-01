@@ -70,7 +70,6 @@ const ChatRoomsPage: React.FC = () => {
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-lg font-semibold">Phòng #{room.chatRoomId}</h3>
-                                        <p className="text-sm text-gray-600">Bài đăng phụ huynh: {room.parentPostId} · Bài đăng gia sư: {room.tutorPostId}</p>
                                         <p className="text-sm text-gray-600">Người phụ huynh: {getUserNameByIdFromStore(user, room.parentUserId)} · Gia sư: {getUserNameByIdFromStore(user, room.tutorUserId)}</p>
                                     </div>
                                     <div className="text-sm text-gray-500">{new Date(room.createdAt).toLocaleString()}</div>

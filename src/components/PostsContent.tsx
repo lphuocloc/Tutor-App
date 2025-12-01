@@ -5,7 +5,6 @@ import { fetchPosts, usePosts } from '../store/posts';
 import type { Post } from '../types/post';
 
 const { Title, Text } = Typography;
-const { Meta } = Card;
 
 const PostsContent: React.FC = () => {
     const posts = usePosts()
@@ -41,71 +40,73 @@ const PostsContent: React.FC = () => {
         <Col xs={24} sm={12} lg={8} xl={6} key={post.postId}>
             <Card
                 hoverable
-                className="h-full shadow-sm hover:shadow-md transition-shadow duration-300"
-            // onClick={() => handleViewDetail(post.postId)}
+                className="h-full bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 rounded-xl overflow-hidden"
             >
-                <Meta
-                    title={
-                        <div className="flex items-center justify-between">
-                            <Title level={5} className="mb-0 text-lg leading-tight">
-                                {post.title}
-                            </Title>
-                            <Tag color={post.postId === 1 ? 'green' : post.postId === 2 ? 'blue' : 'default'}>
-                                <ClockCircleOutlined /> {getTimeAgo(post.postId)}
-                            </Tag>
+                <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <Title level={5} className="mb-0 text-base leading-tight text-gray-800 font-semibold">
+                            {post.title}
+                        </Title>
+                        <Tag color={post.postId === 1 ? 'green' : post.postId === 2 ? 'blue' : 'default'} className="rounded-full">
+                            <ClockCircleOutlined className="text-sm" /> {getTimeAgo(post.postId)}
+                        </Tag>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap gap-1">
+                            <Tag color="blue" className="text-sm rounded-full bg-blue-100 text-blue-800 border-blue-200">{post.subject}</Tag>
+                            <Tag color="cyan" className="text-sm rounded-full bg-cyan-100 text-cyan-800 border-cyan-200">{post.studentGrade}</Tag>
+                            <Tag color="orange" className="text-sm rounded-full bg-orange-100 text-orange-800 border-orange-200">{post.sessionsPerWeek} buổi/tuần</Tag>
                         </div>
-                    }
-                    description={
-                        <div className="space-y-3 mt-3">
-                            <div className="flex flex-wrap gap-2">
-                                <Tag color="blue">{post.subject}</Tag>
-                                <Tag color="purple">{post.studentGrade}</Tag>
-                                <Tag color="orange">{post.sessionsPerWeek} buổi/tuần</Tag>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <ClockCircleOutlined className="text-gray-500 text-sm" />
+                                <Text className="text-sm text-gray-700">
+                                    {post.preferredDays} - {post.preferredTime}
+                                </Text>
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="flex items-center gap-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-2 rounded-lg border border-green-200">
+                                <DollarOutlined className="text-green-600 text-base" />
+                                <Text className="text-base font-semibold text-green-700">
+                                    {formatCurrency(post.pricePerSession)}/buổi
+                                </Text>
+                            </div>
+
+                            {post.location && (
                                 <div className="flex items-center gap-2">
-                                    <ClockCircleOutlined className="text-gray-500" />
-                                    <Text className="text-sm">
-                                        {post.preferredDays} - {post.preferredTime}
+                                    <EnvironmentOutlined className="text-gray-500 text-sm" />
+                                    <Text className="text-sm text-gray-600">
+                                        {post.location}
                                     </Text>
                                 </div>
-
-                                <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                                    <DollarOutlined className="text-green-600 text-lg" />
-                                    <Text className="text-lg font-bold text-green-700">
-                                        {formatCurrency(post.pricePerSession)}/buổi
-                                    </Text>
-                                </div>
-
-                                {post.location && (
-                                    <div className="flex items-center gap-2">
-                                        <EnvironmentOutlined className="text-gray-500" />
-                                        <Text className="text-sm text-gray-600">
-                                            {post.location}
-                                        </Text>
-                                    </div>
-                                )}
-                            </div>
+                            )}
                         </div>
-                    }
-                />
+                    </div>
+                </div>
             </Card>
         </Col>
     );
 
     return (
-        <div className="p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Bài đăng phụ huynh</h1>
-                <Button
-                    onClick={handleRefresh}
-                    type="primary"
-                    icon={<ReloadOutlined />}
-                    size="large"
-                >
-                    Làm mới
-                </Button>
+        <div className="p-6">
+            <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 rounded-2xl p-6 mb-6 shadow-lg">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white mb-1">Bài đăng phụ huynh</h1>
+                        <p className="text-blue-100 text-sm">Xem các bài đăng tìm gia sư từ phụ huynh</p>
+                    </div>
+                    <Button
+                        onClick={handleRefresh}
+                        type="default"
+                        icon={<ReloadOutlined />}
+                        size="middle"
+                        className="bg-white hover:bg-gray-50 border-0 shadow-md"
+                    >
+                        Làm mới
+                    </Button>
+                </div>
             </div>
 
             {posts.length === 0 ? (

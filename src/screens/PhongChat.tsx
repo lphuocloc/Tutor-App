@@ -172,6 +172,14 @@ const PhongChat: React.FC = () => {
 
             const resp = await bookingAPI.createBooking(payload);
             if (resp && (resp.status === 200 || resp.status === 201)) {
+                // Delete the chatroom after successful booking
+                try {
+                    await axiosInstance.delete(`/ChatRoom/${chatRoomId}`);
+                    message.success('Đã xóa phòng chat sau khi xác nhận.');
+                } catch (deleteErr) {
+                    console.error('Error deleting chatroom after booking:', deleteErr);
+                    // Don't show error for delete failure as booking was successful
+                }
                 message.success('Xác nhận nhận lớp thành công.');
                 navigate('/my-posts');
             } else {
@@ -303,7 +311,14 @@ const PhongChat: React.FC = () => {
                     <div className="max-w-5xl mx-auto flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <button
-                                onClick={() => navigate('/chitiet-lophoc')} // Replaced navigate(-1)
+                                onClick={() => {
+                                    const userRole = localStorage.getItem('userRole');
+                                    if (userRole === 'Tutor') {
+                                        navigate('/tutor/dashboard');
+                                    } else {
+                                        navigate('/tinnhan');
+                                    }
+                                }}
                                 className="text-white p-0 border-0 focus:outline-none"
                             >
                                 <ArrowLeft className="w-6 h-6" />
