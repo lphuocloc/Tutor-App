@@ -46,6 +46,11 @@ const ProfileDetails = () => {
         fetchProfile();
     }, []);
 
+    useEffect(() => {
+        // Đặt tiêu đề trang mặc định là Sutido
+        document.title = 'Sutido';
+    }, []);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 font-sans text-gray-800 p-4 sm:p-6 lg:p-8 flex items-center justify-center">

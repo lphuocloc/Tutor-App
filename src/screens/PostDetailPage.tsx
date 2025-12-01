@@ -55,7 +55,7 @@ const PostDetailPage: React.FC = () => {
         }
 
         const amount = 50000; // deposit amount in VND
-        const description = `Cọc: ${post.title}`;
+        const description = `Cọc: ${post.postId}`;
 
         // Show payment method selection modal
         Modal.confirm({
