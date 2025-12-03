@@ -92,11 +92,12 @@ const Login: React.FC = () => {
                 navigate('/admin/dashboard')
             } else if (role === 'Staff') {
                 navigate('/staff/dashboard')
-            } else if (role === 'Tutor') {
-                navigate('/tutor/dashboard')
+            } else if (role === 'Tutor' || role === 'Customer') {
+                // Tutor và Customer đều chuyển về Trang Chủ
+                navigate('/trangchu')
             } else {
-                // Customer hoặc không có role
-                navigate('/tutor-posts')
+                // Role khác hoặc không có role
+                navigate('/trangchu')
             }
         } catch (err: unknown) {
             console.error('Lỗi đăng nhập:', err)
