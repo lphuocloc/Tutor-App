@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types/post';
-import { message, Modal, Button, Tag, Typography, Card, Row, Col } from 'antd';
-import { ReloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
+import { message, Modal, Button, Tag, Typography, Card, Row, Col, Form, InputNumber, Input } from 'antd';
+import { ReloadOutlined, DeleteOutlined, SearchOutlined, EditOutlined } from '@ant-design/icons';
 import { classAPI } from '../api/endpoints';
-import { getUserNameByIdFromStore } from '../store/profile';
-import { useUser } from '../store';
+import { fetchProfile, getUserNameByIdFromStore, useProfile } from '../store/profile';
 
 interface MatchingPost {
     postId: number;
@@ -26,8 +25,11 @@ const CustomerPostsPage: React.FC = () => {
     const [showMatches, setShowMatches] = useState(false);
     const [loadingMatches, setLoadingMatches] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [editingPost, setEditingPost] = useState<Post | null>(null);
+    const [editForm] = Form.useForm();
 
-    const users = useUser();
+    const users = useProfile();
 
     const navigate = useNavigate();
 
@@ -41,7 +43,7 @@ const CustomerPostsPage: React.FC = () => {
             }
             const response = await classAPI.getUserPosts(Number(userId), {
                 page: 1,
-                pageSize: 10
+                pageSize: 100
             });
             setPosts(response.data);
         } catch (error) {
@@ -53,8 +55,8 @@ const CustomerPostsPage: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log('Fetching user posts...');
         fetchUserPosts();
+        fetchProfile()
     }, []);
 
     const handleRefresh = () => {
@@ -82,6 +84,36 @@ const CustomerPostsPage: React.FC = () => {
                 }
             },
         });
+    };
+
+    const handleEdit = (post: Post) => {
+        setEditingPost(post);
+        editForm.setFieldsValue({
+            pricePerSession: post.pricePerSession,
+            preferredDays: post.preferredDays,
+            preferredTime: post.preferredTime,
+        });
+        setEditModalVisible(true);
+    };
+
+    const handleEditSubmit = async (values: {
+        pricePerSession: number;
+        preferredDays: string;
+        preferredTime: string;
+    }) => {
+        if (!editingPost) return;
+
+        try {
+            await classAPI.updatePost(editingPost.postId, values);
+            message.success('Cập nhật bài đăng thành công!');
+            setEditModalVisible(false);
+            setEditingPost(null);
+            editForm.resetFields();
+            fetchUserPosts();
+        } catch (error) {
+            console.error('Error updating post:', error);
+            message.error('Có lỗi xảy ra khi cập nhật bài đăng');
+        }
     };
 
     const handleFindMatches = async (postId: number) => {
@@ -175,6 +207,15 @@ const CustomerPostsPage: React.FC = () => {
                                             key="find"
                                         >
                                             Tìm gia sư
+                                        </Button>,
+                                        <Button
+                                            type="default"
+                                            icon={<EditOutlined />}
+                                            onClick={() => handleEdit(post)}
+                                            size="small"
+                                            key="edit"
+                                        >
+                                            Sửa
                                         </Button>,
                                         <Button
                                             type="primary"
@@ -278,6 +319,69 @@ const CustomerPostsPage: React.FC = () => {
                             ))}
                         </div>
                     )}
+                </Modal>
+
+                {/* Edit Post Modal */}
+                <Modal
+                    title="Chỉnh sửa bài đăng"
+                    open={editModalVisible}
+                    onCancel={() => {
+                        setEditModalVisible(false);
+                        setEditingPost(null);
+                        editForm.resetFields();
+                    }}
+                    footer={null}
+                    width={600}
+                >
+                    <Form
+                        form={editForm}
+                        layout="vertical"
+                        onFinish={handleEditSubmit}
+                    >
+                        <Form.Item
+                            label="💰 Lương/buổi (VNĐ)"
+                            name="pricePerSession"
+                            rules={[{ required: true, message: 'Vui lòng nhập lương/buổi!' }]}
+                        >
+                            <InputNumber
+                                min={0}
+                                step={10000}
+                                className="w-full"
+                                placeholder="Ví dụ: 300000"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="📅 Ngày học trong tuần"
+                            name="preferredDays"
+                            rules={[{ required: true, message: 'Vui lòng nhập ngày học!' }]}
+                        >
+                            <Input placeholder="Ví dụ: Thứ 2, Thứ 4" />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="⏰ Thời gian học"
+                            name="preferredTime"
+                            rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
+                        >
+                            <Input placeholder="Ví dụ: 19:00 - 21:00" />
+                        </Form.Item>
+
+                        <Form.Item>
+                            <div className="flex justify-end gap-2">
+                                <Button onClick={() => {
+                                    setEditModalVisible(false);
+                                    setEditingPost(null);
+                                    editForm.resetFields();
+                                }}>
+                                    Hủy
+                                </Button>
+                                <Button type="primary" htmlType="submit">
+                                    Cập nhật
+                                </Button>
+                            </div>
+                        </Form.Item>
+                    </Form>
                 </Modal>
             </div>
         </div>

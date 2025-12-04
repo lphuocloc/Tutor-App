@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Phone, Info, Paperclip, Send, Check, Calendar, Clock, DollarSign, Book, XCircle } from 'lucide-react';
+import { ArrowLeft, Send, Check, Calendar, Clock, DollarSign, Book, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { message, Button, Input, Card, Avatar, Space } from 'antd';
+import { message, Button, Input, Card, Avatar, Space, Modal, Form, InputNumber } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import { classAPI, bookingAPI, walletAPI } from '../api/endpoints';
 import axiosInstance from '../api/axiosConfig';
 import type { Post } from '../types/post';
+import { getUserNameByIdFromStore, useProfile, fetchProfile } from '../store/profile';
 
 // Custom Modal Component
 interface ModalProps {
@@ -60,6 +62,9 @@ const PhongChat: React.FC = () => {
     const [showRules, setShowRules] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const users = useProfile();
+    const [otherUserName, setOtherUserName] = useState<string>('');
+
     // State for editable class information (populated from tutor post details)
     const [classInfo, setClassInfo] = useState({
         days: '',
@@ -68,7 +73,10 @@ const PhongChat: React.FC = () => {
         subject: ''
     });
     const [postDetail, setPostDetail] = useState<Post | null>(null);
-    // No edit functionality: class info is read-only in chat
+
+    // Edit functionality states
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [editForm] = Form.useForm();
 
     // State for custom cancel confirmation modal
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -167,7 +175,8 @@ const PhongChat: React.FC = () => {
                 agreedPricePerSession: Number(postDetail.pricePerSession || 0),
                 sessionsPerWeek: Number(postDetail.sessionsPerWeek || 0),
                 agreedDays: postDetail.preferredDays || '',
-                agreedTime: postDetail.preferredTime || ''
+                agreedTime: postDetail.preferredTime || '',
+                securityCode: postDetail.location || ''
             };
 
             const resp = await bookingAPI.createBooking(payload);
@@ -191,7 +200,48 @@ const PhongChat: React.FC = () => {
         }
     };
 
-    // Edit handlers removed — class info is read-only here
+    // Edit handlers
+    const handleEdit = () => {
+        if (!postDetail) {
+            message.error('Không tìm thấy thông tin lớp học');
+            return;
+        }
+        editForm.setFieldsValue({
+            pricePerSession: postDetail.pricePerSession,
+            preferredDays: postDetail.preferredDays,
+            preferredTime: postDetail.preferredTime,
+        });
+        setEditModalVisible(true);
+    };
+
+    const handleEditSubmit = async (values: {
+        pricePerSession: number;
+        preferredDays: string;
+        preferredTime: string;
+    }) => {
+        if (!postDetail) return;
+
+        try {
+            await classAPI.updatePost(postDetail.postId, values);
+            message.success('Cập nhật thông tin lớp học thành công!');
+
+            // Update local state
+            const updatedPost = { ...postDetail, ...values };
+            setPostDetail(updatedPost);
+            setClassInfo({
+                days: values.preferredDays,
+                time: values.preferredTime,
+                salary: formatCurrency(values.pricePerSession),
+                subject: postDetail.subject || postDetail.title || ''
+            });
+
+            setEditModalVisible(false);
+            editForm.resetFields();
+        } catch (error) {
+            console.error('Error updating post:', error);
+            message.error('Có lỗi xảy ra khi cập nhật thông tin lớp học');
+        }
+    };
 
     // Format currency helper
     const formatCurrency = (amount: number) => {
@@ -200,6 +250,33 @@ const PhongChat: React.FC = () => {
             currency: 'VND'
         }).format(amount);
     };
+
+    // Determine other user's name based on role
+    useEffect(() => {
+        // Fetch profiles first if not loaded
+        if (users.length === 0) {
+            fetchProfile();
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const parentUserId = Number(params.get('parentUserId') || 0);
+        const tutorUserId = Number(params.get('tutorUserId') || 0);
+        const userRole = localStorage.getItem('userRole') || '';
+
+        let targetUserId = 0;
+        if (userRole === 'Customer' && tutorUserId > 0) {
+            // Customer viewing, show tutor name
+            targetUserId = tutorUserId;
+        } else if (userRole === 'Tutor' && parentUserId > 0) {
+            // Tutor viewing, show parent (customer) name
+            targetUserId = parentUserId;
+        }
+
+        if (targetUserId > 0 && users.length > 0) {
+            const name = getUserNameByIdFromStore(users, targetUserId);
+            setOtherUserName(name);
+        }
+    }, [users]);
 
     // On mount: try to read a tutor post id (from query or localStorage) and fetch its details
     useEffect(() => {
@@ -238,15 +315,19 @@ const PhongChat: React.FC = () => {
             }
         };
 
+        let postIdToFetch = 0;
+
         try {
             const params = new URLSearchParams(window.location.search);
-            const tutorPostId = Number(params.get('tutorPostId') || 0);
-            if (tutorPostId && tutorPostId > 0) {
-                fetchTutorPost(tutorPostId);
+            const parentPostId = Number(params.get('parentPostId') || 0);
+            if (parentPostId && parentPostId > 0) {
+                postIdToFetch = parentPostId;
+                fetchTutorPost(parentPostId);
             } else {
                 // Fallback to localStorage if no tutorPostId in URL
-                const idFromStorage = Number(localStorage.getItem('tutorPostId') || localStorage.getItem('pendingOrderPostId') || 0);
+                const idFromStorage = Number(localStorage.getItem('parentPostId') || localStorage.getItem('pendingOrderPostId') || 0);
                 if (idFromStorage && idFromStorage > 0) {
+                    postIdToFetch = idFromStorage;
                     fetchTutorPost(idFromStorage);
                 } else {
                     // If no postId, set default values
@@ -267,6 +348,16 @@ const PhongChat: React.FC = () => {
                 salary: 10000 + ' VND',
                 subject: 'Toán'
             });
+        }
+
+        // Set up polling to refresh post details every 5 seconds
+        if (postIdToFetch > 0) {
+            const intervalId = setInterval(() => {
+                fetchTutorPost(postIdToFetch);
+            }, 5000); // Refresh every 5 seconds
+
+            // Cleanup interval on unmount
+            return () => clearInterval(intervalId);
         }
     }, []);
 
@@ -329,21 +420,18 @@ const PhongChat: React.FC = () => {
                                 className="rounded-full border border-blue-200"
                                 style={{ width: '48px', height: '48px' }}
                             />
-                            {/* <div>
-                                <h1 className="text-lg font-semibold mb-0">Phòng trò chuyện với Gia sư Nguyễn Văn A</h1>
+                            <div>
+                                <h1 className="text-lg font-semibold mb-0">
+                                    Phòng trò chuyện với {localStorage.getItem('userRole') === 'Customer' ? 'Gia sư' : 'Phụ huynh'} {otherUserName || '...'}
+                                </h1>
                                 <p className="text-blue-200 text-sm mb-0">Online</p>
-                            </div> */}
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                             {/* <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
                                 Hết hạn sau: 1 ngày 23 giờ
                             </span> */}
-                            <button className="text-white p-0 border-0 focus:outline-none">
-                                <Phone className="w-6 h-6" />
-                            </button>
-                            <button className="text-white p-0 border-0 focus:outline-none">
-                                <Info className="w-6 h-6" />
-                            </button>
+
                         </div>
                     </div>
                 </header>
@@ -415,7 +503,6 @@ const PhongChat: React.FC = () => {
 
                         <Card className="mb-4">
                             <Space.Compact style={{ width: '100%' }}>
-                                <Button icon={<Paperclip />} />
                                 <Input
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
@@ -458,8 +545,16 @@ const PhongChat: React.FC = () => {
                     </div>
 
                     <Card style={{ width: '100%', maxWidth: '256px' }}>
-                        <div style={{ marginBottom: '12px' }}>
-                            <h3 style={{ fontWeight: 'bold', color: '#1890ff', fontSize: '18px' }}>Thông tin lớp học</h3>
+                        <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ fontWeight: 'bold', color: '#1890ff', fontSize: '18px', margin: 0 }}>Thông tin lớp học</h3>
+                            {postDetail && (
+                                <Button
+                                    type="text"
+                                    icon={<EditOutlined />}
+                                    onClick={handleEdit}
+                                    size="small"
+                                />
+                            )}
                         </div>
                         <div style={{ marginBottom: '8px' }}>
                             <Space>
@@ -499,6 +594,68 @@ const PhongChat: React.FC = () => {
                 onCancel={handleCloseCancelModal}
                 isVisible={showCancelConfirm}
             />
+
+            {/* Edit Class Info Modal */}
+            <Modal
+                title="Chỉnh sửa thông tin lớp học"
+                open={editModalVisible}
+                onCancel={() => {
+                    setEditModalVisible(false);
+                    editForm.resetFields();
+                }}
+                footer={null}
+                width={600}
+            >
+                <Form
+                    form={editForm}
+                    layout="vertical"
+                    onFinish={handleEditSubmit}
+                >
+                    <Form.Item
+                        label="💰 Lương/buổi (VNĐ)"
+                        name="pricePerSession"
+                        rules={[{ required: true, message: 'Vui lòng nhập lương/buổi!' }]}
+                    >
+                        <InputNumber
+                            min={0}
+                            step={10000}
+                            className="w-full"
+                            placeholder="Ví dụ: 300000"
+                            style={{ width: '100%' }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="📅 Ngày học trong tuần"
+                        name="preferredDays"
+                        rules={[{ required: true, message: 'Vui lòng nhập ngày học!' }]}
+                    >
+                        <Input placeholder="Ví dụ: Thứ 2, Thứ 4" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="⏰ Thời gian học"
+                        name="preferredTime"
+                        rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
+                    >
+                        <Input placeholder="Ví dụ: 19:00 - 21:00" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                            <Button onClick={() => {
+                                setEditModalVisible(false);
+                                editForm.resetFields();
+                            }}>
+                                Hủy
+                            </Button>
+                            <Button type="primary" htmlType="submit">
+                                Cập nhật
+                            </Button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

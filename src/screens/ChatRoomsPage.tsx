@@ -65,12 +65,12 @@ const ChatRoomsPage: React.FC = () => {
                             <List.Item
                                 key={room.chatRoomId}
                                 className="bg-white rounded p-4 mb-4 shadow-sm cursor-pointer hover:shadow-md"
-                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&tutorPostId=${room.tutorPostId}`)}
+                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&parentPostId=${room.parentPostId}&parentUserId=${room.parentUserId}&tutorUserId=${room.tutorUserId}`)}
                             >
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-lg font-semibold">Phòng #{room.chatRoomId}</h3>
-                                        <p className="text-sm text-gray-600">Người phụ huynh: {getUserNameByIdFromStore(user, room.parentUserId)} · Gia sư: {getUserNameByIdFromStore(user, room.tutorUserId)}</p>
+                                        <p className="text-sm text-gray-600">Phụ huynh: {getUserNameByIdFromStore(user, room.parentUserId)} · Gia sư: {getUserNameByIdFromStore(user, room.tutorUserId)}</p>
                                     </div>
                                     <div className="text-sm text-gray-500">{new Date(room.createdAt).toLocaleString()}</div>
                                 </div>

@@ -10,6 +10,7 @@ export const useProfile = () => profile.use();
 export const fetchProfile = async () => {
     try {
         const resp = await userAPI.getUserProfile();
+        console.log("log in call user", resp.data)
         profile.set(resp.data);
     } catch (err) {
         console.error('Error fetching profile:', err);
@@ -23,6 +24,6 @@ export const getUserNameByIdFromStore = (userList: Profile[], userId: number): s
     console.log('userId:', userId);
 
     const user = userList.find((p: Profile) => p.userId == userId);  // Use == for type coercion
-    console.log('found user:', user);
+    console.log('found user:', user?.fullName);
     return user ? user.fullName : '';
 };

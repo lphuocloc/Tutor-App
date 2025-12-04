@@ -50,7 +50,7 @@ export const userAPI = {
     getAllUsers: () => axiosInstance.get('/users'),
 
     // Lấy thông tin user detail theo userId
-    getUserProfile: () => axiosInstance.get("/users"),
+    getUserProfile: () => axiosInstance.get("/users?pageSize=100"),
 
     // Cập nhật profile
     updateProfile: (data: any) =>
@@ -182,6 +182,13 @@ export const classAPI = {
 
     // Xóa bài đăng
     deletePost: (id: number) => axiosInstance.delete(`/posts/${id}`),
+
+    // Cập nhật bài đăng
+    updatePost: (id: number, data: {
+        pricePerSession?: number;
+        preferredDays?: string;
+        preferredTime?: string;
+    }) => axiosInstance.put(`/posts/${id}`, data),
 
     // Lấy chi tiết bài đăng
     getPostDetail: (id: number) => axiosInstance.get(`/posts/${id}`),

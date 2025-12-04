@@ -22,6 +22,7 @@ import {
     Alert
 } from 'antd';
 import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI, userAPI } from '../api/endpoints';
+import { fetchProfile, getUserNameByIdFromStore, useProfile } from '../store/profile';
 
 type MenuType = 'dashboard' | 'posts' | 'createPost' | 'myPosts' | 'schedule' | 'students' | 'earnings' | 'profile' | 'messages' | 'bookings';
 
@@ -30,7 +31,6 @@ const TutorDashboard: React.FC = () => {
     const userName = localStorage.getItem('userName') || 'Gia sư';
     const [activeMenu, setActiveMenu] = useState<MenuType>('dashboard');
     const [sidebarOpen, setSidebarOpen] = useState(true);
-
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
@@ -296,6 +296,8 @@ const MessagesContent: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const users = useProfile();
+
     const fetchRooms = async () => {
         try {
             setLoading(true);
@@ -316,6 +318,14 @@ const MessagesContent: React.FC = () => {
 
     useEffect(() => {
         fetchRooms();
+        fetchProfile();
+        // Set up polling to refresh chat rooms every 5 seconds
+        const intervalId = setInterval(() => {
+            fetchRooms();
+        }, 5000);
+
+        // Cleanup interval on unmount
+        return () => clearInterval(intervalId);
     }, []);
 
     return (
@@ -331,12 +341,12 @@ const MessagesContent: React.FC = () => {
                         {rooms.map((room: any) => (
                             <button
                                 key={room.chatRoomId}
-                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&tutorPostId=${room.tutorPostId || ''}`)}
-                                className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 flex items-center justify-between"
+                                onClick={() => navigate(`/phongchat?roomId=${room.chatRoomId}&parentPostId=${room.parentPostId || ''}&parentUserId=${room.parentUserId || ''}&tutorUserId=${room.tutorUserId || ''}`)}
+                                className="w-full text-left p-3  rounded-lg hover:bg-gray-50 flex items-center justify-between"
                             >
                                 <div>
                                     <div className="font-medium">Phòng #{room.chatRoomId}</div>
-                                    <div className="text-sm text-gray-500">Bài đăng phụ huynh: {room.parentPostId} · Bài đăng gia sư: {room.tutorPostId}</div>
+                                    <div className="text-sm text-gray-500">Phụ huynh: {getUserNameByIdFromStore(users, room.parentUserId)} · Gia sư: {getUserNameByIdFromStore(users, room.tutorUserId)}</div>
                                 </div>
                                 <div className="text-sm text-gray-400">{new Date(room.createdAt).toLocaleString()}</div>
                             </button>
@@ -351,7 +361,6 @@ const MessagesContent: React.FC = () => {
 const BookingsContent: React.FC = () => {
     const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [loadingId, setLoadingId] = useState<number | null>(null);
     const [trackingModalVisible, setTrackingModalVisible] = useState(false);
     const [trackingBookingId, setTrackingBookingId] = useState<number | null>(null);
     const [trackingAction, setTrackingAction] = useState<string>('arrived');
@@ -373,7 +382,28 @@ const BookingsContent: React.FC = () => {
                 return;
             }
             const resp = await bookingAPI.getUserBookings(userId);
-            setBookings(resp.data || []);
+            const bookingsData = resp.data || [];
+
+            // Fetch security code for each booking
+            const bookingsWithSecurity = await Promise.all(
+                bookingsData.map(async (booking: any) => {
+                    try {
+                        const secResp = await bookingAPI.getSecurityCode(booking.bookingId);
+                        return {
+                            ...booking,
+                            securityCode: secResp?.data?.securityCode || 'Chưa có'
+                        };
+                    } catch (err) {
+                        console.error(`Error fetching security code for booking ${booking.bookingId}:`, err);
+                        return {
+                            ...booking,
+                            securityCode: 'Không lấy được'
+                        };
+                    }
+                })
+            );
+
+            setBookings(bookingsWithSecurity);
         } catch (err) {
             console.error('Error fetching bookings:', err);
             message.error('Không thể tải danh sách booking');
@@ -385,32 +415,6 @@ const BookingsContent: React.FC = () => {
     useEffect(() => {
         fetchBookings();
     }, []);
-
-    const handleShowSecurityCode = async (bookingId: number) => {
-        try {
-            setLoadingId(bookingId);
-            const resp = await bookingAPI.getSecurityCode(bookingId);
-            const code = resp?.data?.securityCode;
-            if (code) {
-                Modal.info({
-                    title: 'Mã bảo mật',
-                    content: (
-                        <div>
-                            <p>Mã bảo mật cho booking <strong>#{bookingId}</strong>:</p>
-                            <p style={{ fontSize: 20, fontWeight: 700 }}>{code}</p>
-                        </div>
-                    ),
-                });
-            } else {
-                message.error('Không nhận được mã bảo mật từ server');
-            }
-        } catch (err) {
-            console.error('Error fetching security code:', err);
-            message.error('Không thể lấy mã bảo mật. Vui lòng thử lại.');
-        } finally {
-            setLoadingId(null);
-        }
-    };
 
     const openTrackingModal = (bookingId: number) => {
         setTrackingBookingId(bookingId);
@@ -506,15 +510,13 @@ const BookingsContent: React.FC = () => {
         { title: 'Buổi/tuần', dataIndex: 'sessionsPerWeek', key: 'sessionsPerWeek' },
         { title: 'Ngày dạy', dataIndex: 'agreedDays', key: 'agreedDays' },
         { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime' },
+        { title: 'Địa chỉ', dataIndex: 'securityCode', key: 'securityCode', render: (val: string) => val || 'Chưa có' },
         { title: 'Tạo lúc', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
         {
             title: 'Hành động',
             key: 'action',
             render: (_: any, record: any) => (
                 <div className="flex items-center gap-2">
-                    <Button type="primary" size="small" onClick={() => handleShowSecurityCode(record.bookingId)} loading={loadingId === record.bookingId}>
-                        Xem mã
-                    </Button>
                     <Button type="default" size="small" onClick={() => openTrackingModal(record.bookingId)}>
                         Tracking
                     </Button>

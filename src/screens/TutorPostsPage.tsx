@@ -33,8 +33,22 @@ const TutorPostsPage: React.FC = () => {
 
     // Get unique grades and subjects for filters
     const uniqueGrades = useMemo(() => {
-        const grades = posts.map(post => post.studentGrade).filter(Boolean);
-        return ['all', ...Array.from(new Set(grades))];
+        const allGrades = posts
+            .map(post => post.studentGrade)
+            .filter(Boolean)
+            .flatMap(grade => grade.split(',').map(g => g.trim()))
+            .filter(Boolean);
+
+        const uniqueSet = Array.from(new Set(allGrades));
+
+        // Sort grades logically
+        const sortedGrades = uniqueSet.sort((a, b) => {
+            const numA = parseInt(a.match(/\d+/)?.[0] || '0');
+            const numB = parseInt(b.match(/\d+/)?.[0] || '0');
+            return numA - numB;
+        });
+
+        return ['all', ...sortedGrades];
     }, [posts]);
 
     const uniqueSubjects = useMemo(() => {
@@ -45,7 +59,8 @@ const TutorPostsPage: React.FC = () => {
     // Filter posts based on selected grade and subject
     const filteredPosts = useMemo(() => {
         return posts.filter(post => {
-            const gradeMatch = selectedGrade === 'all' || post.studentGrade === selectedGrade;
+            const gradeMatch = selectedGrade === 'all' ||
+                post.studentGrade?.split(',').map(g => g.trim()).includes(selectedGrade);
             const subjectMatch = selectedSubject === 'all' || post.subject === selectedSubject;
             return gradeMatch && subjectMatch;
         });
