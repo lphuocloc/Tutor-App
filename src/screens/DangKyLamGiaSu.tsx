@@ -178,7 +178,7 @@ const DangKyLamGiaSu: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-6 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 py-6 px-4">
             <div className="max-w-2xl mx-auto">
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h1 className="text-2xl font-bold text-center text-blue-600 mb-1">

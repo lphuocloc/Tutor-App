@@ -30,17 +30,8 @@ export const fetchTutorPosts = async (params?: {
             pageSize: params?.pageSize || 20
         });
 
-        console.log('Tutor Posts API Response:', response.data);
-
         const postsData = Array.isArray(response.data) ? response.data : [];
-
-        console.log('Tutor Posts Data (after check):', postsData);
-        console.log('Tutor Posts Data length:', postsData.length);
-
         tutorPostsStore.set({ posts: postsData });
-
-        console.log('After setTutorPosts:', tutorPostsStore);
-
         return postsData;
     } catch (err) {
         console.error('Error fetching tutor posts:', err);

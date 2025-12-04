@@ -4,9 +4,12 @@ import type { Post } from '../types/post';
 import { message, Modal, Button, Tag, Typography, Card, Row, Col } from 'antd';
 import { ReloadOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { classAPI } from '../api/endpoints';
+import { getUserNameByIdFromStore } from '../store/profile';
+import { useUser } from '../store';
 
 interface MatchingPost {
     postId: number;
+    creatorUserId: number;
     title: string;
     subject: string;
     studentGrade: string;
@@ -23,6 +26,8 @@ const CustomerPostsPage: React.FC = () => {
     const [showMatches, setShowMatches] = useState(false);
     const [loadingMatches, setLoadingMatches] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+
+    const users = useUser();
 
     const navigate = useNavigate();
 
@@ -121,7 +126,7 @@ const CustomerPostsPage: React.FC = () => {
     // Removed columns for card layout
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 py-8">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center mb-6">
                     <div>
@@ -247,19 +252,27 @@ const CustomerPostsPage: React.FC = () => {
                                             {matchPost.postType === 'FindStudent' ? 'Tìm học sinh' : 'Tìm gia sư'}
                                         </span>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                        <p className="text-gray-600">
-                                            <span className="font-medium">📚 Môn:</span> {matchPost.subject}
-                                        </p>
-                                        <p className="text-gray-600">
-                                            <span className="font-medium">🎓 Lớp:</span> {matchPost.studentGrade}
-                                        </p>
-                                        <p className="text-gray-600">
-                                            <span className="font-medium">💰 Giá:</span> {formatCurrency(matchPost.pricePerSession)}
-                                        </p>
-                                        <p className="text-gray-600">
-                                            <span className="font-medium">📍 Nơi:</span> {matchPost.location}
-                                        </p>
+                                    <div className="space-y-3 text-sm">
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <span className="font-semibold text-blue-800">👨‍🏫 Gia sư:</span>{' '}
+                                            <span className="text-blue-900 font-medium">
+                                                {getUserNameByIdFromStore(users, matchPost.creatorUserId)}
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <p className="text-gray-600">
+                                                <span className="font-medium">📚 Môn:</span> {matchPost.subject}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                <span className="font-medium">🎓 Lớp:</span> {matchPost.studentGrade}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                <span className="font-medium">💰 Giá:</span> {formatCurrency(matchPost.pricePerSession)}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                <span className="font-medium">📍 Nơi:</span> {matchPost.location}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             ))}

@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
-import { Card, Button, Tag, Typography, Row, Col, Empty } from 'antd';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Card, Button, Tag, Typography, Row, Col, Empty, Select } from 'antd';
 import { ReloadOutlined, ClockCircleOutlined, DollarOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { fetchPosts, usePosts } from '../store/posts';
 import type { Post } from '../types/post';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const PostsContent: React.FC = () => {
     const posts = usePosts()
+    const [selectedGrade, setSelectedGrade] = useState<string>('all');
+    const [selectedSubject, setSelectedSubject] = useState<string>('all');
 
     useEffect(() => {
         // Gọi API khi component mount
@@ -34,6 +37,31 @@ const PostsContent: React.FC = () => {
         if (postId === 2) return '2h trước';
         if (postId === 3) return '1 ngày trước';
         return '2 ngày trước';
+    };
+
+    // Get unique grades and subjects for filters
+    const uniqueGrades = useMemo(() => {
+        const grades = posts.map(post => post.studentGrade).filter(Boolean);
+        return ['all', ...Array.from(new Set(grades))];
+    }, [posts]);
+
+    const uniqueSubjects = useMemo(() => {
+        const subjects = posts.map(post => post.subject).filter(Boolean);
+        return ['all', ...Array.from(new Set(subjects))];
+    }, [posts]);
+
+    // Filter posts based on selected grade and subject
+    const filteredPosts = useMemo(() => {
+        return posts.filter(post => {
+            const gradeMatch = selectedGrade === 'all' || post.studentGrade === selectedGrade;
+            const subjectMatch = selectedSubject === 'all' || post.subject === selectedSubject;
+            return gradeMatch && subjectMatch;
+        });
+    }, [posts, selectedGrade, selectedSubject]);
+
+    const handleResetFilters = () => {
+        setSelectedGrade('all');
+        setSelectedSubject('all');
     };
 
     const renderPostCard = (post: Post) => (
@@ -101,7 +129,7 @@ const PostsContent: React.FC = () => {
                         onClick={handleRefresh}
                         type="default"
                         icon={<ReloadOutlined />}
-                        size="middle"
+                        size="large"
                         className="bg-white hover:bg-gray-50 border-0 shadow-md"
                     >
                         Làm mới
@@ -109,7 +137,53 @@ const PostsContent: React.FC = () => {
                 </div>
             </div>
 
-            {posts.length === 0 ? (
+            {/* Filter Section */}
+            <div className="p-4 mb-6">
+                <div className="flex flex-wrap gap-4 items-end">
+                    <div className="flex-1 min-w-[200px]">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            🎓 Lọc theo lớp:
+                        </label>
+                        <Select
+                            value={selectedGrade}
+                            onChange={setSelectedGrade}
+                            style={{ width: '100%' }}
+                            size="large"
+                        >
+                            <Option value="all">Tất cả</Option>
+                            {uniqueGrades.filter(grade => grade !== 'all').map(grade => (
+                                <Option key={grade} value={grade}>{grade}</Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <div className="flex-1 min-w-[200px]">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            📚 Lọc theo môn:
+                        </label>
+                        <Select
+                            value={selectedSubject}
+                            onChange={setSelectedSubject}
+                            style={{ width: '100%' }}
+                            size="large"
+                        >
+                            <Option value="all">Tất cả</Option>
+                            {uniqueSubjects.filter(subject => subject !== 'all').map(subject => (
+                                <Option key={subject} value={subject}>{subject}</Option>
+                            ))}
+                        </Select>
+                    </div>
+                    <div>
+                        <Button onClick={handleResetFilters} size="large" className="bg-white hover:bg-gray-50 border-0 shadow-md">
+                            Đặt lại
+                        </Button>
+                    </div>
+                </div>
+                <div className="mt-3 text-sm text-gray-700">
+                    Hiển thị {filteredPosts.length} / {posts.length} bài đăng
+                </div>
+            </div>
+
+            {filteredPosts.length === 0 ? (
                 <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
@@ -121,7 +195,7 @@ const PostsContent: React.FC = () => {
                 />
             ) : (
                 <Row gutter={[16, 16]}>
-                    {posts.map(renderPostCard)}
+                    {filteredPosts.map(renderPostCard)}
                 </Row>
             )}
         </div>

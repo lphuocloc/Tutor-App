@@ -1,10 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { fetchTutorPosts, useTutorPosts } from '../store/tutorPosts';
-import { Button, Tag, Typography, Card, Row, Col } from 'antd';
+import { Button, Tag, Typography, Card, Row, Col, Select } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
+
+const { Option } = Select;
 
 const TutorPostsPage: React.FC = () => {
     const { posts } = useTutorPosts();
+    const [selectedGrade, setSelectedGrade] = useState<string>('all');
+    const [selectedSubject, setSelectedSubject] = useState<string>('all');
     // const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,6 +31,31 @@ const TutorPostsPage: React.FC = () => {
         }).format(amount);
     };
 
+    // Get unique grades and subjects for filters
+    const uniqueGrades = useMemo(() => {
+        const grades = posts.map(post => post.studentGrade).filter(Boolean);
+        return ['all', ...Array.from(new Set(grades))];
+    }, [posts]);
+
+    const uniqueSubjects = useMemo(() => {
+        const subjects = posts.map(post => post.subject).filter(Boolean);
+        return ['all', ...Array.from(new Set(subjects))];
+    }, [posts]);
+
+    // Filter posts based on selected grade and subject
+    const filteredPosts = useMemo(() => {
+        return posts.filter(post => {
+            const gradeMatch = selectedGrade === 'all' || post.studentGrade === selectedGrade;
+            const subjectMatch = selectedSubject === 'all' || post.subject === selectedSubject;
+            return gradeMatch && subjectMatch;
+        });
+    }, [posts, selectedGrade, selectedSubject]);
+
+    const handleResetFilters = () => {
+        setSelectedGrade('all');
+        setSelectedSubject('all');
+    };
+
 
 
 
@@ -34,7 +63,7 @@ const TutorPostsPage: React.FC = () => {
     // Removed columns for card layout
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 py-8">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex justify-between items-center mb-6">
                     <div>
@@ -51,7 +80,53 @@ const TutorPostsPage: React.FC = () => {
                     </Button>
                 </div>
 
-                {posts.length === 0 ? (
+                {/* Filter Section */}
+                <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <div className="flex flex-wrap gap-4 items-end">
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                🎓 Lọc theo lớp:
+                            </label>
+                            <Select
+                                value={selectedGrade}
+                                onChange={setSelectedGrade}
+                                style={{ width: '100%' }}
+                                size="large"
+                            >
+                                <Option value="all">Tất cả</Option>
+                                {uniqueGrades.filter(grade => grade !== 'all').map(grade => (
+                                    <Option key={grade} value={grade}>{grade}</Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                📚 Lọc theo môn:
+                            </label>
+                            <Select
+                                value={selectedSubject}
+                                onChange={setSelectedSubject}
+                                style={{ width: '100%' }}
+                                size="large"
+                            >
+                                <Option value="all">Tất cả</Option>
+                                {uniqueSubjects.filter(subject => subject !== 'all').map(subject => (
+                                    <Option key={subject} value={subject}>{subject}</Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div>
+                            <Button onClick={handleResetFilters} size="large">
+                                Đặt lại
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="mt-3 text-sm text-gray-600">
+                        Hiển thị {filteredPosts.length} / {posts.length} bài đăng
+                    </div>
+                </div>
+
+                {filteredPosts.length === 0 ? (
                     <div className="text-center py-12">
                         <span className="text-6xl mb-4 block">📝</span>
                         <h3 className="text-xl font-semibold text-gray-800 mb-2">Chưa có bài đăng nào</h3>
@@ -59,7 +134,7 @@ const TutorPostsPage: React.FC = () => {
                     </div>
                 ) : (
                     <Row gutter={[16, 16]}>
-                        {posts.map((post) => (
+                        {filteredPosts.map((post) => (
                             <Col xs={24} sm={12} lg={8} key={post.postId}>
                                 <Card
                                     hoverable

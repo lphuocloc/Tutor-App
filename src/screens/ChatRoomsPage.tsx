@@ -52,7 +52,7 @@ const ChatRoomsPage: React.FC = () => {
     if (loading) return <div className="min-h-screen flex items-center justify-center"><Spin size="large" /></div>;
 
     return (
-        <div className="p-8 min-h-screen bg-gray-50">
+        <div className="p-8 min-h-screen bg-gradient-to-br from-green-50 to-blue-100">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-2xl font-bold mb-6">Tin nhắn</h1>
                 {rooms.length === 0 ? (

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
 import { message } from "antd";
 import { classAPI } from "../api/endpoints";
 
@@ -110,12 +109,11 @@ export default function TaoBaiDangTimGiaSu() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50 font-inter">
-            {/* Header */}
-            <Header />
+        <div className="min-h-screen bg-gradient-to-br pt-5 from-green-50 to-blue-100 flex flex-col font-inter">
+
 
             {/* Main Content Area */}
-            <main className="flex-1 max-w-7xl mx-auto p-6 mt-20 sm:mt-24 w-full">
+            <main className="flex-1 max-w-7xl mx-auto p-6 w-full">
                 <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
                     <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
                         Đăng bài tìm gia sư

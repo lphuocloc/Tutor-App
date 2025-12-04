@@ -47,6 +47,8 @@ export const userAPI = {
     // Lấy thông tin profile
     getProfile: (userId: number) => axiosInstance.get(`/users/${userId}/profile`),
 
+    getAllUsers: () => axiosInstance.get('/users'),
+
     // Lấy thông tin user detail theo userId
     getUserProfile: () => axiosInstance.get("/users"),
 
@@ -118,7 +120,7 @@ export const tutorAPI = {
 
     // Lấy chi tiết tutor profile để review
     getTutorProfileDetail: (id: number) =>
-        axiosInstance.get(`/tutor-profiles/profile/${id}/review`),
+        axiosInstance.get(`/tutor-profiles/profile/${id}`),
 
     // Review tutor profile (Approve/Reject/Suspend)
     reviewTutorProfile: (data: {
@@ -308,6 +310,12 @@ export const trackingAPI = {
     // Lấy tracking theo bookingId
     // GET /Tracking/booking/{bookingId}
     getTrackingByBooking: (bookingId: number) => axiosInstance.get(`/Tracking/booking/${bookingId}`),
+    // Lấy tất cả tracking
+    // GET /Tracking
+    getAllTracking: () => axiosInstance.get('/Tracking'),
+
+    getAllTrackingByTutor: (tutorUserId: number) =>
+        axiosInstance.get(`/Tracking/user/${tutorUserId}`),
 };
 
 // ==================== REVIEW APIs ====================
@@ -316,6 +324,7 @@ export const bookingReviewAPI = {
     // POST /Review { bookingId, rating, comment }
     reviewBooking: (data: { bookingId: number; rating: number; comment?: string }) => axiosInstance.post('/Review', data),
 };
+
 
 // ==================== PAYMENT APIs ====================
 // export const paymentAPI = {
@@ -358,18 +367,6 @@ export const notificationAPI = {
 // ==================== REVIEW APIs ====================
 export const reviewAPI = {
     // Đánh giá gia sư
-    reviewTutor: (data: { tutorId: string; rating: number; comment: string }) =>
-        axiosInstance.post('/review/tutor', data),
-
-    // Đánh giá phụ huynh
-    reviewParent: (data: { parentId: string; rating: number; comment: string }) =>
-        axiosInstance.post('/review/parent', data),
-
-    // Lấy đánh giá của gia sư
-    getTutorReviews: (tutorId: string, params?: any) =>
-        axiosInstance.get(`/review/tutor/${tutorId}`, { params }),
-
-    // Lấy đánh giá của phụ huynh
-    getParentReviews: (parentId: string, params?: any) =>
-        axiosInstance.get(`/review/parent/${parentId}`, { params }),
-};
+    getAllReviews: () =>
+        axiosInstance.get('/Review')
+}

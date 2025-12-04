@@ -43,6 +43,10 @@ const StaffDashboard: React.FC = () => {
     const [trackingEntries, setTrackingEntries] = useState<any[]>([]);
     const [trackingLoading, setTrackingLoading] = useState(false);
     const [selectedTrackingBookingId, setSelectedTrackingBookingId] = useState<number | null>(null);
+    const [tutorTrackingModalVisible, setTutorTrackingModalVisible] = useState(false);
+    const [tutorTrackingEntries, setTutorTrackingEntries] = useState<any[]>([]);
+    const [tutorTrackingLoading, setTutorTrackingLoading] = useState(false);
+    const [selectedTutorUserId, setSelectedTutorUserId] = useState<number | null>(null);
 
     useEffect(() => {
         getAllTutorProfiles();
@@ -82,6 +86,23 @@ const StaffDashboard: React.FC = () => {
             message.error('Không thể lấy thông tin tracking');
         } finally {
             setTrackingLoading(false);
+        }
+    };
+
+    const fetchTrackingByTutor = async (tutorUserId: number) => {
+        setSelectedTutorUserId(tutorUserId);
+        setTutorTrackingLoading(true);
+        setTutorTrackingModalVisible(true);
+        try {
+            const res = await trackingAPI.getAllTrackingByTutor(tutorUserId);
+            console.log('Tracking for tutor', tutorUserId, ':', res.data);
+            setTutorTrackingEntries(res.data || []);
+        } catch (error) {
+            console.error('Error fetching tutor tracking:', error);
+            setTutorTrackingEntries([]);
+            message.error('Không thể lấy thông tin tracking của gia sư');
+        } finally {
+            setTutorTrackingLoading(false);
         }
     };
 
@@ -336,6 +357,7 @@ const StaffDashboard: React.FC = () => {
                                 Xem tracking
                             </Button>
                         )
+
                     }
                 ]}
                 dataSource={bookings}
@@ -370,7 +392,20 @@ const StaffDashboard: React.FC = () => {
                 columns={[
                     { title: 'ID', dataIndex: 'trackingId', key: 'trackingId', width: 80 },
                     { title: 'Booking ID', dataIndex: 'bookingId', key: 'bookingId', width: 100 },
-                    { title: "Gia sư", dataIndex: "tutorUserName", key: "tutorUserName", width: 150 },
+                    {
+                        title: "Gia sư",
+                        dataIndex: "tutorUserName",
+                        key: "tutorUserName",
+                        width: 150,
+                        render: (name: string, record: any) => (
+                            <Button
+                                type="link"
+                                onClick={() => fetchTrackingByTutor(record.tutorUserId)}
+                            >
+                                {name}
+                            </Button>
+                        )
+                    },
                     { title: 'Hành động', dataIndex: 'action', key: 'action', width: 120 },
                     {
                         title: 'Thời gian',
@@ -560,11 +595,51 @@ const StaffDashboard: React.FC = () => {
                         pagination={false}
                         columns={[
                             { title: 'ID', dataIndex: 'trackingId', key: 'trackingId' },
-                            { title: 'Thời gian', dataIndex: 'timestamp', key: 'timestamp', render: (val: string) => val ? new Date(val).toLocaleString('vi-VN') : '' },
-                            { title: 'Loại', dataIndex: 'type', key: 'type' },
-                            { title: 'Mô tả', dataIndex: 'description', key: 'description' },
-                            { title: 'Location', dataIndex: 'location', key: 'location' },
-                            { title: 'Security', dataIndex: 'securityCodeUsed', key: 'securityCodeUsed', render: (val: boolean) => val ? '✅' : '❌' },
+                            { title: 'Gia sư', dataIndex: 'tutorUserName', key: 'trackingId' },
+                            { title: 'Thời gian', dataIndex: 'actionAt', key: 'timestamp', render: (val: string) => val ? new Date(val).toLocaleString('vi-VN') : '' },
+                            { title: 'Loại', dataIndex: 'action', key: 'type' },
+                            { title: 'Vị trí', dataIndex: 'location', key: 'location' },
+                        ]}
+                    />
+                )}
+            </Modal>
+
+            {/* Tutor Tracking Modal */}
+            <Modal
+                title={selectedTutorUserId ? `Tracking của gia sư #${selectedTutorUserId}` : 'Tracking của gia sư'}
+                open={tutorTrackingModalVisible}
+                onCancel={() => setTutorTrackingModalVisible(false)}
+                footer={null}
+                width={1000}
+            >
+                {tutorTrackingLoading ? (
+                    <div className="text-center py-8"><Spin /></div>
+                ) : tutorTrackingEntries.length === 0 ? (
+                    <p>Không có tracking nào cho gia sư này.</p>
+                ) : (
+                    <Table
+                        dataSource={tutorTrackingEntries}
+                        rowKey={(rec: any) => rec.trackingId}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                            { title: 'ID', dataIndex: 'trackingId', key: 'trackingId', width: 80 },
+                            { title: 'Booking ID', dataIndex: 'bookingId', key: 'bookingId', width: 100 },
+                            { title: 'Hành động', dataIndex: 'action', key: 'action', width: 120 },
+                            {
+                                title: 'Thời gian',
+                                dataIndex: 'actionAt',
+                                key: 'actionAt',
+                                width: 180,
+                                render: (val: string) => val ? new Date(val).toLocaleString('vi-VN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                }) : ''
+                            },
+                            { title: 'Vị trí', dataIndex: 'location', key: 'location', width: 150 },
                         ]}
                     />
                 )}

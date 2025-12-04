@@ -140,7 +140,7 @@ const TutorPostsContent: React.FC = () => {
 
     return (
         <div className="p-6">
-            <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 rounded-2xl p-6 mb-6 shadow-lg">
+            <div className="bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-500 rounded-2xl p-6 mb-6 shadow-lg">
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-white mb-1">Bài đăng tìm học sinh của tôi</h1>

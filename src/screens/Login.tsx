@@ -37,7 +37,6 @@ const Login: React.FC = () => {
         phone: '',
         password: '',
         confirmPassword: '',
-        agreeTerms: false,
         district: '',
         city: ''
     })
@@ -122,12 +121,6 @@ const Login: React.FC = () => {
             return
         }
 
-        // Validate terms agreement
-        if (!signupForm.agreeTerms) {
-            setError('Bạn cần đồng ý với điều khoản dịch vụ')
-            return
-        }
-
         try {
             setLoading(true)
 
@@ -188,7 +181,7 @@ const Login: React.FC = () => {
 
     return (
         <>
-            <div className="min-h-screen w-full flex items-center justify-center bg-[#f5f6fa] px-2">
+            <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-100 px-2">
                 <div className="bg-white rounded-3xl shadow-lg p-6 md:p-10 w-full max-w-lg mx-4 my-10">
                     <h1 className="text-center text-gray-900 mb-6 font-bold text-2xl md:text-3xl">
                         Chào mừng bạn đến với Sutido
@@ -274,9 +267,7 @@ const Login: React.FC = () => {
                                     />
                                     Ghi nhớ đăng nhập
                                 </label>
-                                <a href="#" className="text-blue-600 text-sm hover:underline">
-                                    Quên mật khẩu?
-                                </a>
+
                             </div>
 
                             <button
@@ -430,23 +421,6 @@ const Login: React.FC = () => {
                                 />
                             </div>
 
-                            <div className="flex items-center mb-1">
-                                <input
-                                    type="checkbox"
-                                    id="agreeTerms"
-                                    name="agreeTerms"
-                                    checked={signupForm.agreeTerms}
-                                    onChange={handleSignupInputChange}
-                                    className="rounded border-gray-300 focus:ring-blue-400"
-                                />
-                                <label htmlFor="agreeTerms" className="ml-2 text-gray-600 text-sm">
-                                    Tôi đồng ý với{' '}
-                                    <a href="#" className="text-blue-600 underline hover:text-blue-700">
-                                        Điều khoản dịch vụ
-                                    </a>
-                                </label>
-                            </div>
-
                             <button
                                 type="submit"
                                 disabled={loading}
@@ -469,10 +443,10 @@ const Login: React.FC = () => {
                     )}
 
                     {/* Đảm bảo my-5 không bị ghi đè bởi các class khác */}
-                    <div className="text-center text-gray-400" style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
+                    {/* <div className="text-center text-gray-400" style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
                         Hoặc đăng nhập với
-                    </div>
-                    <div className="flex justify-center gap-3">
+                    </div> */}
+                    {/* <div className="flex justify-center gap-3">
                         <button
                             className="flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition font-medium"
                             type="button"
@@ -492,7 +466,7 @@ const Login: React.FC = () => {
                         >
                             <i className="fab fa-facebook text-blue-600 text-lg"></i> Facebook
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </>

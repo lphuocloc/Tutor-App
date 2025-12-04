@@ -64,7 +64,7 @@ const Header = () => {
         return [
             { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
             { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
-            { key: "login", title: "Đăng nhập", to: "/login" },
+            // { key: "login", title: "Đăng nhập", to: "/login" },
             { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
             { key: "wallet", title: "Ví của tôi", to: "/wallet" },
             { key: "bankAccount", title: "Tài khoản ngân hàng", to: "/bank-account" },
@@ -93,7 +93,7 @@ const Header = () => {
 
                     {/* Logo/Brand (Left) */}
                     <div className="flex items-center space-x-2">
-                        <NavLink to="/" className="text-blue-900 font-bold text-3xl tracking-wide hover:text-blue-900 transition-colors">
+                        <NavLink to="/trangchu" className="text-blue-900 font-bold text-3xl tracking-wide hover:text-blue-900 transition-colors">
                             Sutido
                         </NavLink>
                     </div>
