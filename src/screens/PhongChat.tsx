@@ -329,10 +329,10 @@ const PhongChat: React.FC = () => {
                                 className="rounded-full border border-blue-200"
                                 style={{ width: '48px', height: '48px' }}
                             />
-                            <div>
+                            {/* <div>
                                 <h1 className="text-lg font-semibold mb-0">Phòng trò chuyện với Gia sư Nguyễn Văn A</h1>
                                 <p className="text-blue-200 text-sm mb-0">Online</p>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="flex items-center gap-3">
                             {/* <span className="bg-blue-100 text-blue-600 text-base px-3 py-2 rounded-md">
