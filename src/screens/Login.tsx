@@ -37,6 +37,8 @@ const Login: React.FC = () => {
         phone: '',
         password: '',
         confirmPassword: '',
+        street: '',
+        ward: '',
         district: '',
         city: ''
     })
@@ -136,6 +138,8 @@ const Login: React.FC = () => {
                 phone: signupForm.phone,
                 password: signupForm.password,
                 confirmPassword: signupForm.confirmPassword,
+                street: signupForm.street,
+                ward: signupForm.ward,
                 district: signupForm.district,
                 city: signupForm.city
             } as any)
@@ -353,6 +357,38 @@ const Login: React.FC = () => {
                                     value={signupForm.phone}
                                     onChange={handleSignupInputChange}
                                     placeholder="Nhập số điện thoại"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="signupStreet" className="block text-gray-700 font-medium mb-1">
+                                    Đường/Số nhà
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    id="signupStreet"
+                                    name="street"
+                                    value={signupForm.street}
+                                    onChange={handleSignupInputChange}
+                                    placeholder="Nhập số nhà, tên đường"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="signupWard" className="block text-gray-700 font-medium mb-1">
+                                    Phường/Xã
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    id="signupWard"
+                                    name="ward"
+                                    value={signupForm.ward}
+                                    onChange={handleSignupInputChange}
+                                    placeholder="Nhập phường/xã"
                                     required
                                 />
                             </div>
