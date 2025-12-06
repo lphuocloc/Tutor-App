@@ -21,6 +21,7 @@ import {
     Col,
     Alert
 } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import { classAPI, chatAPI, bookingAPI, trackingAPI, bookingReviewAPI, userAPI } from '../api/endpoints';
 import { fetchProfile, getUserNameByIdFromStore, useProfile } from '../store/profile';
 
@@ -157,6 +158,9 @@ const ProfileContent: React.FC = () => {
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [editForm] = Form.useForm();
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -181,6 +185,50 @@ const ProfileContent: React.FC = () => {
 
         fetchProfile();
     }, []);
+
+    const handleEditProfile = () => {
+        if (!profile) return;
+        editForm.setFieldsValue({
+            email: profile.email,
+            phone: profile.phone,
+            street: profile.street || '',
+            ward: profile.ward || '',
+            district: profile.district,
+            city: profile.city,
+        });
+        setEditModalVisible(true);
+    };
+
+    const handleSaveProfile = async (values: {
+        email: string;
+        phone: string;
+        street: string;
+        ward: string;
+        district: string;
+        city: string;
+    }) => {
+        if (!profile) return;
+
+        try {
+            setSaving(true);
+            await userAPI.updateProfile(profile.userId, values);
+            message.success('Cập nhật thông tin thành công!');
+
+            // Update local profile state
+            setProfile({
+                ...profile,
+                ...values
+            });
+
+            setEditModalVisible(false);
+            editForm.resetFields();
+        } catch (err) {
+            console.error('Error updating profile:', err);
+            message.error('Có lỗi xảy ra khi cập nhật thông tin');
+        } finally {
+            setSaving(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -225,14 +273,24 @@ const ProfileContent: React.FC = () => {
 
             {/* Profile Section */}
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
-                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-md mb-4 sm:mb-0 sm:mr-8">
+                <div className="flex flex-col items-center text-center">
+                    <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-md mb-4">
                         Gia Sư
                     </div>
-                    <div className="flex-grow">
-                        <h2 className="text-xl sm:text-2xl font-bold text-blue-700 mb-2">
-                            {profile.fullName}
-                        </h2>
+                    <div className="w-full">
+                        <div className="flex items-center justify-center mb-2 relative">
+                            <h2 className="text-xl sm:text-2xl font-bold text-blue-700">
+                                {profile.fullName}
+                            </h2>
+                            <Button
+                                type="primary"
+                                icon={<EditOutlined />}
+                                onClick={handleEditProfile}
+                                style={{ position: 'absolute', right: 0 }}
+                            >
+                                Chỉnh sửa
+                            </Button>
+                        </div>
                         <p className="text-base text-gray-600 mb-4">Gia sư - {profile.role}</p>
 
                         {/* Contact Information */}
@@ -286,7 +344,84 @@ const ProfileContent: React.FC = () => {
 
             {/* Quick Actions */}
 
+            {/* Edit Profile Modal */}
+            <Modal
+                title="Chỉnh sửa thông tin cá nhân"
+                open={editModalVisible}
+                onCancel={() => {
+                    setEditModalVisible(false);
+                    editForm.resetFields();
+                }}
+                footer={null}
+                width={600}
+            >
+                <Form
+                    form={editForm}
+                    layout="vertical"
+                    onFinish={handleSaveProfile}
+                >
+                    <Form.Item
+                        label="Email"
+                        name="email"
+                    >
+                        <Input placeholder="Nhập email" disabled />
+                    </Form.Item>
 
+                    <Form.Item
+                        label="Số điện thoại"
+                        name="phone"
+                        rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+                    >
+                        <Input placeholder="Nhập số điện thoại" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Đường/Số nhà"
+                        name="street"
+                        rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
+                    >
+                        <Input placeholder="Nhập số nhà, tên đường" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Phường/Xã"
+                        name="ward"
+                        rules={[{ required: true, message: 'Vui lòng nhập phường/xã!' }]}
+                    >
+                        <Input placeholder="Nhập phường/xã" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Quận/Huyện"
+                        name="district"
+                        rules={[{ required: true, message: 'Vui lòng nhập quận/huyện!' }]}
+                    >
+                        <Input placeholder="Nhập quận/huyện" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Thành phố/Tỉnh"
+                        name="city"
+                        rules={[{ required: true, message: 'Vui lòng nhập thành phố/tỉnh!' }]}
+                    >
+                        <Input placeholder="Nhập thành phố/tỉnh" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                            <Button onClick={() => {
+                                setEditModalVisible(false);
+                                editForm.resetFields();
+                            }}>
+                                Hủy
+                            </Button>
+                            <Button type="primary" htmlType="submit" loading={saving}>
+                                Lưu thay đổi
+                            </Button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

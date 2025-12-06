@@ -7,22 +7,6 @@ import { useNavigate } from 'react-router-dom';
 // --- Icon Definitions (Lucide-style Inline SVG) ---
 
 
-
-const MessageIcon = (props) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-);
-
-const UserPlusIcon = (props) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" x2="19" y1="8" y2="14" /><line x1="22" x2="16" y1="11" y2="11" /></svg>
-);
-
-
-
-const PlusIcon = (props) => (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-);
-
-
 const Header = () => {
     // State to manage the user profile dropdown visibility
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -46,13 +30,6 @@ const Header = () => {
         </a>
     );
 
-    // Mock Tooltip component (using title attribute as a simple replacement)
-    const Tooltip = ({ title, children }) => (
-        <span title={title}>
-            {children}
-        </span>
-    );
-
     // Dropdown Menu items - conditional based on role
     const getMenuItems = () => {
         if (userRole === 'Tutor') {
@@ -64,6 +41,7 @@ const Header = () => {
         return [
             { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
             { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
+            { key: "booking", title: "Booking", to: "/booking" },
             // { key: "login", title: "Đăng nhập", to: "/login" },
             { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
             { key: "wallet", title: "Ví của tôi", to: "/wallet" },
@@ -106,77 +84,69 @@ const Header = () => {
 
 
 
-                        {/* Message Icon - Hidden for tutors */}
+                        {/* Message Text - Hidden for tutors */}
                         {userRole !== 'Tutor' && (
-                            <Tooltip title="Tin nhắn">
-                                <NavLink
-                                    to="/tinnhan"
-                                    className="p-2 rounded-full text-gray-600 hover:text-blue-600  transition-colors duration-200 relative"
-                                >
-                                    <MessageIcon className="w-6 h-6" />
-                                </NavLink>
-                            </Tooltip>
+                            <NavLink
+                                to="/tinnhan"
+                                className="px-3 py-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
+                            >
+                                Tin nhắn
+                            </NavLink>
                         )}
 
 
-                        {/* Register Tutor Icon - Hidden for tutors */}
+                        {/* Register Tutor Text - Hidden for tutors */}
                         {userRole !== 'Tutor' && (
-                            <Tooltip title="Đăng ký làm gia sư">
-                                <NavLink
-                                    to="/dangky-lamgiasu"
-                                    className="p-2 rounded-full text-gray-600 hover:text-blue-600    transition-colors duration-200 relative"
-                                >
-                                    <UserPlusIcon className="w-6 h-6" />
-                                </NavLink>
-                            </Tooltip>
-
+                            <NavLink
+                                to="/dangky-lamgiasu"
+                                className="px-3 py-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 font-medium"
+                            >
+                                Đăng ký làm gia sư
+                            </NavLink>
                         )}
 
-                        {/* Create Post Icon - Hidden for tutors */}
+                        {/* Create Post Text - Hidden for tutors */}
                         {userRole !== 'Tutor' && (
-                            <Tooltip title="Đăng bài tìm gia sư">
-                                <NavLink
-                                    to="/tao-bai-dang-tim-gia-su"
-                                    className="p-2 rounded-full text-gray-600 hover:text-green-600 transition-colors duration-200 relative"
-                                >
-                                    <PlusIcon className="w-6 h-6" />
-                                </NavLink>
-                            </Tooltip>
+                            <NavLink
+                                to="/tao-bai-dang-tim-gia-su"
+                                className="px-3 py-2 rounded-lg text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors duration-200 font-medium"
+                            >
+                                Đăng bài tìm gia sư
+                            </NavLink>
                         )}
 
                         {/* Profile Dropdown (Emulating Ant Design Dropdown/Menu) */}
                         <div className="relative">
-                            <Tooltip title="Menu tài khoản">
-                                <button
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="flex items-center focus:outline-none p-0.5 rounded-full ring-2 ring-transparent hover:ring-blue-400 transition-all"
-                                >
-                                    {(() => {
-                                        const userRole = localStorage.getItem('userRole');
-                                        if (userRole === 'Tutor') {
-                                            return (
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
-                                                    Tutor
-                                                </div>
-                                            );
-                                        } else if (userRole === 'Customer') {
-                                            return (
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
-                                                    Parent
-                                                </div>
-                                            );
-                                        } else {
-                                            return (
-                                                <img
-                                                    src="https://placehold.co/40x40/4F46E5/FFFFFF?text=AV"
-                                                    alt="Avatar"
-                                                    className="w-10 h-10 rounded-full object-cover shadow-md"
-                                                />
-                                            );
-                                        }
-                                    })()}
-                                </button>
-                            </Tooltip>
+                            <button
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="flex items-center focus:outline-none p-0.5 rounded-full ring-2 ring-transparent hover:ring-blue-400 transition-all"
+                                title="Menu tài khoản"
+                            >
+                                {(() => {
+                                    const userRole = localStorage.getItem('userRole');
+                                    if (userRole === 'Tutor') {
+                                        return (
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                                                Tutor
+                                            </div>
+                                        );
+                                    } else if (userRole === 'Customer') {
+                                        return (
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-md">
+                                                Parent
+                                            </div>
+                                        );
+                                    } else {
+                                        return (
+                                            <img
+                                                src="https://placehold.co/40x40/4F46E5/FFFFFF?text=AV"
+                                                alt="Avatar"
+                                                className="w-10 h-10 rounded-full object-cover shadow-md"
+                                            />
+                                        );
+                                    }
+                                })()}
+                            </button>
 
                             {/* Dropdown Menu */}
                             {isDropdownOpen && (

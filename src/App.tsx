@@ -43,6 +43,7 @@ import DoiDiemThuong from './screens/DoiDiemThuong'
 import BankAccountPage from './screens/BankAccountPage'
 import WalletPage from './screens/WalletPage'
 import WalletTopUpSuccess from './screens/WalletTopUpSuccess'
+import BookingPage from './screens/BookingPage'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -134,6 +135,7 @@ function App() {
               <Route path="/bank-account" element={<BankAccountPage />} />
               <Route path="/wallet" element={<WalletPage />} />
               <Route path="/wallet/topup-success" element={<WalletTopUpSuccess />} />
+              <Route path="/booking" element={<BookingPage />} />
             </Routes>
           </Layout>
 

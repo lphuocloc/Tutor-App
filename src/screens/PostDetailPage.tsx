@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { message, Spin, Modal } from 'antd';
+import { message, Spin, Modal, Button } from 'antd';
 import { classAPI, paymentAPI, walletAPI, chatAPI } from '../api/endpoints';
 import type { Post } from '../types/post';
 
@@ -57,19 +57,43 @@ const PostDetailPage: React.FC = () => {
         const amount = 50000; // deposit amount in VND
         const description = `Cọc: ${post.postId}`;
 
-        // Show payment method selection modal
+        // Show confirmation modal first
+        Modal.confirm({
+            title: 'Xác nhận đặt cọc',
+            content: (
+                <div>
+                    <p>Bạn cần đặt cọc <strong>{formatCurrency(amount)}</strong> để liên hệ với người đăng bài.</p>
+                    <p>Bạn có chắc chắn muốn tiếp tục?</p>
+                </div>
+            ),
+            okText: 'Xác nhận',
+            cancelText: 'Hủy',
+            onOk: () => showPaymentMethodModal(amount, description),
+        });
+    };
+
+    const showPaymentMethodModal = (amount: number, description: string) => {
+        // Show payment method selection modal after confirmation
         Modal.confirm({
             title: 'Chọn phương thức thanh toán',
             content: (
                 <div>
-                    <p>Bạn cần đặt cọc <strong>{formatCurrency(amount)}</strong> để liên hệ với người đăng bài.</p>
                     <p>Chọn phương thức thanh toán:</p>
                 </div>
             ),
             okText: 'Thanh toán bằng ví',
             cancelText: 'Thanh toán online',
+            okButtonProps: { type: 'primary' },
+            cancelButtonProps: { type: 'default' },
             onOk: () => handleWalletPayment(amount, description),
             onCancel: () => handleOnlinePayment(amount, description),
+            footer: (_, { OkBtn, CancelBtn }) => (
+                <>
+                    <Button onClick={() => Modal.destroyAll()}>Hủy</Button>
+                    <CancelBtn />
+                    <OkBtn />
+                </>
+            ),
         });
     };
 
@@ -132,7 +156,7 @@ const PostDetailPage: React.FC = () => {
 
             message.success('Phòng chat đã được tạo. Chuyển tới phòng chat...');
             if (roomId) {
-                navigate(`/phongchat?roomId=${roomId}`);
+                navigate(`/phongchat?roomId=${roomId}&tutorUserId=${tutorUserId}&parentUserId=${parentUserId}`);
             } else {
                 // fallback: open chat list
                 navigate('/tinnhan');

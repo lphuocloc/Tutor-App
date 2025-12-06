@@ -47,14 +47,34 @@ export const userAPI = {
     // Lấy thông tin profile
     getProfile: (userId: number) => axiosInstance.get(`/users/${userId}/profile`),
 
-    getAllUsers: () => axiosInstance.get('/users'),
+    getAllUsers: () => axiosInstance.get('/users?&pageSize=100'),
 
     // Lấy thông tin user detail theo userId
     getUserProfile: () => axiosInstance.get("/users?pageSize=100"),
 
     // Cập nhật profile
-    updateProfile: (data: any) =>
-        axiosInstance.put('/user/profile', data),
+    updateProfile: (userId: number, data: {
+        email?: string;
+        phone?: string;
+        street?: string;
+        ward?: string;
+        district?: string;
+        city?: string;
+    }) => axiosInstance.put(`/users/${userId}`, data),
+
+    // Cập nhật user (admin)
+    updateUser: (userId: number, data: {
+        fullName?: string;
+        email?: string;
+        phone?: string;
+        street?: string;
+        ward?: string;
+        district?: string;
+        city?: string;
+    }) => axiosInstance.put(`/users/${userId}`, data),
+
+    // Xóa user (admin)
+    deleteUser: (userId: number) => axiosInstance.delete(`/users/${userId}`),
 
     // Upload avatar
     uploadAvatar: (formData: FormData) =>

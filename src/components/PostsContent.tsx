@@ -31,13 +31,7 @@ const PostsContent: React.FC = () => {
         }).format(amount);
     };
 
-    const getTimeAgo = (postId: number) => {
-        // Tạm thời dùng logic đơn giản dựa vào postId
-        if (postId === 1) return 'Mới';
-        if (postId === 2) return '2h trước';
-        if (postId === 3) return '1 ngày trước';
-        return '2 ngày trước';
-    };
+
 
     // Get unique grades and subjects for filters
     const uniqueGrades = useMemo(() => {
@@ -75,9 +69,7 @@ const PostsContent: React.FC = () => {
                         <Title level={5} className="mb-0 text-base leading-tight text-gray-800 font-semibold">
                             {post.title}
                         </Title>
-                        <Tag color={post.postId === 1 ? 'green' : post.postId === 2 ? 'blue' : 'default'} className="rounded-full">
-                            <ClockCircleOutlined className="text-sm" /> {getTimeAgo(post.postId)}
-                        </Tag>
+
                     </div>
 
                     <div className="space-y-3">

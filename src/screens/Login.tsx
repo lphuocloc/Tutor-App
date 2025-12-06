@@ -117,6 +117,19 @@ const Login: React.FC = () => {
         e.preventDefault()
         setError('')
 
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(signupForm.email)) {
+            setError('Email không hợp lệ')
+            return
+        }
+
+        // Validate password length
+        if (signupForm.password.length < 6) {
+            setError('Mật khẩu phải có ít nhất 6 ký tự')
+            return
+        }
+
         // Validate password match
         if (signupForm.password !== signupForm.confirmPassword) {
             setError('Mật khẩu xác nhận không khớp')
@@ -427,7 +440,7 @@ const Login: React.FC = () => {
 
                             <div>
                                 <label htmlFor="signupPassword" className="block text-gray-700 font-medium mb-1">
-                                    Mật khẩu
+                                    Mật khẩu (ít nhất 6 ký tự)
                                 </label>
                                 <input
                                     type="password"
@@ -437,6 +450,7 @@ const Login: React.FC = () => {
                                     value={signupForm.password}
                                     onChange={handleSignupInputChange}
                                     placeholder="Tạo mật khẩu"
+                                    minLength={6}
                                     required
                                 />
                             </div>

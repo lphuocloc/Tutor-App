@@ -46,7 +46,7 @@ const PaymentSuccess: React.FC = () => {
             console.log("roomId", roomId)
             message.success('Phòng chat đã được tạo. Chuyển tới phòng chat...');
             if (roomId) {
-                window.location.href = `/phongchat?roomId=${roomId}`;
+                window.location.href = `/phongchat?roomId=${roomId}&tutorUserId=${tutorUserId}&parentUserId=${parentUserId}`;
             } else {
                 // fallback: open chat list
                 window.location.href = '/phongchat';
@@ -69,7 +69,6 @@ const PaymentSuccess: React.FC = () => {
                 <p className="text-gray-600 mb-6">Cảm ơn bạn — hệ thống sẽ xử lý đơn đặt cọc và hiển thị thông tin liên hệ.</p>
                 <div className="flex justify-center gap-3">
                     <button onClick={() => navigate('/my-posts')} className="px-4 py-2 bg-indigo-600 text-white rounded">Bài đăng của tôi</button>
-                    <button onClick={() => navigate('/trangchu')} className="px-4 py-2 border rounded">Về trang chủ</button>
                     {(localStorage.getItem('userRole') || '') === 'Customer' && (
                         <button onClick={handleOpenChat} disabled={creatingRoom} className="px-4 py-2 bg-green-600 text-white rounded">
                             {creatingRoom ? 'Đang tạo...' : 'Vào phòng chat'}

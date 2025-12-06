@@ -10,6 +10,7 @@ import { usePosts, fetchPosts } from '../store/posts';
 const TrangChu: React.FC = () => {
     // const navigate = useNavigate(); // Removed as it requires a Router context
     const [isPaused, setIsPaused] = useState(false);
+    const [showAllTutors, setShowAllTutors] = useState(false);
     const tutorPosts = useTutorPosts();
     const users = useUser();
     const cusPosts = usePosts();
@@ -185,8 +186,8 @@ const TrangChu: React.FC = () => {
 
 
                     {/* Tutor Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                        {tutors.map((tutor) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        {(showAllTutors ? tutors : tutors.slice(0, 3)).map((tutor) => (
                             <div key={tutor.id} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col items-center p-6 border-2 border-transparent hover:border-blue-200 transform hover:-translate-y-2">
                                 <img
                                     src={tutor.avatar}
@@ -207,6 +208,27 @@ const TrangChu: React.FC = () => {
                             </div>
                         ))}
                     </div>
+
+                    {/* Show More/Less Button */}
+                    {tutors.length > 3 && (
+                        <div className="flex justify-center mb-10">
+                            <button
+                                onClick={() => setShowAllTutors(!showAllTutors)}
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                            >
+                                {showAllTutors ? 'Thu gọn' : `Xem thêm ${tutors.length - 3} gia sư`}
+                                <svg
+                                    className={`w-5 h-5 transition-transform duration-300 ${showAllTutors ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+
                     <section className="bg-white rounded-2xl shadow-xl p-8 border border-blue-100">
                         <h1 className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">Các bài đăng tìm gia sư từ Phụ huynh</h1>
 

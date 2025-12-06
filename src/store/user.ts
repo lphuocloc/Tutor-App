@@ -8,9 +8,11 @@ interface User {
     phone: string;
     fullName: string;
     dateOfBirth: string;
+    street?: string;
+    ward?: string;
     district: string;
-    city: string
-    role: string
+    city: string;
+    role: string;
 }
 
 export const sUser = signify<User[]>([]);

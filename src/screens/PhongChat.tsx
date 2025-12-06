@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Send, Check, Calendar, Clock, DollarSign, Book, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { message, Button, Input, Card, Avatar, Space, Modal, Form, InputNumber } from 'antd';
+import { message, Button, Input, Card, Avatar, Space, Modal, Form, InputNumber, Descriptions } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import { classAPI, bookingAPI, walletAPI } from '../api/endpoints';
+import { classAPI, bookingAPI, walletAPI, userAPI } from '../api/endpoints';
 import axiosInstance from '../api/axiosConfig';
 import type { Post } from '../types/post';
 import { getUserNameByIdFromStore, useProfile, fetchProfile } from '../store/profile';
@@ -77,6 +77,23 @@ const PhongChat: React.FC = () => {
     // Edit functionality states
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [editForm] = Form.useForm();
+
+    // State for tutor profile modal
+    const [tutorProfileModalVisible, setTutorProfileModalVisible] = useState(false);
+    const [tutorProfile, setTutorProfile] = useState<{
+        fullName?: string;
+        email?: string;
+        phone?: string;
+        dateOfBirth?: string;
+        street?: string;
+        ward?: string;
+        district?: string;
+        city?: string;
+    } | null>(null);
+    const [loadingProfile, setLoadingProfile] = useState(false);
+
+    // State for countdown timer
+    const [countdown, setCountdown] = useState(15);
 
     // State for custom cancel confirmation modal
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -159,6 +176,54 @@ const PhongChat: React.FC = () => {
     };
 
     const handleConfirm = async () => {
+        // Fetch and show tutor profile, then confirm booking
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const tutorUserId = Number(params.get('tutorUserId') || 0);
+
+            if (!tutorUserId) {
+                message.error('Không tìm thấy thông tin gia sư');
+                return;
+            }
+
+            setLoadingProfile(true);
+            const profileResp = await userAPI.getProfile(tutorUserId);
+            const profileData = profileResp.data;
+            setTutorProfile(profileData);
+            setLoadingProfile(false);
+
+            // Automatically create booking first
+            await handleConfirmBooking();
+
+            // Then show profile modal
+            setTutorProfileModalVisible(true);
+            setCountdown(15);
+
+            // Countdown timer
+            const countdownInterval = setInterval(() => {
+                setCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(countdownInterval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            // Auto-close modal after 15 seconds
+            setTimeout(() => {
+                clearInterval(countdownInterval);
+                setTutorProfileModalVisible(false);
+                navigate('/booking');
+            }, 15000);
+        } catch (err) {
+            console.error('Error fetching tutor profile:', err);
+            message.error('Không thể tải thông tin gia sư');
+            setLoadingProfile(false);
+        }
+    };
+
+    const handleConfirmBooking = async () => {
         // Perform booking by calling bookingAPI with fields from the fetched post detail
         try {
             if (!chatRoomId) {
@@ -190,7 +255,7 @@ const PhongChat: React.FC = () => {
                     // Don't show error for delete failure as booking was successful
                 }
                 message.success('Xác nhận nhận lớp thành công.');
-                navigate('/my-posts');
+                // Don't close modal or navigate here, let the timer or user action handle it
             } else {
                 message.error('Tạo booking thất bại. Vui lòng thử lại.');
             }
@@ -500,7 +565,6 @@ const PhongChat: React.FC = () => {
                             })}
                             <div ref={messagesEndRef} />
                         </Card>
-
                         <Card className="mb-4">
                             <Space.Compact style={{ width: '100%' }}>
                                 <Input
@@ -655,6 +719,59 @@ const PhongChat: React.FC = () => {
                         </div>
                     </Form.Item>
                 </Form>
+            </Modal>
+
+            {/* Tutor Profile Modal */}
+            <Modal
+                title={`Thông tin Gia sư (Tự động đóng sau ${countdown}s)`}
+                open={tutorProfileModalVisible}
+                onCancel={() => {
+                    setTutorProfileModalVisible(false);
+                    navigate('/booking');
+                }}
+                closable={true}
+                maskClosable={true}
+                footer={[
+                    <Button key="close" type="primary" onClick={() => {
+                        setTutorProfileModalVisible(false);
+                        navigate('/booking')
+                    }
+                    }>
+                        Đóng
+                    </Button>
+                ]}
+                width={600}
+            >
+                {loadingProfile ? (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải thông tin...</div>
+                ) : tutorProfile ? (
+                    <>
+                        <Descriptions bordered column={1}>
+                            <Descriptions.Item label="Họ và tên">{tutorProfile.fullName || 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Email">{tutorProfile.email || 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Số điện thoại">{tutorProfile.phone || 'N/A'}</Descriptions.Item>
+                            <Descriptions.Item label="Địa chỉ">
+                                {[tutorProfile.street, tutorProfile.ward, tutorProfile.district, tutorProfile.city]
+                                    .filter(Boolean)
+                                    .join(', ') || 'N/A'}
+                            </Descriptions.Item>
+                        </Descriptions>
+                        <div style={{
+                            marginTop: '16px',
+                            padding: '12px',
+                            backgroundColor: '#e6f7ff',
+                            border: '1px solid #91d5ff',
+                            borderRadius: '4px',
+                            textAlign: 'center',
+                            color: '#1890ff',
+                            fontSize: '14px'
+                        }}>
+                            ℹ️ Booking đã được tạo thành công. Cửa sổ này sẽ tự động đóng sau {countdown} giây.
+                        </div>
+                    </>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>Không có thông tin</div>
+                )}
             </Modal>
         </div>
     );
