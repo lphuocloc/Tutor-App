@@ -249,6 +249,12 @@ const StaffDashboard: React.FC = () => {
             dataIndex: 'status',
             key: 'status',
             width: 120,
+            filters: [
+                { text: 'Chờ duyệt', value: 'Pending' },
+                { text: 'Đã duyệt', value: 'Approved' },
+                { text: 'Từ chối', value: 'Rejected' },
+            ],
+            onFilter: (value, record) => record.status === value,
             render: (status: string) => {
                 const statusConfig: Record<string, { color: string; text: string }> = {
                     'Pending': { color: 'gold', text: 'Chờ duyệt' },
@@ -270,6 +276,9 @@ const StaffDashboard: React.FC = () => {
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: 120,
+            sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+            sortDirections: ['descend', 'ascend'],
+            defaultSortOrder: 'descend',
             render: (date: string) => new Date(date).toLocaleDateString('vi-VN'),
         },
         {
