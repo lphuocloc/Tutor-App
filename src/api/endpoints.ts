@@ -140,7 +140,7 @@ export const tutorAPI = {
 
     // Lấy chi tiết tutor profile để review
     getTutorProfileDetail: (id: number) =>
-        axiosInstance.get(`/tutor-profiles/profile/${id}`),
+        axiosInstance.get(`/tutor-profiles/profile/${id}/review`),
 
     // Review tutor profile (Approve/Reject/Suspend)
     reviewTutorProfile: (data: {

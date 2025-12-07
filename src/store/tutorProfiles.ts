@@ -33,7 +33,7 @@ export const getAllTutorProfiles = async (params?: {
 
         const response = await tutorAPI.getTutorProfiles({
             page: params?.page || 1,
-            pageSize: params?.pageSize || 10000,
+            pageSize: params?.pageSize || 1000,
             sortOrder: params?.sortOrder || 'desc'
         })
 
