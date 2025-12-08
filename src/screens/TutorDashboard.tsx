@@ -48,7 +48,7 @@ const TutorDashboard: React.FC = () => {
         // { id: 'schedule' as MenuType, label: 'Lịch dạy', icon: '📅' },
         // { id: 'students' as MenuType, label: 'Học sinh của tôi', icon: '👥' },
         // { id: 'earnings' as MenuType, label: 'Thu nhập', icon: '💰' },
-        { id: 'bookings' as MenuType, label: 'Booking', icon: '📆' },
+        { id: 'bookings' as MenuType, label: 'Lịch đã đặt', icon: '📆' },
         { id: 'messages' as MenuType, label: 'Tin nhắn', icon: '💬' },
         { id: 'profile' as MenuType, label: 'Hồ sơ cá nhân', icon: '👤' },
     ];
@@ -716,7 +716,7 @@ const BookingsContent: React.FC = () => {
                         </Modal>
 
                         <Modal
-                            title="Đánh giá booking"
+                            title="Đánh giá từ Gia sư"
                             visible={reviewModalVisible}
                             onCancel={closeReviewModal}
                             onOk={submitReview}

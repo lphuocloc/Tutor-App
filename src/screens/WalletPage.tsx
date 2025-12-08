@@ -163,17 +163,6 @@ const WalletPage = () => {
                 <div className="absolute top-1/4 right-8 w-16 h-16 bg-yellow-400 rounded-full blur-2xl animate-pulse delay-2500"></div>
             </div>
 
-            {/* Floating Top-up Button */}
-            <div className="fixed bottom-6 right-6 z-50">
-                <Button
-                    type="primary"
-                    size="large"
-                    onClick={showTopUpModal}
-                    className="w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 border-none shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center"
-                    icon={<Plus className="w-6 h-6" />}
-                />
-            </div>
-
             <div className="relative z-10">
                 {/* Hero Section */}
                 <section className="min-h-[40vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
@@ -194,7 +183,18 @@ const WalletPage = () => {
                                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-3 animate-pulse">
                                     {wallet.balance.toLocaleString('vi-VN')}
                                 </p>
-                                <p className="text-lg md:text-xl text-gray-500 font-light">VND</p>
+                                <p className="text-lg md:text-xl text-gray-500 font-light mb-4">VND</p>
+
+                                {/* Top-up Button */}
+                                <Button
+                                    type="primary"
+                                    size="large"
+                                    onClick={showTopUpModal}
+                                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 border-none shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300"
+                                    icon={<Plus className="w-5 h-5" />}
+                                >
+                                    Nạp tiền
+                                </Button>
                             </div>
                         </div>
 

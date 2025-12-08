@@ -41,7 +41,7 @@ const Header = () => {
         return [
             { key: "myPosts", title: "Bài đăng của tôi", to: "/my-posts" },
             { key: "tutorPosts", title: "Bài đăng của gia sư", to: "/tutor-posts" },
-            { key: "booking", title: "Booking", to: "/booking" },
+            { key: "booking", title: "Lịch đã đặt", to: "/booking" },
             // { key: "login", title: "Đăng nhập", to: "/login" },
             { key: "profile", title: "Trang cá nhân", to: "/trang-canhan" },
             { key: "wallet", title: "Ví của tôi", to: "/wallet" },

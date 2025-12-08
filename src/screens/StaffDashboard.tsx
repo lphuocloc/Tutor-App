@@ -12,6 +12,7 @@ import type { TutorProfile } from '../types/tutorProfile';
 import { tutorAPI, bookingAPI, trackingAPI } from '../api/endpoints';
 import { fetchAllTracking, useTracking, useTrackingLoading } from '../store/tracking';
 import { fetchAllReviews, useReview, useReviewLoading } from '../store/review';
+import { fetchProfile, getUserNameByIdFromStore, useProfile } from '../store/profile';
 
 type SectionType = 'profiles' | 'bookings' | 'tracking' | 'reviews';
 
@@ -26,6 +27,8 @@ const StaffDashboard: React.FC = () => {
 
     const feedBack = useReview();
     const feedBackLoading = useReviewLoading();
+
+    const users = useProfile()
 
     const [activeSection, setActiveSection] = useState<SectionType>('profiles');
     const [detailModalVisible, setDetailModalVisible] = useState(false);
@@ -53,6 +56,7 @@ const StaffDashboard: React.FC = () => {
         fetchBookings();
         fetchAllTracking();
         fetchAllReviews();
+        fetchProfile()
     }, []);
 
 
@@ -106,11 +110,15 @@ const StaffDashboard: React.FC = () => {
         }
     };
 
-    const handleViewDetail = async (tutorProfileId: number) => {
+    const handleViewDetail = async (tutorProfileId: number, status?: string) => {
         setDetailLoading(true);
         setDetailModalVisible(true);
         try {
-            const res = await tutorAPI.getTutorProfileDetail(tutorProfileId);
+            // Nếu đã được duyệt, dùng API không có /review
+            // Nếu chưa được duyệt (Pending), dùng API có /review
+            const res = status === 'Approved'
+                ? await tutorAPI.getTutorProfileApproved(tutorProfileId)
+                : await tutorAPI.getTutorProfileDetail(tutorProfileId);
             console.log('Profile detail:', res.data);
             setSelectedProfile(res.data);
         } catch (error) {
@@ -219,10 +227,13 @@ const StaffDashboard: React.FC = () => {
             width: 80,
         },
         {
-            title: 'User ID',
+            title: 'Gia sư',
             dataIndex: 'userId',
             key: 'userId',
-            width: 100,
+            width: 120,
+            render: (userId: number) => (
+                <span>{getUserNameByIdFromStore(users, userId)}</span>
+            ),
         },
         {
             title: 'Trình độ',
@@ -284,13 +295,13 @@ const StaffDashboard: React.FC = () => {
         {
             title: 'Thao tác',
             key: 'action',
-            width: 150,
+            width: 120,
             render: (_, record) => (
                 <Space size="small">
                     <Button
                         type="link"
                         size="small"
-                        onClick={() => handleViewDetail(record.tutorProfileId)}
+                        onClick={() => handleViewDetail(record.tutorProfileId, record.status)}
                     >
                         Xem
                     </Button>
@@ -331,7 +342,7 @@ const StaffDashboard: React.FC = () => {
     const renderBookingsSection = () => (
         <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-6">
-                Danh sách Booking
+                Danh sách Lịch đã đặt
             </h2>
             <Table
                 columns={[
@@ -349,7 +360,6 @@ const StaffDashboard: React.FC = () => {
                     { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime', width: 100 },
                     { title: 'Từ ngày', dataIndex: 'startDate', key: 'startDate', width: 120 },
                     { title: 'Đến ngày', dataIndex: 'endDate', key: 'endDate', width: 120 },
-                    { title: 'Trạng thái', dataIndex: 'bookingStatus', key: 'bookingStatus', width: 120 },
                     {
                         title: 'Tạo lúc',
                         dataIndex: 'createdAt',
@@ -522,7 +532,7 @@ const StaffDashboard: React.FC = () => {
                             }`}
                     >
                         <span className="text-xl">📋</span>
-                        <span className="font-medium"> Hồ sơ gia sư</span>
+                        <span className="font-medium">Hồ sơ gia sư</span>
                     </button>
 
                     <button
@@ -533,7 +543,7 @@ const StaffDashboard: React.FC = () => {
                             }`}
                     >
                         <span className="text-xl">📚</span>
-                        <span className="font-medium">Booking</span>
+                        <span className="font-medium">Lịch đã đặt</span>
                     </button>
 
                     <button
@@ -544,7 +554,7 @@ const StaffDashboard: React.FC = () => {
                             }`}
                     >
                         <span className="text-xl">🔍</span>
-                        <span className="font-medium">Tracking</span>
+                        <span className="font-medium">Theo dõi lịch</span>
                     </button>
 
                     <button

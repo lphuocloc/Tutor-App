@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Spin, message, Button, Modal } from 'antd';
+import { Table, Card, Spin, message, Button, Modal, Rate } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { Booking } from '../types/booking';
 import type { Tracking } from '../types/tracking';
 import { getAllBookingByUserId } from '../store/booking';
-import { trackingAPI } from '../api/endpoints';
+import { trackingAPI, bookingReviewAPI } from '../api/endpoints';
 
 const BookingPage: React.FC = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
@@ -13,6 +14,11 @@ const BookingPage: React.FC = () => {
     const [selectedBookingId, setSelectedBookingId] = useState<number | null>(null);
     const [trackingData, setTrackingData] = useState<Tracking[]>([]);
     const [trackingLoading, setTrackingLoading] = useState(false);
+    const [reviewModalVisible, setReviewModalVisible] = useState(false);
+    const [reviewBookingId, setReviewBookingId] = useState<number | null>(null);
+    const [reviewRating, setReviewRating] = useState<number>(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
     useEffect(() => {
         fetchBookings();
@@ -48,6 +54,46 @@ const BookingPage: React.FC = () => {
             message.error('Không thể tải dữ liệu tracking');
         } finally {
             setTrackingLoading(false);
+        }
+    };
+
+    const openReviewModal = (bookingId: number) => {
+        setReviewBookingId(bookingId);
+        setReviewRating(5);
+        setReviewComment('');
+        setReviewModalVisible(true);
+    };
+
+    const closeReviewModal = () => {
+        setReviewModalVisible(false);
+        setReviewBookingId(null);
+        setReviewRating(5);
+        setReviewComment('');
+    };
+
+    const submitReview = async () => {
+        if (!reviewBookingId) {
+            message.error('Không tìm thấy bookingId');
+            return;
+        }
+        try {
+            setReviewSubmitting(true);
+            const payload = { bookingId: reviewBookingId, rating: reviewRating, comment: reviewComment };
+            const resp = await bookingReviewAPI.reviewBooking(payload);
+            if (resp && (resp.status === 200 || resp.status === 201)) {
+                message.success('Gửi đánh giá thành công');
+                // mark booking as reviewed locally
+                setBookings(prev => prev.map(b => b.bookingId === reviewBookingId ? { ...b, reviewed: 'true' } : b));
+                closeReviewModal();
+            } else {
+                console.warn('Unexpected review response', resp);
+                message.error('Gửi đánh giá thất bại');
+            }
+        } catch (err) {
+            console.error('Error submitting review:', err);
+            message.error('Gửi đánh giá thất bại. Vui lòng thử lại.');
+        } finally {
+            setReviewSubmitting(false);
         }
     };
 
@@ -140,6 +186,26 @@ const BookingPage: React.FC = () => {
             width: 180,
             render: (date: string) => new Date(date).toLocaleString('vi-VN'),
         },
+        {
+            title: 'Hành động',
+            key: 'action',
+            width: 150,
+            render: (_: any, record: Booking) => (
+                <div className="flex items-center gap-2">
+                    {record.reviewed ? (
+                        <span className="text-gray-500 text-sm">Đã đánh giá</span>
+                    ) : (
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => openReviewModal(record.bookingId)}
+                        >
+                            Đánh giá
+                        </Button>
+                    )}
+                </div>
+            ),
+        },
     ];
 
     return (
@@ -175,6 +241,34 @@ const BookingPage: React.FC = () => {
                         scroll={{ x: 800 }}
                     />
                 </Spin>
+            </Modal>
+
+            <Modal
+                title="Đánh giá từ Phụ Huynh"
+                open={reviewModalVisible}
+                onCancel={closeReviewModal}
+                onOk={submitReview}
+                confirmLoading={reviewSubmitting}
+                okText="Gửi đánh giá"
+                cancelText="Hủy"
+            >
+                <div className="space-y-3">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Đánh giá</label>
+                        <div className="mt-1">
+                            <Rate value={reviewRating} onChange={(val) => setReviewRating(val)} />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Bình luận</label>
+                        <textarea
+                            value={reviewComment}
+                            onChange={(e) => setReviewComment(e.target.value)}
+                            className="w-full mt-1 p-2 border rounded"
+                            rows={4}
+                        />
+                    </div>
+                </div>
             </Modal>
         </div>
     );

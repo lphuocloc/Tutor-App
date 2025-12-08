@@ -138,9 +138,13 @@ export const tutorAPI = {
     }) =>
         axiosInstance.get('/tutor-profiles', { params }),
 
-    // Lấy chi tiết tutor profile để review
+    // Lấy chi tiết tutor profile để review (chưa duyệt)
     getTutorProfileDetail: (id: number) =>
         axiosInstance.get(`/tutor-profiles/profile/${id}/review`),
+
+    // Lấy chi tiết tutor profile đã được duyệt
+    getTutorProfileApproved: (id: number) =>
+        axiosInstance.get(`/tutor-profiles/profile/${id}`),
 
     // Review tutor profile (Approve/Reject/Suspend)
     reviewTutorProfile: (data: {

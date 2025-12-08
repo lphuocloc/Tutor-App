@@ -9,4 +9,5 @@ export interface Booking {
     endDate: string;
     bookingStatus: string;
     createdAt: string;
+    reviewed?: string
 }
