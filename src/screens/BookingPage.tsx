@@ -210,7 +210,7 @@ const BookingPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-6">
-            <Card title="Danh sách Booking" className="max-w-7xl mx-auto">
+            <Card title="Danh sách Lịch đã đặt" className="max-w-7xl mx-auto">
                 <Spin spinning={loading}>
                     <Table
                         columns={columns}
