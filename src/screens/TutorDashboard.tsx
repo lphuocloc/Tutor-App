@@ -716,7 +716,7 @@ const BookingsContent: React.FC = () => {
                         </Modal>
 
                         <Modal
-                            title="Đánh giá từ Gia sư"
+                            title="Đánh giá học viên"
                             visible={reviewModalVisible}
                             onCancel={closeReviewModal}
                             onOk={submitReview}

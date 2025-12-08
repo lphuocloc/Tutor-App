@@ -244,7 +244,7 @@ const BookingPage: React.FC = () => {
             </Modal>
 
             <Modal
-                title="Đánh giá từ Phụ Huynh"
+                title="Đánh giá gia sư"
                 open={reviewModalVisible}
                 onCancel={closeReviewModal}
                 onOk={submitReview}
