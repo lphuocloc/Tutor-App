@@ -524,15 +524,24 @@ const BookingsContent: React.FC = () => {
                 bookingsData.map(async (booking: any) => {
                     try {
                         const secResp = await bookingAPI.getSecurityCode(booking.bookingId);
+                        const secData = secResp?.data;
+
+                        // Format address: street + ward + securityCode
+                        const addressParts = [
+                            secData?.street,
+                            secData?.ward,
+                            secData?.securityCode
+                        ].filter(Boolean);
+
                         return {
                             ...booking,
-                            securityCode: secResp?.data?.securityCode || 'Chưa có'
+                            fullAddress: addressParts.length > 0 ? addressParts.join(', ') : 'Chưa có'
                         };
                     } catch (err) {
                         console.error(`Error fetching security code for booking ${booking.bookingId}:`, err);
                         return {
                             ...booking,
-                            securityCode: 'Không lấy được'
+                            fullAddress: 'Không lấy được'
                         };
                     }
                 })
@@ -645,7 +654,7 @@ const BookingsContent: React.FC = () => {
         { title: 'Buổi/tuần', dataIndex: 'sessionsPerWeek', key: 'sessionsPerWeek' },
         { title: 'Ngày dạy', dataIndex: 'agreedDays', key: 'agreedDays' },
         { title: 'Giờ dạy', dataIndex: 'agreedTime', key: 'agreedTime' },
-        { title: 'Địa chỉ', dataIndex: 'securityCode', key: 'securityCode', render: (val: string) => val || 'Chưa có' },
+        { title: 'Địa chỉ', dataIndex: 'fullAddress', key: 'fullAddress', render: (val: string) => val || 'Chưa có' },
         { title: 'Tạo lúc', dataIndex: 'createdAt', key: 'createdAt', render: (val: string) => val ? new Date(val).toLocaleString() : '' },
         {
             title: 'Hành động',
@@ -702,10 +711,7 @@ const BookingsContent: React.FC = () => {
                                     <input type="text" value={trackingLocation} onChange={(e) => setTrackingLocation(e.target.value)} placeholder="Nhập vị trí (ví dụ: Hà Nội)" className="w-full mt-1 p-2 border rounded" />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Mã bảo mật đã dùng</label>
-                                    <input type="text" value={trackingSecurity} onChange={(e) => setTrackingSecurity(e.target.value)} placeholder="Nhập mã bảo mật" className="w-full mt-1 p-2 border rounded" />
-                                </div>
+
                             </div>
                         </Modal>
 

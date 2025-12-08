@@ -205,7 +205,7 @@ export default function TaoBaiDangTimGiaSu() {
                                     id="preferredTime"
                                     value={form.preferredTime}
                                     onChange={handleChange}
-                                    placeholder="Ví dụ: Tối Thứ 2, 4, 6 (19:00 - 21:00)"
+                                    placeholder="Ví dụ: (19:00 - 21:00)"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
                                 />
