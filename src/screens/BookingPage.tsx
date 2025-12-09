@@ -129,12 +129,6 @@ const BookingPage: React.FC = () => {
             key: 'location',
             width: 200,
         },
-        {
-            title: 'Mã bảo mật',
-            dataIndex: 'securityCodeUsed',
-            key: 'securityCodeUsed',
-            width: 150,
-        },
     ];
 
     const columns: ColumnsType<Booking> = [

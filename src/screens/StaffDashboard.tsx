@@ -711,7 +711,7 @@ const StaffDashboard: React.FC = () => {
                     <div className="space-y-6">
                         <Descriptions bordered column={2}>
                             <Descriptions.Item label="ID">{selectedProfile.tutorProfileId}</Descriptions.Item>
-                            <Descriptions.Item label="User ID">{selectedProfile.userId}</Descriptions.Item>
+                            <Descriptions.Item label="Gia sư">{getUserNameByIdFromStore(users, selectedProfile.userId)}</Descriptions.Item>
                             <Descriptions.Item label="Trình độ" span={2}>
                                 {eduMap[selectedProfile.education] || selectedProfile.education}
                             </Descriptions.Item>
